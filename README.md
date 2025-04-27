@@ -5,7 +5,7 @@ Deskripsi Singkat tentang aplikasi.................
 
 Fitur-fitur utama (konsultasi virtual...................)
 
-Tech Stack (contoh: Flutter, Firebase, Machine Learning, REST API, dsb)
+Tech Stack (REST API.........................................)
 
 Cara Instalasi & Menjalankan Project (.........) <<<<<< Opsional
 
