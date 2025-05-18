@@ -1,5 +1,5 @@
 # Capstone-Project
-C-Mood (Nama belum fix)
+Mindfulness
 
 Deskripsi Singkat tentang aplikasi.................
 
