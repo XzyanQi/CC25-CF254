@@ -1,4 +1,6 @@
 [build]
+language = "python"
+pythonVersion = "3.10"
 command = "npm install && pip install -r requirements.txt"
 
 [start]
