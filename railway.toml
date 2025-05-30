@@ -1,5 +1,5 @@
 [build]
-command = "pip install -r requirements.txt && npm install && npm install --prefix Frontend && npm install --prefix Backend"
+command = "npm install --prefix Backend && npm install --prefix Frontend && pip install -r requirements.txt"
 
 [start]
-command = "npm run dev"
+command = "bash start.sh"
