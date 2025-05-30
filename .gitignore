@@ -1,0 +1,4 @@
+# Ignore sensitive files
+*.json
+mindfulness-a24a6-firebase-adminsdk-fbsvc-65a1ea1d0c.json
+# lines below are for the Firebase CLI
