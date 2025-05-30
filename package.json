@@ -1,5 +1,11 @@
-[build]
-command = "npm install --prefix Backend && npm install --prefix Frontend && pip install -r requirements.txt"
-
-[start]
-command = "bash start.sh"
+{
+  "name": "mindfulness-3in1",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix Backend\" \"npm run dev --prefix Frontend\" \"python3 main.py\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
