@@ -1,0 +1,6 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install && pip install -r requirements.txt"
+
+[start]
+command = "npx concurrently \"nodemon index.js\" \"python3 main.py\""
