@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const PYTHON_API_URL = "http://127.0.0.1:5000/search";
+const PYTHON_API_URL = "https://flask-production-136b.up.railway.app/search";
 
 const sendToPythonService = async (text, top_kVal = 3) => {
   // ... (isi fungsi seperti sebelumnya) ...
