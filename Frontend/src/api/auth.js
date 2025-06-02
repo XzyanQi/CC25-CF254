@@ -4,7 +4,7 @@ const BASE_URL = "https://backend-lake-rho-36.vercel.app/";
 
 export const login = async (payload) => {
     try {
-        const response = await axios.post(`${BASE_URL}/api/auth/login`, payload, {
+        const response = await axios.post(`${BASE_URL}api/auth/login`, payload, {
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -17,7 +17,8 @@ export const login = async (payload) => {
 
 export const logout = async () => {
     try {
-        const response = await axios.get(`${BASE_URL}/api/auth/logout`, {
+        // Path endpoint tidak diawali dengan /
+        const response = await axios.get(`${BASE_URL}api/auth/logout`, {
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -31,7 +32,7 @@ export const logout = async () => {
 
 export const register = async (payload) => {
     try {
-        const response = await axios.post(`${BASE_URL}/api/auth/register`, payload, { 
+        const response = await axios.post(`${BASE_URL}api/auth/register`, payload, {
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -44,8 +45,7 @@ export const register = async (payload) => {
 
 export const resetPassword = async (payload) => {
     try {
-        // Tambahkan /api/ di sini
-        const response = await axios.post(`${BASE_URL}/api/auth/reset-password`, payload, {
+        const response = await axios.post(`${BASE_URL}api/auth/reset-password`, payload, {
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -55,4 +55,3 @@ export const resetPassword = async (payload) => {
         return error.response;
     }
 };
-
