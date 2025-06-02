@@ -4,7 +4,11 @@ const app = express();
 const cors = require('cors');
 const routes = require('./routes/route') 
 
-app.use(cors({}));
+app.use(cors({
+  origin: "https://mindfulnessnlp.vercel.app", 
+  credentials: true
+}));
+
 app.use(express.json());
 
 
