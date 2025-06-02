@@ -3,7 +3,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
 export const getUserByEmail = async (email) => {
     try {
-        const response = await axios.get(`${BASH_URL}/api/user/email/${email}`, { // <-- UBAH INI
+        const response = await axios.get(`${BASH_URL}/api/user/email/${email}`, { 
             headers: {
                 'Content-Type': 'application/json'
             }
