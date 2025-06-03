@@ -69,11 +69,14 @@ mindfulness-project/
 │   ├── index.js                      # Entry point server
 │   └── .env                          # Variabel lingkungan backend
 │
-├── DATASET NLP/                      # Backend Python (Flask AI)
+├── Python/                           # Backend Python (Flask AI)
 │   ├── model/                        # Model IndoBERT dan corpus
 │   ├── scripts/                      # Preprocessing, translasi, dll.
-│   ├── main.py                       # Server Flask utama
+│   ├── applicaiton.py                # Server Flask utama
 │   └── requirements.txt              # Dependensi Python
+|   └── Dockerfile                    # buat jalanin flask (termasuk deploy flask)
+|   └── Procfile                      # menentukan perintah
+|   └── nltk_data/                    # didalamnya ada pustaka bahasa
 │
 ├── Frontend/                         # Frontend React (Vite)
 │   ├── src/
@@ -108,11 +111,10 @@ Server berjalan di <http://localhost:3000>
 ```
 
 ```
-Pastikan file model IndoBERT (model/), corpus_final.json, dan mindfulness_index.faiss tersedia di jalur yang sesuai.
-python main.py
-pip install ..... (semuanya ikuti yang belum terinstal)
-python main.py
-Server berjalan di <http://127.0.0.1:5000/>
+Flask Python
+docker build -t (nama file) .
+docker run -p 8080:8080 (nama file) << untuk 8080 yaitu url nya
+
 ```
 
 ```
