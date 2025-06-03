@@ -57,6 +57,7 @@ Team & Kontribusi
 - **FAISS** – pencarian vektor cepat untuk similarity
 - **TensorFlow** – backend model IndoBERT
 - **NumPy, Pandas, NLTK** – manipulasi dan preprocessing data
+- **Docker** - Lingkungan Python konsisten
 
 ## Struktur Proyek
 
