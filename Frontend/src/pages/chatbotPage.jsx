@@ -516,13 +516,12 @@ const ChatbotPage = () => {
                       ? 'bg-blue-500 text-white rounded-br-none'
                       : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none'
                   }`}>
-                  {msg.sender === 'bot' ? (
-                    <ReactMarkdown className="text-sm leading-relaxed markdown-body">{msg.text}</ReactMarkdown>
-                    ) : (
-                    msg.text.split("\n").map((line, i) => (
+                 {msg.sender === 'bot' ? (
+                  <ReactMarkdown className="text-sm leading-relaxed markdown-body whitespace-pre-wrap">{msg.text}</ReactMarkdown>
+                  ) : ( msg.text.split("\n").map((line, i) => (
                   <p key={i} className="text-sm mb-2 whitespace-pre-line">{line.trim()}</p>
-                  ))
-                  )}
+                    ))
+                    )}
                   </div>
                 </div>
                 <p className={`text-xs mt-1.5 px-2 ${msg.sender === 'user' ? 'text-gray-400 self-end' : 'text-gray-400 self-start ml-11'}`}>
