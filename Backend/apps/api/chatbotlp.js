@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const PYTHON_API_URL = "https://flask-production-61c8.up.railway.app/search";
+const PYTHON_API_URL = process.env.PYTHON_API_URL || "http://localhost:8080/search";
 
 const sendToPythonService = async (text, top_kVal = 3) => {
   try {
