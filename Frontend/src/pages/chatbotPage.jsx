@@ -1,7 +1,7 @@
 import axios from 'axios';
 import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
 import { Home, Menu, MessageSquare, Plus, Send, Smile, Trash2, User } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sendToMindfulness } from '../api/chatbot';
 import ReactMarkdown from 'react-markdown';
@@ -25,12 +25,12 @@ const ChatbotPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  
+
   const abortControllerRef = useRef(null);
   const chatEndRef = useRef(null);
   const emojiPickerButtonRef = useRef(null);
   const emojiPickerPopupRef = useRef(null);
-  
+
   const navigate = useNavigate();
 
   // Fungsi utilitas untuk menghasilkan ID unik
@@ -115,7 +115,7 @@ const ChatbotPage = () => {
   // Fungsi untuk menangani kesalahan API secara lebih efektif
   const handleApiError = useCallback((error) => {
     let errorMessage = "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
-    
+
     if (axios.isCancel(error)) {
       console.log('Request dibatalkan:', error.message);
       return null; 
@@ -131,7 +131,7 @@ const ChatbotPage = () => {
         500: "Server mengalami masalah. Silakan coba lagi nanti.",
         503: "Layanan sedang tidak tersedia. Silakan coba lagi nanti."
       };
-      
+
       errorMessage = errorMessages[status] || `Server error (${status}). Silakan coba lagi.`;
       console.error(`API Error ${status}:`, error.response.data);
     } else if (error.request) {
@@ -149,7 +149,7 @@ const ChatbotPage = () => {
   const containsBannedWords = useCallback((text) => {
     const lowerCaseText = text.toLowerCase();
     const words = lowerCaseText.split(/[\s.,!?;:]+/).map(word => word.replace(/^[^\w]+|[^\w]+$/g, ""));
-    
+
     return words.some(word => word !== '' && BANNED_WORDS.has(word));
   }, []);
 
@@ -158,7 +158,7 @@ const ChatbotPage = () => {
     const loadSessions = () => {
       const savedSessions = localStorage.getItem(CHAT_SESSIONS_KEY);
       let loadedSessions = [];
-      
+
       if (savedSessions) {
         try {
           const parsedSessions = JSON.parse(savedSessions);
@@ -185,7 +185,8 @@ const ChatbotPage = () => {
     };
 
     loadSessions();
-  }, []);
+    // Jangan lupa tambahkan handleNewChat di dependencies
+  }, [handleNewChat]);
 
   // Save chat ke local
   useEffect(() => {
@@ -201,7 +202,7 @@ const ChatbotPage = () => {
   const currentMessages = activeSession ? activeSession.messages : [];
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: "smooth" });
   }, [currentMessages]);
 
   // bersihin control
@@ -225,7 +226,7 @@ const ChatbotPage = () => {
         setShowEmojiPicker(false);
       }
     }
-    
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -239,7 +240,7 @@ const ChatbotPage = () => {
   const handleNewChat = useCallback((updateFromExistingSessions = true) => {
     const newSessionId = generateUniqueId('session');
     const initialBotMessageText = "Halo! Saya Mindfulness, asisten AI kamu untuk mendengarkan dan membantu dalam hal kesehatan mental. Bagaimana perasaanmu hari ini? 😊";
-    
+
     const newSession = {
       id: newSessionId,
       name: `Chat ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 
@@ -258,14 +259,14 @@ const ChatbotPage = () => {
       ],
       lastUpdated: new Date()
     };
-    
+
     if (updateFromExistingSessions) {
       setChatSessions(prevSessions => [newSession, ...prevSessions]
         .sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime()));
     } else {
       setChatSessions([newSession]);
     }
-    
+
     setActiveSessionId(newSessionId);
     setMessage('');
     setIsBotTyping(false);
@@ -278,12 +279,12 @@ const ChatbotPage = () => {
     setIsBotTyping(false);
     setShowEmojiPicker(false);
   }, []);
-  
+
   const handleDeleteSession = useCallback((sessionIdToDelete, event) => {
     event.stopPropagation();
     const currentSessions = chatSessions.filter(session => session.id !== sessionIdToDelete);
     setChatSessions(currentSessions);
-    
+
     if (activeSessionId === sessionIdToDelete) {
       if (currentSessions.length > 0) {
         currentSessions.sort((a,b) => b.lastUpdated.getTime() - a.lastUpdated.getTime());
@@ -323,11 +324,11 @@ const ChatbotPage = () => {
         return session;
       }).sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime())
     );
-    
+
     setMessage('');
     setShowEmojiPicker(false);
 
-    // Check kata-kata terlang
+    // Check kata-kata terlarang
     if (containsBannedWords(userMessageText)) {
       console.log("Banned word terdeteksi:", userMessageText);
       const botCannedResponse = {
@@ -341,7 +342,7 @@ const ChatbotPage = () => {
           "Bagaimana cara kamu mengatasi stres?"
         ]
       };
-      
+
       setChatSessions(prevSessions =>
         prevSessions.map(session =>
           session.id === activeSessionId
@@ -368,7 +369,7 @@ const ChatbotPage = () => {
 
       const apiPromise = sendToMindfulness(userMessageText, currentController.signal);
       const botResponseData = await Promise.race([apiPromise, timeoutPromise]);
-      
+
       // bersihkan kalau suskes
       if (abortControllerRef.current === currentController) {
         abortControllerRef.current = null; 
@@ -401,7 +402,7 @@ const ChatbotPage = () => {
 
       // Handle eror
       const errorMessage = handleApiError(error);
-      
+
       // Menampilkan Eror Halaman
       if (errorMessage) {
         const errorBotMessage = {
@@ -415,7 +416,7 @@ const ChatbotPage = () => {
             "Refresh halaman"
           ]
         };
-        
+
         setChatSessions(prevSessions =>
           prevSessions.map(session =>
             session.id === activeSessionId
@@ -435,7 +436,7 @@ const ChatbotPage = () => {
       sendMessage();
     }
   }, [sendMessage]);
-  
+
   const formatTime = useCallback((date) => {
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }, []);
@@ -459,7 +460,7 @@ const ChatbotPage = () => {
             <span className="text-sm font-medium text-gray-800">New Chat</span>
           </button>
         </div>
-        
+
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
           <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">History</h3>
           {chatSessions.map(session => (
