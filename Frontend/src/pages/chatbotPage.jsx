@@ -1,6 +1,6 @@
 import axios from 'axios';
 import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
-import { Home, Menu, MessageSquare, Plus, Send, Smile, Trash2, User } from 'lucide-react';
+import { Home, Menu, MessageSquare, Plus, Send, Smile,  Trash2, User } from 'lucide-react';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sendToMindfulness } from '../api/chatbot';
@@ -28,8 +28,6 @@ const ChatbotPage = () => {
   const chatEndRef = useRef(null);
   const emojiPickerButtonRef = useRef(null);
   const emojiPickerPopupRef = useRef(null);
-  const [me, setMe] = useState(null);
-  const [we, setWe] = useState(null);
 
   const navigate = useNavigate();
 
