@@ -68,31 +68,27 @@ def search():
 
     results = []
     if indices.size > 0 and len(indices[0]) > 0:
-        for i in indices[0]:
+     for idx, i in enumerate(indices[0]):
             if 0 <= i < len(corpus):
                 doc = corpus[i]
+                confidence = float(1 / (1 + distances[0][idx])) if distances[0][idx] > 0 else 1.0
                 results.append({
                     "response_to_display": doc.get("response_to_display", "Format tidak sesuai."),
                     "intent": doc.get("intent", ""),
                     "keywords": doc.get("keywords", []),
-                    "confidence_score": doc.get("confidence_score", 0.0),
-                    "follow_up_questions": doc.get("follow_up_questions", [])
+                    "confidence_score": confidence,
+                    "follow_up_questions": doc.get("follow_up_questions", []),
+                    "follow_up_answers": doc.get("follow_up_answers", [])
                 })
-            else:
-                results.append({
-                    "response_to_display": "Kesalahan mengambil detail dokumen.",
-                    "intent": "",
-                    "keywords": [],
-                    "confidence_score": 0.0,
-                    "follow_up_questions": []
-                })
+            # jangan tambahkan jika index -1/out of range
     else:
         results.append({
             "response_to_display": "Tidak ada jawaban relevan ditemukan.",
             "intent": "",
             "keywords": [],
             "confidence_score": 0.0,
-            "follow_up_questions": []
+            "follow_up_questions": [],
+            "follow_up_answers": [] 
         })
 
     print(f" Total waktu proses: {(time.time() - overall_start_time) * 1000:.2f} ms")
