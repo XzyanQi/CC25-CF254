@@ -499,7 +499,7 @@ const ChatbotPage = () => {
         </div>
       </div>
 
-      // Tempat chat
+      {/* Tempat chat */}
       <div className="flex-1 flex flex-col bg-white">
         <div className="bg-gray-50 border-b border-gray-200 p-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
