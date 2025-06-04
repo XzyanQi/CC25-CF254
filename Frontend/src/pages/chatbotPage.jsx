@@ -302,43 +302,71 @@ const ChatbotPage = () => {
 
   // Handler klik follow up (pakai ref untuk call sendMessageFunction)
   const handleFollowUpClick = useCallback((question, answer = null) => {
-    setMessage('');
-    if (answer) {
-      const userMessage = {
-        id: generateUniqueId('user'),
-        text: question,
-        sender: "user",
-        timestamp: new Date()
-      };
-      const botMessage = {
-        id: generateUniqueId('bot-followup'),
-        text: answer,
-        sender: "bot",
-        timestamp: new Date(),
-        followUps: [],
-        follow_up_answers: []
-      };
-      setChatSessions(prevSessions =>
-        prevSessions.map(session =>
-          session.id === activeSessionId
-            ? {
-                ...session,
-                messages: [
-                  ...session.messages,
-                  userMessage,
-                  botMessage
-                ],
-                lastUpdated: new Date()
-              }
-            : session
-        ).sort((a, b) => b.lastUpdated - a.lastUpdated)
-      );
-    } else {
-      if (sendMessageRef.current) {
-        sendMessageRef.current(question);
-      }
-    }
-  }, [activeSessionId, generateUniqueId]);
+  setMessage('');
+  // Jika ada jawaban follow_up_answers, tampilkan langsung
+  if (answer) {
+    const userMessage = {
+      id: generateUniqueId('user'),
+      text: question,
+      sender: "user",
+      timestamp: new Date()
+    };
+    const botMessage = {
+      id: generateUniqueId('bot-followup'),
+      text: answer,
+      sender: "bot",
+      timestamp: new Date(),
+      followUps: [],
+      follow_up_answers: []
+    };
+    setChatSessions(prevSessions =>
+      prevSessions.map(session =>
+        session.id === activeSessionId
+          ? {
+              ...session,
+              messages: [
+                ...session.messages,
+                userMessage,
+                botMessage
+              ],
+              lastUpdated: new Date()
+            }
+          : session
+      ).sort((a, b) => b.lastUpdated - a.lastUpdated)
+    );
+  } else {
+    // Jika tidak ada jawaban, tampilkan pesan default (tidak request ke API!)
+    const userMessage = {
+      id: generateUniqueId('user'),
+      text: question,
+      sender: "user",
+      timestamp: new Date()
+    };
+    const botMessage = {
+      id: generateUniqueId('bot-followup'),
+      text: "Maaf, belum ada jawaban untuk pertanyaan ini. Silakan diskusikan lebih lanjut dengan Mindfulness.",
+      sender: "bot",
+      timestamp: new Date(),
+      followUps: [],
+      follow_up_answers: []
+    };
+    setChatSessions(prevSessions =>
+      prevSessions.map(session =>
+        session.id === activeSessionId
+          ? {
+              ...session,
+              messages: [
+                ...session.messages,
+                userMessage,
+                botMessage
+              ],
+              lastUpdated: new Date()
+            }
+          : session
+      ).sort((a, b) => b.lastUpdated - a.lastUpdated)
+    );
+  }
+}, [activeSessionId, generateUniqueId, setChatSessions]);
 
   // Manage Chat Sessions, delete, select, new
   const handleNewChat = useCallback((updateFromExistingSessions = true) => {
