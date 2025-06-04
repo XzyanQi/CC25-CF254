@@ -45,68 +45,68 @@ const ChatbotPage = () => {
   }, []);
 
   const cleanBotResponse = useCallback((responseData) => {
-  if (!responseData) return { text: "Maaf, tidak ada respons dari server.", followUps: [] };
-  let botReplyText = "";
-  let followUps = [];
+    if (!responseData) return { text: "Maaf, tidak ada respons dari server.", followUps: [] };
+    let botReplyText = "";
+    let followUps = [];
 
-  if (typeof responseData === 'string') {
-    botReplyText = responseData.trim();
-  } else if (responseData.message && typeof responseData.message === 'string') {
-    botReplyText = responseData.message.trim();
-  } else if (responseData.result && typeof responseData.result === 'string') {
-    botReplyText = responseData.result.trim();
-  } else if (responseData.response && typeof responseData.response === 'string') {
-    botReplyText = responseData.response.trim();
-  } else if (responseData.reply && typeof responseData.reply === 'string') {
-    botReplyText = responseData.reply.trim();
-  } else if (responseData.text && typeof responseData.text === 'string') {
-    botReplyText = responseData.text.trim();
-  } else if (responseData.content && typeof responseData.content === 'string') {
-    botReplyText = responseData.content.trim();
-  } else if (responseData.data && typeof responseData.data === 'string') {
-    botReplyText = responseData.data.trim();
-  } else if (responseData.results && Array.isArray(responseData.results)) {
-    if (responseData.results.length > 0) {
-      // Ambil hasil yang response_to_display-nya valid (tidak mengandung 'kesalahan')
-      const validResults = responseData.results.filter(
-        (r) => r.response_to_display && !r.response_to_display.toLowerCase().includes('kesalahan')
-      );
-      // Ambil confidence_score tertinggi
-      const bestResult = validResults.sort(
-        (a, b) => (b.confidence_score || 0) - (a.confidence_score || 0)
-      )[0];
+    if (typeof responseData === 'string') {
+      botReplyText = responseData.trim();
+    } else if (responseData.message && typeof responseData.message === 'string') {
+      botReplyText = responseData.message.trim();
+    } else if (responseData.result && typeof responseData.result === 'string') {
+      botReplyText = responseData.result.trim();
+    } else if (responseData.response && typeof responseData.response === 'string') {
+      botReplyText = responseData.response.trim();
+    } else if (responseData.reply && typeof responseData.reply === 'string') {
+      botReplyText = responseData.reply.trim();
+    } else if (responseData.text && typeof responseData.text === 'string') {
+      botReplyText = responseData.text.trim();
+    } else if (responseData.content && typeof responseData.content === 'string') {
+      botReplyText = responseData.content.trim();
+    } else if (responseData.data && typeof responseData.data === 'string') {
+      botReplyText = responseData.data.trim();
+    } else if (responseData.results && Array.isArray(responseData.results)) {
+      if (responseData.results.length > 0) {
+        // Ambil hasil yang response_to_display-nya valid (tidak mengandung 'kesalahan')
+        const validResults = responseData.results.filter(
+          (r) => r.response_to_display && !r.response_to_display.toLowerCase().includes('kesalahan')
+        );
+        // Ambil confidence_score tertinggi
+        const bestResult = validResults.sort(
+          (a, b) => (b.confidence_score || 0) - (a.confidence_score || 0)
+        )[0];
 
-      if (bestResult && bestResult.response_to_display) {
-        botReplyText = bestResult.response_to_display.trim();
-        followUps = Array.isArray(bestResult.follow_up_questions) ? bestResult.follow_up_questions : [];
+        if (bestResult && bestResult.response_to_display) {
+          botReplyText = bestResult.response_to_display.trim();
+          followUps = Array.isArray(bestResult.follow_up_questions) ? bestResult.follow_up_questions : [];
+        } else {
+          botReplyText = "Maaf, belum ada jawaban yang cocok untuk pertanyaanmu.";
+        }
       } else {
-        botReplyText = "Maaf, belum ada jawaban yang cocok untuk pertanyaanmu.";
+        botReplyText = "Respons array kosong dari server.";
+      }
+    } else if (responseData.choices && Array.isArray(responseData.choices)) {
+      if (responseData.choices.length > 0 && responseData.choices[0].message) {
+        botReplyText = responseData.choices[0].message.content?.trim() ||
+          responseData.choices[0].message.text?.trim() ||
+          "Respons tidak valid dari choices.";
+      } else {
+        botReplyText = "Format choices tidak valid.";
       }
     } else {
-      botReplyText = "Respons array kosong dari server.";
+      botReplyText = "Format respons tidak dikenal dari server.";
     }
-  } else if (responseData.choices && Array.isArray(responseData.choices)) {
-    if (responseData.choices.length > 0 && responseData.choices[0].message) {
-      botReplyText = responseData.choices[0].message.content?.trim() ||
-        responseData.choices[0].message.text?.trim() ||
-        "Respons tidak valid dari choices.";
-    } else {
-      botReplyText = "Format choices tidak valid.";
+
+    if (!botReplyText || botReplyText.length === 0) {
+      botReplyText = "Maaf, respons kosong dari server.";
     }
-  } else {
-    botReplyText = "Format respons tidak dikenal dari server.";
-  }
+    if (botReplyText.length > MAX_RESPONSE_LENGTH) {
+      botReplyText = botReplyText.substring(0, MAX_RESPONSE_LENGTH) + "... (respons dipotong karena terlalu panjang)";
+    }
+    botReplyText = botReplyText.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
-  if (!botReplyText || botReplyText.length === 0) {
-    botReplyText = "Maaf, respons kosong dari server.";
-  }
-  if (botReplyText.length > MAX_RESPONSE_LENGTH) {
-    botReplyText = botReplyText.substring(0, MAX_RESPONSE_LENGTH) + "... (respons dipotong karena terlalu panjang)";
-  }
-  botReplyText = botReplyText.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
-
-  return { text: botReplyText, followUps };
-}, []);
+    return { text: botReplyText, followUps };
+  }, []);
 
 
   const handleApiError = useCallback((error) => {
@@ -130,6 +130,13 @@ const ChatbotPage = () => {
     }
     return errorMessage;
   }, []);
+
+  // Tambah handler klik follow up
+  const handleFollowUpClick = useCallback((question) => {
+    setMessage(question);
+    // Jika ingin langsung mengirim, tambahkan baris berikut:
+    // sendMessage();
+  }, [setMessage]);
 
   // Manage Chat Sesi
   const handleNewChat = useCallback((updateFromExistingSessions = true) => {
@@ -340,11 +347,11 @@ const ChatbotPage = () => {
       // response bot
       const { text: botReplyText, followUps } = cleanBotResponse(botResponseData);
       const botMessage = {
-      id: generateUniqueId('bot'),
-      text: botReplyText,
-      sender: "bot",
-      timestamp: new Date(),
-      followUps
+        id: generateUniqueId('bot'),
+        text: botReplyText,
+        sender: "bot",
+        timestamp: new Date(),
+        followUps
       };
 
       setChatSessions(prevSessions =>
@@ -493,7 +500,11 @@ const ChatbotPage = () => {
                             <p className="text-xs text-gray-500 mb-2">Pertanyaan lanjutan:</p>
                             <ul className="space-y-1">
                               {msg.followUps.map((q, i) => (
-                                <li key={i} className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded cursor-pointer hover:bg-gray-100 transition-colors">
+                                <li
+                                  key={i}
+                                  className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded cursor-pointer hover:bg-gray-200 transition-colors"
+                                  onClick={() => handleFollowUpClick(q)}
+                                >
                                   {q}
                                 </li>
                               ))}
@@ -585,4 +596,3 @@ const ChatbotPage = () => {
 };
 
 export default ChatbotPage;
-
