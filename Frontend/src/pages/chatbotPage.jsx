@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Menu, MessageSquare, Plus, Send, Smile, Trash2, User } from 'lucide-react';
 import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
@@ -210,9 +210,14 @@ const ChatbotPage = () => {
     }
 
     try {
-      // Kirim ke backend (Express > Flask) menggunakan helper
+      // LOG: Sebelum request
+      console.log("Mengirim pesan ke backend:", userMessageText);
       const data = await sendToMindfulness(userMessageText);
-      const topResult = Array.isArray(data.results) && data.results[0] ? data.results[0] : {};
+      // LOG: Sesudah request
+      console.log("Jawaban dari backend:", data);
+
+      // Ambil hasil teratas dari array results
+      const topResult = Array.isArray(data.results) && data.results.length > 0 ? data.results[0] : {};
       const botMessage = {
         id: generateUniqueId('bot'),
         text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
@@ -230,6 +235,8 @@ const ChatbotPage = () => {
         )
       );
     } catch (error) {
+      // LOG: Error
+      console.error('Gagal mendapatkan jawaban dari backend:', error);
       setChatSessions(prevSessions =>
         prevSessions.map(session =>
           session.id === activeSessionId
