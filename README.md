@@ -4,6 +4,16 @@
 
 Mindfulness adalah sebuah chatbot interaktif yang dirancang untuk membantu mahasiswa dalam menghadapi tantangan kesehatan mental. Proyek ini bertujuan menyediakan ruang aman, privat, dan suportif melalui teknologi Natural Language Processing (NLP), di mana pengguna dapat mengekspresikan perasaannya dan mendapatkan respons yang empatik serta relevan.
 
+## Tujuan
+Tujuan dari pembangunan chatbot adalah untuk membantu mahasiswa mengenali kondisi emosionalnya secara mandiri. Chatbot yang dibangun dirancang untuk mengajukan beberapa pertanyaan sederhana seperti suasana hati, pola tidur, tingkat stres, serta kebiasaan sehari-hari. Jawaban dari pengguna akan dianalisis menggunakan metode klasifikasi berbasis Natural Language Processing (NLP) untuk mengidentifikasi potensi gangguan mental. Sistem kemudian memberikan saran awal yang bersifat non-medis, seperti teknik relaksasi atau anjuran konsultasi ke profesional jika diperlukan.
+
+## Analisis SWOT
+- Kekuatan (Strengths) Chatbot yang dibangun memberikan ruang privasi bagi pengguna, sehingga pengguna menjadi lebih leluasa dalam mengutarakan isi pikiran mereka.
+- Kelemahan (Weaknesses) Chatbot mindfulness hanya memiliki satu fitur
+- Peluang (Opportunities) Target pasar dari chatbot mindfulness cakupannya cukup luas dari kalangan mahasiswa. Mindfulness memungkinkan untuk memiliki pengguna mahasiswa yang bervariasi
+- Ancaman (Threats) Telah banyak chat bot yang memiliki fungsional serupa dengan mindfulness. 
+
+
 ## Fitur Utama
 
 - **Otentikasi Pengguna**
