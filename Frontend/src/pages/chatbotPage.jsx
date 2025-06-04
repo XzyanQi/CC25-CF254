@@ -45,8 +45,9 @@ const ChatbotPage = () => {
   }, []);
 
   const cleanBotResponse = useCallback((responseData) => {
-  if (!responseData) return "Maaf, tidak ada respons dari server.";
+  if (!responseData) return { text: "Maaf, tidak ada respons dari server.", followUps: [] };
   let botReplyText = "";
+  let followUps = [];
 
   if (typeof responseData === 'string') {
     botReplyText = responseData.trim();
@@ -77,6 +78,7 @@ const ChatbotPage = () => {
 
       if (bestResult && bestResult.response_to_display) {
         botReplyText = bestResult.response_to_display.trim();
+        followUps = Array.isArray(bestResult.follow_up_questions) ? bestResult.follow_up_questions : [];
       } else {
         botReplyText = "Maaf, belum ada jawaban yang cocok untuk pertanyaanmu.";
       }
@@ -96,15 +98,16 @@ const ChatbotPage = () => {
   }
 
   if (!botReplyText || botReplyText.length === 0) {
-    return "Maaf, respons kosong dari server.";
+    botReplyText = "Maaf, respons kosong dari server.";
   }
   if (botReplyText.length > MAX_RESPONSE_LENGTH) {
     botReplyText = botReplyText.substring(0, MAX_RESPONSE_LENGTH) + "... (respons dipotong karena terlalu panjang)";
   }
   botReplyText = botReplyText.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
-  return botReplyText;
+  return { text: botReplyText, followUps };
 }, []);
+
 
   const handleApiError = useCallback((error) => {
     let errorMessage = "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
@@ -334,14 +337,14 @@ const ChatbotPage = () => {
         abortControllerRef.current = null;
       }
 
-      // Clean response
-      const botReplyText = cleanBotResponse(botResponseData);
+      // response bot
+      const { text: botReplyText, followUps } = cleanBotResponse(botResponseData);
       const botMessage = {
-        id: generateUniqueId('bot'),
-        text: botReplyText,
-        sender: "bot",
-        timestamp: new Date(),
-        followUps: botResponseData?.follow_up_questions || []
+      id: generateUniqueId('bot'),
+      text: botReplyText,
+      sender: "bot",
+      timestamp: new Date(),
+      followUps
       };
 
       setChatSessions(prevSessions =>
