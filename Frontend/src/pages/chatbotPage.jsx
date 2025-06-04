@@ -16,7 +16,7 @@ const BANNED_WORDS = new Set([
 ]);
 
 const ChatbotPage = () => {
-  // STATE
+  // State
   const [message, setMessage] = useState('');
   const [chatSessions, setChatSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState(null);
@@ -24,16 +24,16 @@ const ChatbotPage = () => {
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  // REFS
+  // Refs
   const abortControllerRef = useRef(null);
   const chatEndRef = useRef(null);
   const emojiPickerButtonRef = useRef(null);
   const emojiPickerPopupRef = useRef(null);
 
-  // NAVIGATE
+  // Naviagte
   const navigate = useNavigate();
 
-  // UTILITAS & VALIDASI
+  // Utilitas dan Validasi
   const generateUniqueId = useCallback((prefix) => {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
   }, []);
