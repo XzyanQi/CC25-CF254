@@ -272,35 +272,92 @@ const ChatbotPage = () => {
   }, [message, activeSessionId, generateUniqueId]);
 
   // Handle follow up
-  const handleFollowUpClick = useCallback((question, answer = null) => {
-    if (!activeSessionId) return;
-    // Kirim pertanyaan sebagai user, dan jawabannya sebagai bot (tanpa request ke backend)
-    const userMessage = {
-      id: generateUniqueId('user'),
-      text: question,
-      sender: "user",
-      timestamp: new Date()
-    };
+  const handleFollowUpClick = useCallback(async (question) => {
+  if (!activeSessionId) return;
+
+  // Buat pesan user
+  const userMessage = {
+    id: generateUniqueId('user'),
+    text: question,
+    sender: "user",
+    timestamp: new Date()
+  };
+
+  setIsBotTyping(true);
+
+  setChatSessions(prevSessions =>
+    prevSessions.map(session =>
+      session.id === activeSessionId
+        ? {
+            ...session,
+            messages: [...session.messages, userMessage],
+            lastUpdated: new Date()
+          }
+        : session
+    )
+  );
+
+  setMessage('');
+  setShowEmojiPicker(false);
+
+  try {
+    // Kirim follow up ke backend seperti pesan biasa
+    console.log("Mengirim follow up ke backend:", question);
+    const data = await sendToMindfulness(question);
+    console.log("Jawaban dari backend (follow up):", data);
+
+    let results = Array.isArray(data.results) ? data.results : [];
+    const nonTemplate = results.filter(
+      r =>
+        !r.response_to_display?.toLowerCase().startsWith("terima kasih sudah berbagi")
+        && !r.response_to_display?.toLowerCase().includes("saya di sini untuk mendengarkan")
+    );
+    let topResult = nonTemplate.length > 0
+      ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
+      : results[0] || {};
+
     const botMessage = {
-      id: generateUniqueId('bot-followup'),
-      text: answer || "Maaf, belum ada jawaban untuk pertanyaan ini.",
+      id: generateUniqueId('bot'),
+      text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
       sender: "bot",
       timestamp: new Date(),
-      followUps: [],
-      follow_up_answers: []
+      followUps: Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [],
+      follow_up_answers: Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : []
     };
+
+    setChatSessions(prevSessions =>
+      prevSessions.map(session =>
+        session.id === activeSessionId
+          ? { ...session, messages: [...session.messages, botMessage], lastUpdated: new Date() }
+          : session
+      )
+    );
+  } catch (error) {
     setChatSessions(prevSessions =>
       prevSessions.map(session =>
         session.id === activeSessionId
           ? {
               ...session,
-              messages: [...session.messages, userMessage, botMessage],
+              messages: [
+                ...session.messages,
+                {
+                  id: generateUniqueId('error'),
+                  text: "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
+                  sender: "bot",
+                  timestamp: new Date(),
+                  followUps: [],
+                  follow_up_answers: []
+                }
+              ],
               lastUpdated: new Date()
             }
           : session
       )
     );
-  }, [activeSessionId, generateUniqueId]);
+  } finally {
+    setIsBotTyping(false);
+  }
+}, [activeSessionId, generateUniqueId]);
 
   const handleKeyPress = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
