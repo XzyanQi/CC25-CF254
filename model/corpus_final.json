@@ -1,0 +1,1714 @@
+[
+  {
+    "id": 0,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya sering merasa tidak berharga, seolah-olah kehadiran saya tidak penting bagi siapa pun.",
+    "response_to_display": "Saya mengerti betapa sulitnya merasa tidak dihargai. Tapi Anda tetap berarti. Yuk, sebutkan satu hal kecil yang Anda lakukan minggu ini yang bisa Anda banggakan?",
+    "keywords": ["nilai diri", "percaya diri", "harga diri", "rendah diri"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa yang biasanya membuat Anda merasa tidak percaya diri?",
+      "Apakah Anda ingat kapan terakhir kali Anda merasa bangga pada diri sendiri?",
+      "Siapa orang terdekat yang bisa mendukung Anda saat ini?"
+    ],
+    "follow_up_answers": [
+      "Biasanya saya merasa tidak percaya diri saat dibandingkan dengan orang lain atau ketika merasa gagal.",
+      "Terakhir saya merasa bangga ketika saya berhasil menyelesaikan tugas meski sedang tidak semangat.",
+      "Teman kos saya sering mendukung dan mendengarkan saat saya sedang merasa buruk."
+    ]
+  },
+  {
+    "id": 1,
+    "intent": "academic_stress",
+    "context_for_indexing": "Saya sedang mengerjakan skripsi dan rasanya sangat melelahkan secara mental. Saya tidak tahu harus mulai dari mana.",
+    "response_to_display": "Wajar merasa kewalahan saat menghadapi skripsi. Coba uraikan tugas besar ini menjadi langkah-langkah kecil. Apa langkah pertama yang bisa Anda ambil hari ini?",
+    "keywords": ["skripsi", "tugas akhir", "mahasiswa", "akademik", "stres"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa bagian paling sulit dari skripsi Anda saat ini?",
+      "Sudahkah Anda berdiskusi dengan dosen pembimbing?",
+      "Apa yang biasanya membantu Anda fokus belajar?"
+    ],
+    "follow_up_answers": [
+      "Bagian rumusan masalah terasa paling sulit karena saya bingung menentukan fokusnya.",
+      "Saya belum sempat bertemu dosen pembimbing karena jadwal beliau cukup padat.",
+      "Saya terbantu dengan menyusun to-do list harian dan belajar di tempat yang tenang."
+    ]
+  },
+  {
+    "id": 2,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Akhir-akhir ini saya kehilangan motivasi untuk kuliah, rasanya semua sia-sia.",
+    "response_to_display": "Kehilangan motivasi adalah hal yang bisa terjadi pada siapa pun. Coba ingat kembali alasan awal Anda memulai kuliah ini. Apa tujuan jangka panjang Anda?",
+    "keywords": ["motivasi", "semangat", "putus asa", "burnout"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa yang biasanya membuat Anda merasa lebih semangat?",
+      "Apakah ada seseorang yang Anda kagumi dan bisa menjadi inspirasi?",
+      "Kapan terakhir kali Anda merasa bangga karena menyelesaikan sesuatu?"
+    ],
+    "follow_up_answers": [
+      "Saya merasa lebih semangat ketika melihat progress kecil yang saya buat.",
+      "Kakak saya yang sudah lebih dulu lulus selalu memberi saya semangat.",
+      "Saat saya menyelesaikan presentasi kelompok dan mendapat apresiasi."
+    ]
+  },
+  {
+    "id": 3,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya merasa selalu gagal dan tidak pernah cukup baik meskipun sudah berusaha keras.",
+    "response_to_display": "Perasaan gagal bisa sangat membebani. Tapi kegagalan bukan akhir. Apa satu hal yang bisa Anda syukuri dari perjalanan Anda sejauh ini?",
+    "keywords": ["nilai diri", "percaya diri", "merasa gagal"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Pernahkah Anda mengalami keberhasilan kecil baru-baru ini?",
+      "Apa hal yang Anda lakukan dengan sepenuh hati walau hasilnya belum terlihat?",
+      "Siapa orang yang pernah memuji Anda dengan tulus?"
+    ],
+    "follow_up_answers": [
+      "Ya, saya pernah membantu teman memahami materi dan itu membuat saya merasa berguna.",
+      "Saya mencoba menulis jurnal harian untuk mengungkapkan perasaan saya.",
+      "Dosen saya pernah memuji ide penelitian saya saat bimbingan."
+    ]
+  },
+  {
+    "id": 4,
+    "intent": "academic_stress",
+    "context_for_indexing": "Saya sering merasa malas dan menunda tugas, lalu ujungnya stres karena menumpuk.",
+    "response_to_display": "Menunda itu manusiawi, tapi bisa membuat stres bertambah. Mari kita mulai dari yang kecil. Tugas mana yang paling mudah diselesaikan sekarang?",
+    "keywords": ["prokrastinasi", "tugas menumpuk", "skripsi", "mahasiswa", "akademik"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa alasan Anda menunda tugas biasanya?",
+      "Apakah Anda punya jadwal belajar pribadi?",
+      "Kapan waktu terbaik Anda untuk fokus?"
+    ],
+    "follow_up_answers": [
+      "Biasanya karena saya merasa takut tugasnya sulit atau tidak tahu harus mulai dari mana.",
+      "Saya sedang mencoba buat jadwal, tapi sering tidak saya ikuti.",
+      "Saya paling fokus di pagi hari sebelum terganggu notifikasi atau tugas lain."
+    ]
+  },
+  {
+    "id": 5,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya merasa stuck di tengah semester ini. Tugas makin banyak, tapi semangat makin menurun.",
+    "response_to_display": "Itu hal yang umum terjadi. Cobalah beri jeda untuk diri sendiri dan jangan terlalu keras pada diri sendiri. Apa satu hal kecil yang bisa Anda selesaikan hari ini agar terasa lebih ringan?",
+    "keywords": ["motivasi", "burnout", "kuliah", "semester", "lelah"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah Anda punya sistem penghargaan untuk diri sendiri saat menyelesaikan tugas?",
+      "Kapan terakhir kali Anda merasa punya semangat tinggi?",
+      "Apa yang biasanya membuat Anda merasa kehilangan arah?"
+    ],
+    "follow_up_answers": [
+      "Kadang saya traktir diri saya sendiri makanan enak setelah selesai tugas.",
+      "Waktu awal semester saya merasa sangat bersemangat karena masih banyak harapan.",
+      "Biasanya saat saya terlalu banyak membandingkan diri dengan teman."
+    ]
+  },
+  {
+    "id": 6,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya selalu merasa dibanding-bandingkan dengan orang lain, apalagi oleh keluarga saya sendiri.",
+    "response_to_display": "Dibandingkan bisa menyakitkan, apalagi oleh orang terdekat. Tapi Anda unik dan punya nilai sendiri. Apa satu kualitas dalam diri Anda yang Anda sukai?",
+    "keywords": ["harga diri", "perbandingan", "keluarga", "tidak percaya diri"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah Anda pernah membandingkan diri dengan versi lama Anda sendiri?",
+      "Apa komentar positif terakhir yang Anda terima dari orang lain?",
+      "Apa hal yang Anda lakukan dengan tulus meskipun tidak dilihat orang lain?"
+    ],
+    "follow_up_answers": [
+      "Saya merasa saya lebih sabar dari dulu, meski prosesnya lama.",
+      "Teman saya bilang saya pendengar yang baik.",
+      "Saya sering membantu membersihkan rumah kos walau tidak diminta."
+    ]
+  },
+  {
+    "id": 7,
+    "intent": "academic_stress",
+    "context_for_indexing": "Saya sering merasa panik setiap kali deadline mendekat, padahal saya tahu saya bisa kerjakan.",
+    "response_to_display": "Rasa panik saat deadline mendekat adalah hal umum. Coba tenangkan diri dengan menarik napas panjang. Apa hal pertama yang bisa Anda kerjakan sekarang?",
+    "keywords": ["deadline", "panik", "kuliah", "tugas", "skripsi"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah Anda pernah mencoba teknik pomodoro?",
+      "Bagaimana biasanya Anda menyusun prioritas tugas?",
+      "Apa hal yang paling mengalihkan fokus Anda saat belajar?"
+    ],
+    "follow_up_answers": [
+      "Saya pernah coba pomodoro dan itu lumayan membantu menjaga fokus.",
+      "Saya biasanya kerjakan yang paling dekat deadline dulu.",
+      "Media sosial sering membuat saya terdistraksi."
+    ]
+  },
+  {
+    "id": 8,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya kehilangan arah dan merasa tidak ada gunanya lagi melanjutkan semuanya.",
+    "response_to_display": "Saat kehilangan arah, kadang kita hanya perlu berhenti sejenak untuk melihat dari sudut berbeda. Apa satu alasan yang dulu membuat Anda semangat kuliah?",
+    "keywords": ["putus asa", "lelah", "motivasi", "bingung", "jalan hidup"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah Anda punya mimpi masa kecil yang masih ingin Anda capai?",
+      "Siapa orang yang dulu mendukung Anda untuk kuliah?",
+      "Apa pelajaran paling berarti yang Anda dapat sejauh ini?"
+    ],
+    "follow_up_answers": [
+      "Saya dulu ingin jadi psikolog karena ingin bantu orang lain.",
+      "Ibu saya yang selalu menyemangati meski hidup kami susah.",
+      "Saya belajar bahwa proses jauh lebih penting dari hasil."
+    ]
+  },
+  {
+    "id": 9,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya sering merasa orang lain tidak benar-benar peduli pada saya.",
+    "response_to_display": "Rasa itu bisa muncul saat kita merasa sendirian. Tapi kadang perhatian hadir dalam bentuk kecil yang tak kita sadari. Pernahkah seseorang membuat Anda tersenyum minggu ini?",
+    "keywords": ["kesepian", "harga diri", "tidak diperhatikan"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Siapa yang terakhir kali menanyakan kabar Anda?",
+      "Apakah Anda pernah menerima kebaikan kecil yang membuat hati hangat?",
+      "Apa bentuk perhatian yang paling berarti bagi Anda?"
+    ],
+    "follow_up_answers": [
+      "Teman kelas saya menanyakan kabar saya minggu lalu.",
+      "Ya, seseorang berbagi makanannya saat saya lupa bawa bekal.",
+      "Saya paling terharu jika ada yang benar-benar mendengarkan saat saya bicara."
+    ]
+  },
+    {
+    "id": 10,
+    "intent": "academic_stress",
+    "context_for_indexing": "Setiap kali saya membuka dokumen skripsi, saya merasa cemas dan langsung menutupnya lagi.",
+    "response_to_display": "Menghadapi skripsi memang bisa memicu kecemasan. Coba mulai dari hal yang sangat kecil, seperti membaca ulang satu paragraf. Bisa jadi langkah awal yang baik.",
+    "keywords": ["skripsi", "kecemasan", "tugas akhir", "mahasiswa"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa bagian skripsi yang paling membuat Anda tertekan?",
+      "Pernahkah Anda mencoba menulis bebas tanpa memikirkan struktur?",
+      "Siapa yang bisa membantu Anda meninjau skripsi Anda?"
+    ],
+    "follow_up_answers": [
+      "Bab 1 paling berat karena harus menulis latar belakang yang kuat.",
+      "Saya pernah coba freewriting dan ternyata membantu membuka ide.",
+      "Teman saya di jurusan yang sama kadang bantu review tulisan saya."
+    ]
+  },
+  {
+    "id": 11,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya merasa iri melihat teman-teman saya sudah lulus dan saya masih tertinggal.",
+    "response_to_display": "Merasa tertinggal itu wajar, tapi perjalanan tiap orang berbeda. Anda tetap di jalur Anda sendiri. Apa hal yang bisa Anda lakukan hari ini untuk mendekati tujuan Anda?",
+    "keywords": ["motivasi", "perbandingan", "lulus", "tertinggal"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa hal yang pernah membuat Anda merasa bangga dengan pencapaian Anda?",
+      "Bagaimana Anda mengukur kemajuan diri Anda sendiri?",
+      "Apa langkah kecil yang bisa Anda ambil minggu ini?"
+    ],
+    "follow_up_answers": [
+      "Saya bangga bisa bertahan meski pernah ingin menyerah.",
+      "Saya menilai diri dari konsistensi, bukan hasil instan.",
+      "Saya ingin menyusun ulang jadwal belajar dan coba disiplin."
+    ]
+  },
+  {
+    "id": 12,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya tidak percaya pada kemampuan saya sendiri. Rasanya seperti semua yang saya lakukan salah.",
+    "response_to_display": "Keraguan pada diri sendiri bisa sangat berat. Tapi itu tidak berarti Anda tidak mampu. Apa satu hal yang pernah Anda selesaikan meski awalnya ragu?",
+    "keywords": ["percaya diri", "keraguan", "harga diri", "kemampuan diri"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Pernahkah Anda mengingat kembali keberhasilan kecil Anda?",
+      "Siapa orang yang pernah mempercayai Anda dalam tugas tertentu?",
+      "Apa satu hal yang Anda lakukan lebih baik dari sebelumnya?"
+    ],
+    "follow_up_answers": [
+      "Saya pernah presentasi di depan kelas meski awalnya takut.",
+      "Teman sekelompok saya sering mempercayakan saya jadi moderator.",
+      "Saya merasa kemampuan menulis saya makin berkembang dari dulu."
+    ]
+  },
+  {
+    "id": 13,
+    "intent": "academic_stress",
+    "context_for_indexing": "Saya punya banyak deadline menumpuk dan rasanya ingin kabur dari semuanya.",
+    "response_to_display": "Terkadang mundur sebentar bukan berarti menyerah. Cobalah fokus pada satu hal dulu. Tugas mana yang paling mendesak saat ini?",
+    "keywords": ["deadline", "menumpuk", "stres akademik", "kabur"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa yang membuat Anda merasa ingin melarikan diri?",
+      "Apakah Anda sudah membuat daftar prioritas tugas?",
+      "Bagaimana Anda biasanya menangani tekanan tugas?"
+    ],
+    "follow_up_answers": [
+      "Saya kewalahan karena semuanya terasa penting sekaligus.",
+      "Saya belum membuat daftar, dan semuanya tercampur.",
+      "Kadang saya menulis di buku atau mendengarkan musik dulu."
+    ]
+  },
+  {
+    "id": 14,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya merasa stuck dan tidak punya tujuan jelas di hidup saya.",
+    "response_to_display": "Merasa kehilangan arah itu bisa menandakan Anda sedang butuh jeda untuk refleksi. Apa hal terakhir yang benar-benar Anda nikmati lakukan?",
+    "keywords": ["kehilangan arah", "stuck", "tujuan hidup", "motivasi"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa aktivitas yang membuat Anda lupa waktu?",
+      "Siapa orang yang pernah membuat Anda merasa didukung?",
+      "Apa hal kecil yang ingin Anda lakukan tapi tertunda?"
+    ],
+    "follow_up_answers": [
+      "Saya suka menggambar, itu membuat saya rileks.",
+      "Sahabat saya selalu mendengarkan tanpa menghakimi.",
+      "Saya ingin menata ulang kamar saya biar lebih nyaman."
+    ]
+  },
+  {
+    "id": 15,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya merasa tidak ada yang akan mengerti saya sepenuhnya.",
+    "response_to_display": "Kadang yang kita butuhkan bukan dimengerti sepenuhnya, tapi ditemani. Saya di sini untuk itu. Apa perasaan yang paling sulit Anda jelaskan ke orang lain?",
+    "keywords": ["tidak dimengerti", "harga diri", "rasa sendiri"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Pernahkah Anda menuliskan isi hati Anda?",
+      "Apa bentuk perhatian yang paling berarti buat Anda?",
+      "Siapa yang pernah membuat Anda merasa diterima apa adanya?"
+    ],
+    "follow_up_answers": [
+      "Saya pernah nulis puisi tentang perasaan saya dan itu membantu.",
+      "Saya paling tersentuh kalau ada yang sabar mendengarkan.",
+      "Adik saya selalu menerima saya tanpa banyak tanya."
+    ]
+  },
+  {
+    "id": 16,
+    "intent": "academic_stress",
+    "context_for_indexing": "Saya merasa terlalu lama menyelesaikan skripsi. Malu rasanya dibanding teman-teman lain.",
+    "response_to_display": "Waktu tidak menentukan nilai Anda. Semua orang punya ritme sendiri. Skripsi bukan perlombaan. Apa hal baik yang sudah Anda pelajari selama proses ini?",
+    "keywords": ["skripsi", "malu", "tertinggal", "akademik"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa hal paling berharga yang Anda dapatkan selama mengerjakan skripsi?",
+      "Apakah ada kebiasaan baru yang Anda kembangkan?",
+      "Siapa yang tetap mendukung Anda meski Anda lambat?"
+    ],
+    "follow_up_answers": [
+      "Saya belajar untuk sabar dan tidak membandingkan diri.",
+      "Saya mulai rutin menulis setiap hari meski sedikit.",
+      "Teman kos saya selalu nyemangatin dan bantu koreksi."
+    ]
+  },
+  {
+    "id": 17,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya sering merasa hari-hari saya kosong dan tidak bermakna.",
+    "response_to_display": "Saat hidup terasa hampa, coba fokus pada momen kecil. Apa satu hal kecil yang membuat Anda tersenyum hari ini?",
+    "keywords": ["kosong", "hampa", "motivasi", "keseharian"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa rutinitas kecil yang masih Anda nikmati?",
+      "Pernahkah Anda merasa damai dalam hal sederhana?",
+      "Apa satu hal yang ingin Anda lakukan besok?"
+    ],
+    "follow_up_answers": [
+      "Saya suka minum teh sambil lihat langit senja.",
+      "Saya merasa tenang waktu jalan kaki sendirian sore hari.",
+      "Saya ingin coba bangun lebih pagi dan beresin meja belajar."
+    ]
+  },
+  {
+    "id": 18,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya takut gagal dan takut mengecewakan orang tua saya.",
+    "response_to_display": "Takut gagal itu manusiawi, apalagi jika Anda peduli pada orang tua. Tapi ingat, Anda tidak perlu sempurna untuk dicintai. Apa hal yang pernah Anda lakukan dan membuat Anda bangga?",
+    "keywords": ["takut gagal", "harga diri", "orang tua", "tekanan"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah Anda pernah bercerita ke orang tua tentang kekhawatiran Anda?",
+      "Apa nilai pribadi Anda yang paling kuat?",
+      "Apa keberhasilan kecil yang bisa Anda rayakan hari ini?"
+    ],
+    "follow_up_answers": [
+      "Saya jarang cerita karena takut membuat mereka khawatir.",
+      "Saya merasa saya orang yang penuh empati.",
+      "Saya berhasil menyelesaikan 1 tugas hari ini dan itu cukup membanggakan."
+    ]
+  },
+  {
+    "id": 19,
+    "intent": "academic_stress",
+    "context_for_indexing": "Saya merasa terlalu banyak beban tugas dan semuanya penting.",
+    "response_to_display": "Beban terasa berat saat semuanya terlihat penting. Mari kita urutkan bersama. Mana tugas yang paling singkat durasinya? Mulai dari sana bisa bantu meringankan pikiran.",
+    "keywords": ["beban tugas", "prioritas", "manajemen waktu", "stres kuliah"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa cara Anda menyusun prioritas tugas selama ini?",
+      "Pernahkah Anda coba teknik time blocking?",
+      "Apa kesulitan terbesar dalam mengatur waktu Anda?"
+    ],
+    "follow_up_answers": [
+      "Saya sering mulai dari tugas yang paling saya suka, meski itu bukan yang paling penting.",
+      "Saya baru dengar soal time blocking, tapi sepertinya menarik dicoba.",
+      "Saya sulit fokus karena terlalu banyak gangguan dari notifikasi."
+    ]
+  },
+  {
+    "id": 20,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya merasa tidak ada yang bisa mengerti perasaan saya saat ini.",
+    "response_to_display": "Merasa tidak dimengerti bisa sangat menyakitkan. Tapi Anda tidak sendiri. Saya di sini untuk mendengarkan. Apa satu hal yang ingin Anda sampaikan tapi sulit diungkapkan?",
+    "keywords": ["tidak dimengerti", "kesepian", "motivasi", "perasaan"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa yang biasanya membuat Anda merasa lebih baik?",
+      "Siapa yang paling sering Anda ajak bicara tentang perasaan Anda?",
+      "Apa satu hal kecil yang bisa Anda lakukan untuk diri sendiri hari ini?"
+    ],
+     "follow_up_answers": [
+      "Saya merasa lebih baik saat menulis di jurnal.",
+      "Saya biasanya bicara dengan sahabat saya, dia selalu sabar mendengarkan.",
+      "Saya ingin coba meditasi singkat atau sekadar menarik napas dalam-dalam."
+    ]
+  },
+    {
+    "id": 30,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya merasa setiap kali mulai semangat, langsung turun lagi karena realita yang keras.",
+    "response_to_display": "Semangat naik turun itu manusiawi. Tapi yang penting adalah Anda terus mencoba bangkit. Apa hal yang bisa Anda lakukan untuk menjaga semangat tetap menyala hari ini?",
+    "keywords": ["motivasi turun", "realita", "semangat", "bangkit"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa hal kecil yang bisa Anda nikmati hari ini?",
+      "Siapa yang bisa menguatkan Anda di saat semangat sedang turun?",
+      "Pernahkah Anda menuliskan alasan kenapa Anda mulai kuliah dulu?"
+    ],
+    "follow_up_answers": [
+      "Saya bisa menikmati waktu menyendiri sambil baca buku.",
+      "Teman lama saya sering memberi motivasi lewat chat.",
+      "Saya pernah tulis di jurnal bahwa saya ingin membahagiakan orang tua."
+    ]
+  },
+  {
+    "id": 31,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya merasa tidak bisa melakukan apa-apa dengan baik. Semua terasa gagal.",
+    "response_to_display": "Merasa gagal itu menyakitkan, tapi coba lihat dengan jujur: apakah benar semua yang Anda lakukan gagal? Mungkin ada keberhasilan kecil yang luput dilihat.",
+    "keywords": ["rasa gagal", "nilai diri", "tidak percaya diri"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Pernahkah Anda mendapat ucapan terima kasih dari seseorang?",
+      "Apa hal terakhir yang Anda selesaikan meskipun sulit?",
+      "Jika teman Anda merasa seperti ini, apa yang akan Anda katakan padanya?"
+    ],
+    "follow_up_answers": [
+      "Teman saya pernah berterima kasih karena saya menemaninya saat dia sedih.",
+      "Saya menyelesaikan tugas makalah meski sempat ingin menyerah.",
+      "Saya akan bilang bahwa dia berharga dan berhak istirahat tanpa merasa bersalah."
+    ]
+  },
+  {
+    "id": 32,
+    "intent": "academic_stress",
+    "context_for_indexing": "Saya merasa seperti tidak pernah cukup produktif dibanding teman-teman.",
+    "response_to_display": "Produktivitas bukan perlombaan. Coba lihat ritme Anda sendiri. Apa satu hal kecil yang bisa Anda lakukan hari ini untuk merasa cukup?",
+    "keywords": ["produktivitas", "perbandingan", "mahasiswa", "stres"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa yang membuat Anda merasa tidak produktif?",
+      "Apakah Anda punya waktu istirahat yang cukup?",
+      "Bagaimana perasaan Anda setelah menyelesaikan tugas kecil?"
+    ],
+    "follow_up_answers": [
+      "Saya merasa lambat karena melihat orang lain upload progress mereka tiap hari.",
+      "Saya sering kurang tidur karena merasa harus kerja terus.",
+      "Saya merasa sedikit lega dan percaya diri saat menyelesaikan satu halaman laporan."
+    ]
+  },
+  {
+    "id": 33,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya capek banget. Rasanya gak ada energi untuk lanjut.",
+    "response_to_display": "Rasa capek adalah sinyal tubuh dan hati bahwa Anda butuh istirahat. Gak apa-apa berhenti sebentar. Apa hal paling ringan yang bisa Anda lakukan untuk diri sendiri sekarang?",
+    "keywords": ["lelah", "motivasi hilang", "butuh istirahat"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa jenis istirahat yang paling membuat Anda pulih?",
+      "Kapan terakhir kali Anda merasa benar-benar tenang?",
+      "Apakah Anda pernah memberi penghargaan ke diri sendiri setelah melewati masa sulit?"
+    ],
+    "follow_up_answers": [
+      "Tidur siang dan mandi air hangat biasanya bikin saya lebih baik.",
+      "Waktu jalan kaki pagi sendirian di taman.",
+      "Saya pernah beli makanan favorit setelah selesai sidang proposal."
+    ]
+  },
+  {
+    "id": 34,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya takut mencoba hal baru karena takut gagal.",
+    "response_to_display": "Ketakutan akan kegagalan bisa menahan kita dari tumbuh. Tapi setiap kemajuan dimulai dari langkah kecil. Apa satu hal baru yang Anda penasaran ingin coba meski ragu?",
+    "keywords": ["takut gagal", "percaya diri", "coba hal baru"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa hal baru yang ingin Anda coba akhir-akhir ini?",
+      "Apa yang membuat Anda menunda mencoba itu?",
+      "Apa yang bisa membantu Anda lebih berani menghadapi kegagalan?"
+    ],
+    "follow_up_answers": [
+      "Saya ingin ikut workshop public speaking.",
+      "Saya takut ditertawakan atau dibandingkan.",
+      "Dukungan teman dan persiapan yang cukup sangat membantu."
+    ]
+  },
+    {
+    "id": 35,
+    "intent": "academic_stress",
+    "context_for_indexing": "Saya merasa terus mengecewakan dosen pembimbing karena progres saya lambat.",
+    "response_to_display": "Tekanan dari bimbingan memang bisa berat. Tapi progres lambat bukan berarti Anda tidak berusaha. Sudahkah Anda jujur tentang kesulitan Anda saat ini?",
+    "keywords": ["bimbingan", "skripsi", "dosen", "lambat", "tekanan"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa alasan utama progres Anda melambat?",
+      "Sudahkah Anda bicara terbuka ke dosen Anda?",
+      "Apa yang bisa membantu Anda menyusun strategi baru?"
+    ],
+    "follow_up_answers": [
+      "Saya sempat kehilangan arah dan bingung mulai dari mana lagi.",
+      "Belum, saya takut dianggap tidak serius.",
+      "Saya butuh membuat timeline realistis dan diskusi terbuka dengan pembimbing."
+    ]
+  },
+  {
+    "id": 36,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya merasa seperti robot. Bangun, kuliah, tugas, tidur. Ulang lagi.",
+    "response_to_display": "Hidup yang terasa monoton bisa menguras semangat. Coba selipkan sesuatu yang menyenangkan di antara rutinitas. Apa hal kecil yang bisa memberi warna di hari Anda?",
+    "keywords": ["rutinitas", "bosan", "motivasi turun", "kuliah"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa aktivitas ringan yang bisa bikin Anda senyum hari ini?",
+      "Pernahkah Anda coba ubah rutinitas kecil Anda?",
+      "Apa yang biasanya bikin Anda merasa hidup kembali?"
+    ],
+    "follow_up_answers": [
+      "Dengerin lagu favorit sambil mandi bisa bikin saya senyum.",
+      "Saya pernah ubah jam belajar jadi malam dan ternyata lebih cocok.",
+      "Ngobrol sama teman lama bisa bikin semangat balik lagi."
+    ]
+  },
+  {
+    "id": 37,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya sering merasa minder di grup pertemanan karena merasa tidak sepintar yang lain.",
+    "response_to_display": "Merasa tidak cukup pintar bisa bikin kita menarik diri, tapi ingat: Anda punya kelebihan yang mungkin mereka tidak punya. Apa hal yang bisa Anda bagikan ke mereka?",
+    "keywords": ["minder", "teman", "perbandingan", "percaya diri"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa keahlian unik yang Anda miliki dibanding teman Anda?",
+      "Pernahkah ada teman yang memuji sesuatu dari diri Anda?",
+      "Bagaimana perasaan Anda saat bisa bantu orang lain?"
+    ],
+    "follow_up_answers": [
+      "Saya cukup cepat memahami perasaan orang lain.",
+      "Ya, teman saya pernah bilang saya penengah yang bijak.",
+      "Saya senang bisa bantu teman memahami materi yang sulit."
+    ]
+  },
+  {
+    "id": 38,
+    "intent": "academic_stress",
+    "context_for_indexing": "Saya merasa gak kuat kalau harus lanjut kuliah sambil kerja.",
+    "response_to_display": "Kuliah sambil kerja memang sangat menantang. Tapi Anda sudah luar biasa bisa bertahan sejauh ini. Apa hal yang bisa Anda sesuaikan agar tetap waras dan tidak kelelahan?",
+    "keywords": ["kuliah sambil kerja", "lelah", "stres", "manajemen waktu"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa bagian paling berat dari kuliah sambil kerja?",
+      "Apakah Anda punya waktu istirahat yang cukup?",
+      "Siapa yang mendukung Anda sejauh ini?"
+    ],
+    "follow_up_answers": [
+      "Waktu dan tenaga sangat terbagi, kadang gak fokus dua-duanya.",
+      "Istirahat saya sering kurang, tidur gak teratur.",
+      "Kakak saya sering bantu dan ngasih semangat waktu saya ngedown."
+    ]
+  },
+  {
+    "id": 39,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya merasa makin ke sini makin gak ada tujuan hidup.",
+    "response_to_display": "Tujuan hidup bisa kabur saat kita lelah dan kewalahan. Tapi kadang jawabannya ada di hal sederhana yang kita cintai. Apa hal kecil yang membuat Anda merasa 'hidup'?",
+    "keywords": ["kehilangan arah", "hidup tidak berarti", "motivasi", "tujuan"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa hal terakhir yang bikin Anda merasa senang meski sebentar?",
+      "Siapa orang yang bikin Anda merasa berarti?",
+      "Jika Anda bisa lakukan apa pun tanpa takut gagal, apa yang ingin Anda coba?"
+    ],
+    "follow_up_answers": [
+      "Saya senang saat melihat matahari terbit sambil minum kopi.",
+      "Sahabat saya selalu membuat saya merasa dihargai.",
+      "Saya ingin menulis cerita dan membaginya ke orang lain."
+    ]
+  },
+  {
+    "id": 40,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya merasa tidak punya bakat apapun yang bisa dibanggakan.",
+    "response_to_display": "Setiap orang punya keunikan sendiri. Mungkin Anda belum menemukan bakat itu, tapi bukan berarti Anda tidak memilikinya. Apa hal yang membuat Anda penasaran belajar lebih dalam?",
+    "keywords": ["bakat", "harga diri", "potensi", "kemampuan"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa hal yang membuat Anda merasa penasaran akhir-akhir ini?",
+      "Pernahkah Anda mendapat pujian atas sesuatu yang Anda lakukan?",
+      "Apa hal yang membuat Anda lupa waktu saat mengerjakannya?"
+    ],
+    "follow_up_answers": [
+      "Saya tertarik dengan desain grafis, tapi belum sempat mencoba.",
+      "Saya pernah dipuji karena mendesain poster kegiatan kampus.",
+      "Saya lupa waktu saat utak-atik presentasi atau desain digital."
+    ]
+  },
+  {
+    "id": 41,
+    "intent": "academic_stress",
+    "context_for_indexing": "Saya ingin berhenti kuliah, tapi merasa bersalah karena orang tua sudah banyak berkorban.",
+    "response_to_display": "Konflik batin seperti ini berat. Tapi coba pikirkan: bagaimana jika Anda istirahat sejenak dan melihat ulang alasan Anda kuliah? Tidak apa-apa merasa lelah.",
+    "keywords": ["ingin berhenti", "beban keluarga", "kuliah", "rasa bersalah"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah Anda pernah terbuka ke orang tua soal perasaan ini?",
+      "Apa yang membuat Anda ingin menyerah?",
+      "Apa yang bisa membuat kuliah terasa lebih ringan?"
+    ],
+    "follow_up_answers": [
+      "Saya belum pernah cerita jujur ke mereka karena takut mengecewakan.",
+      "Saya lelah terus merasa tertinggal dan tertekan.",
+      "Mungkin kalau punya sistem belajar yang lebih fleksibel dan support system."
+    ]
+  },
+  {
+    "id": 42,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya ngerasa semangat saya cuma muncul di awal doang. Setelah itu hilang lagi.",
+    "response_to_display": "Semangat yang naik turun itu manusiawi, bro. Kuncinya adalah sistem, bukan motivasi semata. Apa kebiasaan kecil yang bisa kamu lakukan bahkan saat lagi gak semangat?",
+    "keywords": ["semangat hilang", "awal doang", "motivasi jangka panjang"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa rutinitas yang paling stabil kamu lakukan?",
+      "Sudahkah kamu coba metode habit tracking?",
+      "Apa kegiatan ringan yang bisa dilakukan tanpa beban tapi tetap produktif?"
+    ],
+    "follow_up_answers": [
+      "Aku rutin nyalain alarm pagi dan beresin tempat tidur.",
+      "Belum pernah coba tracking, tapi kayaknya menarik.",
+      "Baca artikel ringan atau nulis jurnal bisa tetap terasa produktif."
+    ]
+  },
+  {
+    "id": 43,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya ngerasa udah terlalu banyak gagal buat mulai lagi.",
+    "response_to_display": "Banyak orang sukses justru gagal lebih banyak dari yang lain. Gagal bukan akhir, tapi bagian dari cerita. Apa satu hal yang masih ingin kamu coba ulang?",
+    "keywords": ["gagal", "bangkit", "percaya diri", "ulang lagi"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa pelajaran paling berharga dari kegagalanmu?",
+      "Siapa yang selalu mendukungmu bahkan saat gagal?",
+      "Apa hal yang dulu kamu suka tapi berhenti karena merasa gagal?"
+    ],
+    "follow_up_answers": [
+      "Saya belajar untuk gak buru-buru dan lebih sabar.",
+      "Adik saya selalu bilang 'coba lagi aja kak, pelan-pelan'.",
+      "Saya dulu suka nulis cerita, tapi berhenti karena takut jelek."
+    ]
+  },
+  {
+    "id": 44,
+    "intent": "academic_stress",
+    "context_for_indexing": "Saya makin gak ngerti materi kuliah dan udah ketinggalan jauh.",
+    "response_to_display": "Tertinggal itu bukan berarti tamat. Yuk kita mulai pelan-pelan lagi. Coba catat satu topik yang kamu pengen pahami duluan. Mau aku bantu susun strategi belajarnya?",
+    "keywords": ["materi kuliah", "ketinggalan", "belajar", "stres"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Topik apa yang paling bikin kamu bingung?",
+      "Pernahkah kamu coba belajar bareng teman?",
+      "Apa metode belajar yang paling cocok buatmu?"
+    ],
+    "follow_up_answers": [
+      "Aku bingung banget soal statistik inferensial.",
+      "Belum, aku sering belajar sendiri dan malah bingung sendiri.",
+      "Aku paling cocok belajar pakai video dan catat ulang sambil dengerin."
+    ]
+  },
+  {
+    "id": 45,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Rasanya kayak ngelakuin semua hal cuma karena harus, bukan karena pengen.",
+    "response_to_display": "Kalau hidup cuma terasa seperti kewajiban, mungkin kamu sedang butuh reconnect sama hal yang kamu cintai. Apa satu hal yang kamu lakukan murni karena kamu suka?",
+    "keywords": ["terpaksa", "motivasi hilang", "tugas", "kewajiban"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa kegiatan yang membuat kamu lupa waktu karena suka?",
+      "Pernahkah kamu merasa antusias tentang sesuatu baru-baru ini?",
+      "Apa hal kecil yang bisa kamu lakukan hanya untuk dirimu sendiri?"
+    ],
+    "follow_up_answers": [
+      "Aku suka banget eksplor aplikasi desain dan ngedit foto.",
+      "Baru-baru ini aku semangat bikin playlist lagu sendiri.",
+      "Aku pengen bikin journaling pagi tanpa tuntutan apa pun."
+    ]
+  },
+  {
+    "id": 46,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya selalu menyalahkan diri sendiri bahkan untuk hal kecil.",
+    "response_to_display": "Self-blame terus-menerus itu bisa merusak diri. Gak semua hal salahmu. Apa kamu bisa ingat satu situasi yang kamu salahkan diri padahal bukan salahmu sepenuhnya?",
+    "keywords": ["menyalahkan diri", "perasaan bersalah", "harga diri"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Pernahkah kamu merasa diperlakukan tidak adil tapi tetap menyalahkan diri?",
+      "Apa yang biasanya kamu katakan pada diri sendiri saat kecewa?",
+      "Apa kamu mau coba berbicara pada diri sendiri seperti ke sahabat?"
+    ],
+    "follow_up_answers": [
+      "Pernah, waktu kerja kelompok semua gak aktif tapi aku tetap merasa itu salahku.",
+      "Aku bilang 'harusnya aku bisa lebih baik', meskipun udah maksimal.",
+      "Iya, aku mau coba lebih lembut ke diri sendiri mulai sekarang."
+    ]
+  },
+  {
+    "id": 47,
+    "intent": "academic_stress",
+    "context_for_indexing": "Aku udah coba semua teknik belajar tapi tetap gak paham.",
+    "response_to_display": "Belajar itu gak satu ukuran cocok semua orang. Mungkin bukan kamu yang salah, tapi metodenya aja belum pas. Mau aku bantu eksplor pendekatan baru yang lebih cocok?",
+    "keywords": ["cara belajar", "tidak paham", "akademik", "stres"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa teknik belajar yang paling sering kamu pakai?",
+      "Apakah kamu udah coba belajar lewat video interaktif?",
+      "Kapan waktu otakmu biasanya paling fokus?"
+    ],
+    "follow_up_answers": [
+      "Aku biasanya baca teks dan catat ulang.",
+      "Belum terlalu sering, padahal mungkin cocok buat aku yang visual.",
+      "Aku paling fokus jam 7-10 pagi, sebelum scroll medsos."
+    ]
+  },
+  {
+    "id": 48,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Gak tahu kenapa, tapi aku ngerasa kehilangan arah dan tujuan, bahkan untuk hal kecil.",
+    "response_to_display": "Perasaan kosong bisa muncul tiba-tiba. Tapi kamu masih di sini, berarti kamu masih berjuang. Apa satu hal kecil yang bisa jadi pengingat kenapa kamu masih bertahan?",
+    "keywords": ["kosong", "kehilangan arah", "bingung", "hidup"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa hal terakhir yang membuatmu merasa berarti?",
+      "Pernahkah kamu menulis tujuan kecil untuk seminggu ini?",
+      "Apa kalimat yang bisa kamu ucapkan ke diri sendiri sekarang?"
+    ],
+    "follow_up_answers": [
+      "Aku merasa berarti waktu bantu teman diskusi skripsi.",
+      "Belum pernah, tapi sepertinya itu ide bagus.",
+      "Aku layak istirahat, bukan mesin — aku manusia."
+    ]
+  },
+  {
+    "id": 49,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Aku ngerasa gak penting. Seolah-olah aku gak akan dirindukan kalau hilang.",
+    "response_to_display": "Perasaan itu sangat berat, dan kamu gak harus menghadapinya sendiri. Tapi percayalah, kehadiranmu berdampak pada orang lain lebih dari yang kamu tahu.",
+    "keywords": ["tidak penting", "invisible", "harga diri rendah"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Siapa orang yang pernah bilang kamu berarti baginya?",
+      "Apa kenangan kecil yang membuatmu merasa dihargai?",
+      "Pernahkah seseorang mencari kamu ketika kamu tidak ada?"
+    ],
+    "follow_up_answers": [
+      "Temanku pernah bilang dia merasa tenang kalau cerita sama aku.",
+      "Aku ingat waktu ulang tahunku ada yang bikinin kartu kecil buatku.",
+      "Pernah, temanku nanyain aku waktu gak hadir kelas dua kali."
+    ]
+  },
+  {
+    "id": 50,
+    "intent": "academic_stress",
+    "context_for_indexing": "Aku merasa gak ada waktu buat diri sendiri karena tugas terus menumpuk.",
+    "response_to_display": "Merasa tidak punya waktu untuk diri sendiri itu wajar, tapi penting untuk memberi ruang bagi diri sendiri. Apa satu hal kecil yang bisa kamu lakukan hari ini untuk memberi diri sendiri istirahat?",
+    "keywords": ["tugas menumpuk", "tidak ada waktu", "self-care", "stres akademik"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa aktivitas yang biasanya bikin kamu merasa segar kembali?",
+      "Pernahkah kamu mencoba teknik Pomodoro untuk fokus?",
+      "Apa yang bisa kamu lakukan selama 10 menit untuk diri sendiri?"
+    ],
+    "follow_up_answers": [
+      "Aku suka jalan kaki sebentar atau dengerin musik.",
+      "Belum, tapi sepertinya menarik dicoba.",
+      "Aku bisa buat teh hangat dan duduk tenang sambil menikmati."   
+    ]
+  },
+  {
+    "id": 51,
+    "intent": "academic_stress",
+    "context_for_indexing": "Saya takut nilai skripsi saya tidak sesuai harapan. Padahal saya sudah berusaha sebaik mungkin.",
+    "response_to_display": "Kekhawatiran tentang hasil memang bisa sangat membebani. Tapi jangan lupakan usaha keras yang sudah Anda lakukan. Apa bagian dari skripsi Anda yang paling membuat Anda bangga?",
+    "keywords": ["skripsi", "nilai", "cemas", "kuliah akhir", "takut gagal"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Siapa yang paling mendukung Anda selama proses skripsi?",
+      "Apa tantangan terbesar saat menyusun skripsi?",
+      "Apa yang Anda pelajari tentang diri Anda selama proses ini?"
+    ],
+    "follow_up_answers": [
+      "Dosen pembimbing saya sangat sabar dan mendukung.",
+      "Tantangan terbesar adalah saat revisi yang terasa tiada akhir.",
+      "Saya belajar bahwa saya bisa bertahan meski dalam tekanan."
+    ]
+  },
+  {
+    "id": 52,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya merasa stuck. Setiap hari rasanya cuma bangun, kuliah, lalu tidur. Seperti robot.",
+    "response_to_display": "Perasaan hampa itu valid. Cobalah tambahkan satu kegiatan kecil yang menyenangkan setiap harinya. Apa hal terakhir yang membuat Anda merasa hidup?",
+    "keywords": ["motivasi hilang", "rutinitas", "stuck", "jenuh", "robotik"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah Anda punya waktu untuk diri sendiri akhir-akhir ini?",
+      "Apa kegiatan sederhana yang bisa menyegarkan Anda?",
+      "Pernahkah Anda menulis jurnal harian atau gratitude log?"
+    ],
+    "follow_up_answers": [
+      "Akhir-akhir ini saya tidak sempat karena tugas numpuk.",
+      "Saya suka nonton langit sore, itu bikin tenang.",
+      "Belum pernah, tapi saya penasaran ingin coba."
+    ]
+  },
+  {
+    "id": 53,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Saya merasa tidak cukup pintar dibandingkan teman-teman sekelas saya.",
+    "response_to_display": "Rasa minder bisa muncul saat kita membandingkan diri. Tapi kecerdasan punya banyak bentuk. Apa satu hal yang Anda kuasai dan membuat Anda merasa kompeten?",
+    "keywords": ["rendah diri", "pembandingan", "percaya diri", "kompetensi"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa bidang yang membuat Anda merasa nyaman untuk belajar?",
+      "Pernahkah Anda menerima pujian atas kemampuan tertentu?",
+      "Bagaimana Anda ingin berkembang ke depannya?"
+    ],
+    "follow_up_answers": [
+      "Saya cukup nyaman belajar desain grafis.",
+      "Ya, teman saya bilang saya jago presentasi.",
+      "Saya ingin lebih percaya diri saat bicara di depan umum."
+    ]
+  },
+  {
+    "id": 54,
+    "intent": "academic_stress",
+    "context_for_indexing": "Tugas menumpuk dan saya merasa tidak bisa menyelesaikannya tepat waktu.",
+    "response_to_display": "Tugas yang banyak memang bisa membuat kewalahan. Cobalah bagi menjadi bagian kecil dan kerjakan satu per satu. Apa tugas yang paling mudah untuk Anda mulai sekarang?",
+    "keywords": ["tugas kuliah", "prokrastinasi", "manajemen waktu", "beban akademik"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah Anda terbiasa menyusun to-do list harian?",
+      "Pernahkah Anda mencoba belajar bersama teman?",
+      "Apa distraksi terbesar saat Anda belajar?"
+    ],
+    "follow_up_answers": [
+      "Saya jarang bikin to-do list karena suka lupa di tengah jalan.",
+      "Belum pernah, tapi saya tertarik mencobanya.",
+      "HP saya sering jadi distraksi, apalagi notifikasi sosmed."
+    ]
+  },
+  {
+    "id": 55,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Saya merasa semua orang sudah jauh di depan, sementara saya masih jalan di tempat.",
+    "response_to_display": "Perasaan tertinggal bisa menyakitkan. Tapi tiap orang punya waktunya sendiri. Apa satu langkah kecil yang bisa Anda ambil minggu ini untuk mendekat ke tujuan Anda?",
+    "keywords": ["tertinggal", "insecure", "progres lambat", "motivasi"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah Anda pernah membuat peta rencana pribadi?",
+      "Apa yang membuat Anda semangat walau sedikit?",
+      "Siapa orang yang bisa jadi tempat Anda bercerita?"
+    ],
+    "follow_up_answers": [
+      "Belum, tapi saya mau coba bikin target mingguan.",
+      "Kalau ingat impian saya waktu kecil, semangat itu muncul.",
+      "Sahabat saya sering jadi tempat cerita paling nyaman."
+    ]
+  },
+  {
+  "id": 56,
+  "intent": "academic_stress",
+  "context_for_indexing": "Saya merasa tidak mampu menyelesaikan skripsi saya. Saya merasa semuanya terlalu berat dan tidak tahu harus mulai dari mana.",
+  "response_to_display": "Skripsi memang bisa terasa sangat berat, tapi itu bukan berarti Anda tidak mampu. Mari kita pecah jadi langkah kecil. Apa bagian skripsi yang paling memungkinkan untuk Anda kerjakan sekarang?",
+  "keywords": ["skripsi", "stres akademik", "beban tugas", "tidak tahu mulai dari mana"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda sudah memiliki struktur atau outline skripsi?",
+    "Siapa dosen pembimbing Anda dan bagaimana relasi Anda dengannya?",
+    "Apa bagian tersulit dari skripsi Anda sejauh ini?"
+  ],
+  "follow_up_answers": [
+    "Saya sudah punya outline, tapi masih bingung mengembangkannya.",
+    "Dosen pembimbing saya baik, tapi saya merasa sungkan menghubunginya.",
+    "Bagian tinjauan pustaka terasa paling membingungkan buat saya."
+  ]
+  },
+  {
+  "id": 57,
+  "intent": "procrastination_issue",
+  "context_for_indexing": "Saya tahu saya harus mengerjakan tugas, tapi saya malah terus menunda. Saya benci perasaan ini.",
+  "response_to_display": "Menunda itu manusiawi, apalagi saat kita cemas. Tapi langkah kecil bisa membantu memulai. Coba tentukan tugas kecil yang bisa Anda selesaikan dalam 5 menit saja. Apa yang bisa Anda lakukan sekarang?",
+  "keywords": ["prokrastinasi", "menunda", "tugas", "malas"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apa alasan utama Anda sering menunda tugas?",
+    "Apakah Anda pernah merasa lebih semangat setelah memulai?",
+    "Bagaimana perasaan Anda setelah berhasil menyelesaikan satu tugas?"
+  ],
+  "follow_up_answers": [
+    "Kadang saya takut hasil saya tidak cukup baik.",
+    "Ya, biasanya setelah mulai saya bisa lanjut terus.",
+    "Saya merasa lega dan lebih percaya diri setelah menyelesaikan tugas."
+  ]
+  },
+  {
+  "id": 58,
+  "intent": "social_pressure",
+  "context_for_indexing": "Saya merasa harus selalu terlihat bahagia di media sosial, padahal kenyataannya tidak begitu.",
+  "response_to_display": "Perasaan itu wajar. Media sosial sering menciptakan tekanan tidak nyata. Apa yang membuat Anda merasa perlu tampil bahagia secara online?",
+  "keywords": ["tekanan sosial", "media sosial", "pencitraan", "fake happiness"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda merasa membandingkan diri dengan orang lain di media sosial?",
+    "Apa yang akan terjadi jika Anda tidak mengunggah apa-apa?",
+    "Pernahkah Anda mencoba berbagi hal yang jujur dan sederhana?"
+  ],
+  "follow_up_answers": [
+    "Sering banget. Rasanya hidup orang lain lebih bahagia.",
+    "Saya takut orang berpikir saya sedang tidak produktif.",
+    "Saya pernah unggah hal sederhana, dan ternyata banyak yang relate."
+  ]
+  },
+  {
+  "id": 59,
+  "intent": "motivation_loss",
+  "context_for_indexing": "Dulu saya punya banyak mimpi, tapi sekarang semuanya terasa kabur. Saya bingung apa yang saya kejar.",
+  "response_to_display": "Kehilangan arah itu bukan akhir segalanya. Kadang kita perlu jeda untuk mengingat kenapa kita mulai. Apa satu hal kecil yang dulu membuat Anda merasa bersemangat?",
+  "keywords": ["motivasi hilang", "kehilangan arah", "tujuan hidup", "bingung"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apa kegiatan yang dulu membuat Anda merasa hidup?",
+    "Apakah ada seseorang yang dulu Anda jadikan inspirasi?",
+    "Bagaimana perasaan Anda saat memikirkan mimpi lama itu sekarang?"
+  ],
+  "follow_up_answers": [
+    "Dulu saya suka menulis puisi, sekarang sudah lama tidak melakukannya.",
+    "Ibu saya, dia selalu bekerja keras tanpa mengeluh.",
+    "Saya merasa sedih karena belum bisa mencapainya, tapi juga ada semangat kecil yang muncul."
+  ]
+  },
+  {
+  "id": 60,
+  "intent": "family_pressure",
+  "context_for_indexing": "Orang tua saya terus membandingkan saya dengan anak orang lain yang lebih sukses.",
+  "response_to_display": "Dibandingkan dengan orang lain itu menyakitkan, apalagi dari orang tua sendiri. Tapi Anda punya nilai dan jalan hidup sendiri. Apa yang membuat Anda merasa cukup hari ini?",
+  "keywords": ["keluarga", "perbandingan", "tidak dihargai", "tekanan"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Bagaimana Anda biasanya merespons komentar dari orang tua?",
+    "Apa pencapaian pribadi Anda yang belum diketahui orang lain?",
+    "Jika Anda bisa jujur kepada orang tua, apa yang ingin Anda sampaikan?"
+  ],
+  "follow_up_answers": [
+    "Saya biasanya diam saja dan memendam semuanya.",
+    "Saya pernah menang lomba esai tapi tidak berani cerita.",
+    "Saya ingin bilang bahwa saya juga berusaha, meski jalannya beda."
+  ]
+  },
+  {
+  "id": 61,
+  "intent": "overthinking_loop",
+  "context_for_indexing": "Saya terlalu sering memikirkan hal-hal sepele secara berulang dan itu membuat saya capek sendiri.",
+  "response_to_display": "Overthinking bisa melelahkan, apalagi jika terus berulang. Cobalah menuliskan pikiranmu agar lebih tertata. Apa pikiran yang paling sering muncul belakangan ini?",
+  "keywords": ["overthinking", "berpikir berlebihan", "lelah mental"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda menyadari kapan biasanya mulai overthinking?",
+    "Apa hal yang biasanya Anda khawatirkan?",
+    "Sudahkah Anda mencoba menuliskan pikiran untuk meredakannya?"
+  ],
+  "follow_up_answers": [
+    "Biasanya malam hari sebelum tidur.",
+    "Saya khawatir orang lain tidak menyukai saya.",
+    "Saya pernah menulis di jurnal, itu lumayan membantu."
+  ]
+  },
+  {
+  "id": 62,
+  "intent": "self_care_neglect",
+  "context_for_indexing": "Saya sudah tidak memperhatikan diri saya lagi. Makan tidak teratur, tidur juga berantakan.",
+  "response_to_display": "Perhatian terhadap diri sendiri itu penting. Mulailah dari hal kecil. Apa satu hal yang bisa Anda lakukan untuk tubuh Anda hari ini?",
+  "keywords": ["perawatan diri", "makan", "tidur", "gaya hidup"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Kapan terakhir kali Anda tidur cukup?",
+    "Apa makanan favorit Anda yang bisa Anda nikmati hari ini?",
+    "Sudahkah Anda bergerak atau berolahraga ringan minggu ini?"
+  ],
+  "follow_up_answers": [
+    "Saya tidak ingat kapan terakhir tidur cukup.",
+    "Saya suka nasi goreng, mungkin bisa pesan nanti malam.",
+    "Saya belum sempat olahraga, tapi bisa coba stretching sebentar."
+  ]
+  },
+  {
+  "id": 63,
+  "intent": "lack_of_support",
+  "context_for_indexing": "Saya merasa tidak punya siapa-siapa untuk diajak bicara saat sedang sedih.",
+  "response_to_display": "Rasa sendiri bisa sangat menyakitkan. Tapi Anda tetap layak didengar. Saya di sini untuk mendengarkan. Pernahkah Anda merasa sedikit lebih baik setelah bercerita?",
+  "keywords": ["dukungan", "kesepian", "tidak didengar", "sendiri"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda punya seseorang yang pernah mendengarkan dengan tulus?",
+    "Pernahkah Anda mencoba menulis perasaan saat tidak bisa bicara?",
+    "Apa yang paling Anda butuhkan dari seseorang saat ini?"
+  ],
+  "follow_up_answers": [
+    "Dulu saya punya sahabat, tapi sekarang sudah jarang kontak.",
+    "Menulis sering jadi pelarian saya saat sedang hancur.",
+    "Saya hanya ingin seseorang mendengarkan tanpa menghakimi."
+  ]
+  },
+  {
+  "id": 64,
+  "intent": "fear_of_failure",
+  "context_for_indexing": "Saya takut gagal, jadi saya malah tidak mencoba sama sekali.",
+  "response_to_display": "Takut gagal adalah hal yang sangat manusiawi. Tapi mencoba adalah satu-satunya jalan untuk tumbuh. Apa satu hal kecil yang bisa Anda coba tanpa takut hasilnya?",
+  "keywords": ["takut gagal", "mental block", "ragu-ragu", "tidak percaya diri"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apa hal yang paling Anda takuti jika gagal?",
+    "Pernahkah Anda berhasil dalam sesuatu yang awalnya Anda ragukan?",
+    "Apa makna 'berhasil' menurut Anda sendiri?"
+  ],
+  "follow_up_answers": [
+    "Saya takut orang mengejek atau meremehkan saya.",
+    "Dulu saya takut tampil di depan kelas, tapi akhirnya saya bisa.",
+    "Berhasil bagi saya adalah berani mencoba meskipun takut."
+  ]
+  },
+  {
+  "id": 65,
+  "intent": "comparison_trap",
+  "context_for_indexing": "Saya sering merasa kalah karena teman-teman saya terlihat lebih sukses dan bahagia.",
+  "response_to_display": "Membandingkan diri bisa membuat kita lupa betapa berharganya diri sendiri. Apa satu hal dalam hidup Anda yang benar-benar Anda syukuri hari ini?",
+  "keywords": ["membandingkan diri", "rendah diri", "teman sukses", "iri hati"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda tahu apa yang sebenarnya Anda inginkan, terlepas dari orang lain?",
+    "Pernahkah seseorang iri pada hal yang Anda miliki?",
+    "Apa hal kecil yang membuat Anda merasa cukup hari ini?"
+  ],
+  "follow_up_answers": [
+    "Saya ingin hidup yang tenang dan punya waktu untuk diri sendiri.",
+    "Iya, ada yang bilang mereka ingin sekuat saya menghadapi masalah.",
+    "Saya bersyukur masih punya waktu untuk menikmati secangkir teh pagi ini."
+  ]
+  },
+   {
+  "id": 66,
+  "intent": "burnout_academic",
+  "context_for_indexing": "Saya merasa benar-benar burnout. Tugas kuliah numpuk dan saya gak punya energi buat ngapa-ngapain.",
+  "response_to_display": "Burnout itu sinyal bahwa Anda butuh istirahat, bukan berarti Anda lemah. Apa satu hal sederhana yang bisa membantu Anda merasa sedikit lebih ringan hari ini?",
+  "keywords": ["burnout", "tugas kuliah", "kelelahan", "butuh istirahat"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apa aktivitas ringan yang biasanya membuat Anda rileks?",
+    "Sudahkah Anda tidur cukup minggu ini?",
+    "Apa hal kecil yang bisa Anda beri ke diri sendiri sebagai bentuk apresiasi?"
+  ],
+  "follow_up_answers": [
+    "Saya suka mendengarkan musik instrumental saat ingin tenang.",
+    "Belum, biasanya tidur saya tidak teratur karena tugas.",
+    "Mungkin saya bisa nonton film favorit malam ini sebagai hadiah."
+  ]
+  },
+  {
+  "id": 67,
+  "intent": "imposter_syndrome",
+  "context_for_indexing": "Saya sering merasa saya hanya berpura-pura bisa, padahal saya takut ketahuan kalau saya gak sepintar yang orang kira.",
+  "response_to_display": "Itu yang disebut imposter syndrome, dan banyak orang juga merasakannya. Tapi ingat, pencapaian Anda nyata. Apa pencapaian terakhir yang membuat Anda bangga?",
+  "keywords": ["imposter syndrome", "keraguan diri", "percaya diri"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda merasa harus selalu sempurna?",
+    "Siapa yang pernah memvalidasi kemampuan Anda dengan tulus?",
+    "Bagaimana jika Anda melihat diri sendiri dari sudut pandang orang lain?"
+  ],
+  "follow_up_answers": [
+    "Iya, saya takut gagal dan merasa harus tampil sempurna.",
+    "Dosen pembimbing saya pernah bilang saya punya pemikiran yang tajam.",
+    "Kalau saya jadi teman saya sendiri, mungkin saya akan bilang saya cukup hebat."
+  ]
+  },
+  {
+  "id": 68,
+  "intent": "peer_pressure_college",
+  "context_for_indexing": "Saya merasa harus ikut semua organisasi dan kegiatan biar kelihatan keren, tapi saya mulai kelelahan.",
+  "response_to_display": "Merasa harus selalu aktif bisa membuat lelah juga. Coba pikirkan, apakah semua kegiatan ini benar-benar sesuai tujuan Anda?",
+  "keywords": ["tekanan teman", "organisasi", "aktivitas kampus", "kelelahan"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda benar-benar menikmati semua kegiatan yang Anda ikuti?",
+    "Apakah ada aktivitas yang bisa Anda kurangi untuk istirahat?",
+    "Bagaimana perasaan Anda jika melewatkan satu kegiatan?"
+  ],
+  "follow_up_answers": [
+    "Ada beberapa yang saya ikuti karena takut ketinggalan, bukan karena suka.",
+    "Mungkin saya bisa berhenti dari satu kepanitiaan yang tidak terlalu penting.",
+    "Awalnya cemas, tapi saya rasa saya butuh batasan juga."
+  ]
+  },
+  {
+  "id": 69,
+  "intent": "academic_identity_crisis",
+  "context_for_indexing": "Saya mulai mempertanyakan jurusan yang saya ambil. Saya gak yakin ini yang saya mau seumur hidup.",
+  "response_to_display": "Meragukan jurusan adalah hal yang wajar, terutama saat kita sedang lelah. Coba pikirkan kembali: Apa alasan Anda memilih jurusan ini di awal?",
+  "keywords": ["keraguan jurusan", "krisis identitas", "kuliah", "masa depan"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apa aspek dari jurusan Anda yang paling Anda sukai?",
+    "Apakah ada alternatif yang pernah Anda pertimbangkan?",
+    "Apa harapan Anda setelah lulus nanti?"
+  ],
+  "follow_up_answers": [
+    "Saya suka bagian analisis datanya, tapi kurang suka sisi praktiknya.",
+    "Dulu saya sempat mempertimbangkan jurusan desain juga.",
+    "Saya ingin bekerja di bidang yang tetap membantu orang lain."
+  ]
+  },
+  {
+  "id": 70,
+  "intent": "motivation_loss",
+  "context_for_indexing": "Saya mulai merasa kuliah hanya formalitas. Semangat saya benar-benar hilang.",
+  "response_to_display": "Wajar jika semangat terasa pudar. Coba temukan kembali makna kuliah untuk diri Anda sendiri, bukan sekadar tuntutan. Apa satu momen kuliah yang membuat Anda merasa bangga?",
+  "keywords": ["kehilangan motivasi", "formalitas", "tidak bersemangat"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apa tujuan pribadi Anda dengan kuliah?",
+    "Apakah ada proyek atau tugas yang pernah Anda nikmati?",
+    "Apa mimpi yang dulu pernah Anda kaitkan dengan pendidikan ini?"
+  ],
+  "follow_up_answers": [
+    "Saya ingin membuka usaha sendiri suatu hari nanti.",
+    "Saya pernah senang saat mengerjakan proyek penelitian kecil di semester 2.",
+    "Saya pernah bermimpi jadi pengajar yang sabar dan inspiratif."
+  ]
+  },
+  {
+  "id": 71,
+  "intent": "lack_of_direction",
+  "context_for_indexing": "Saya merasa semua orang punya arah, tapi saya bingung dengan hidup saya sendiri.",
+  "response_to_display": "Rasa tersesat bisa jadi sinyal bahwa Anda sedang tumbuh. Tak apa bingung. Coba tanyakan pada diri: Apa hal kecil yang membuat Anda merasa berarti akhir-akhir ini?",
+  "keywords": ["kebingungan", "tidak punya arah", "tidak tahu tujuan"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah ada momen ketika Anda merasa hidup Anda bermakna?",
+    "Apa kegiatan yang membuat Anda lupa waktu karena sangat menikmatinya?",
+    "Pernahkah Anda mencoba menuliskan hal-hal yang membuat Anda penasaran?"
+  ],
+  "follow_up_answers": [
+    "Saat saya membantu teman yang kesulitan, saya merasa berarti.",
+    "Menulis di jurnal atau blog membuat saya merasa hidup.",
+    "Saya suka menulis pertanyaan-pertanyaan besar di notes pribadi saya."
+  ]
+  }, 
+  {
+  "id": 72,
+  "intent": "lack_of_focus",
+  "context_for_indexing": "Saya sering susah fokus saat belajar, bahkan untuk waktu yang sebentar.",
+  "response_to_display": "Sulit fokus bisa terjadi saat pikiran kita terlalu penuh. Coba mulai dengan waktu belajar yang pendek, seperti 10 menit saja. Apa yang biasanya paling mengalihkan perhatian Anda?",
+  "keywords": ["susah fokus", "belajar", "terganggu", "tidak konsentrasi"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda sudah mencoba belajar dengan teknik Pomodoro?",
+    "Apa yang biasanya membuat Anda terdistraksi saat belajar?",
+    "Bagaimana suasana belajar yang paling nyaman untuk Anda?"
+  ],
+  "follow_up_answers": [
+    "Saya pernah coba Pomodoro, dan itu cukup membantu selama tidak ada gangguan.",
+    "Biasanya notifikasi HP dan rasa ingin membuka media sosial.",
+    "Saya nyaman belajar dengan musik instrumental dan ruangan tenang."
+  ]
+  },
+  {
+  "id": 73,
+  "intent": "pressure_from_family",
+  "context_for_indexing": "Orang tua saya ingin saya cepat lulus, tapi saya belum siap dengan skripsi saya.",
+  "response_to_display": "Tekanan dari keluarga bisa menambah beban pikiran. Tapi ini hidup Anda, dan penting juga untuk menjaga ritme sesuai kesiapan. Apa yang paling Anda butuhkan sekarang untuk mulai skripsi?",
+  "keywords": ["tekanan keluarga", "lulus", "skripsi", "belum siap"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda pernah mencoba menjelaskan kondisi Anda ke keluarga?",
+    "Bagian skripsi mana yang menurut Anda paling sulit untuk dimulai?",
+    "Apa hal kecil yang bisa membuat proses skripsi terasa lebih ringan?"
+  ],
+  "follow_up_answers": [
+    "Saya belum berani bicara terbuka karena takut mengecewakan.",
+    "Saya bingung mulai dari rumusan masalah.",
+    "Kalau bisa nyicil 1 halaman sehari, mungkin lebih terasa ringan."
+  ]
+  },
+  {
+  "id": 74,
+  "intent": "academic_anxiety",
+  "context_for_indexing": "Setiap kali ada presentasi atau ujian, saya selalu cemas berlebihan bahkan sampai mual.",
+  "response_to_display": "Cemas menjelang ujian atau presentasi itu hal umum. Cobalah teknik pernapasan dalam atau grounding sebelum mulai. Pernahkah Anda merasa lebih baik setelah selesai presentasi?",
+  "keywords": ["cemas akademik", "ujian", "presentasi", "nervous"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apa yang paling membuat Anda takut saat presentasi atau ujian?",
+    "Apakah Anda pernah merasa lebih tenang setelah berbicara di depan kelas?",
+    "Apa persiapan yang bisa membuat Anda lebih percaya diri?"
+  ],
+  "follow_up_answers": [
+    "Saya takut suara saya gemetar dan orang-orang menilai saya buruk.",
+    "Setelah selesai biasanya saya lega banget, meski awalnya stres.",
+    "Latihan beberapa kali sebelum tampil cukup membantu mengurangi kecemasan."
+  ]
+  },
+  {
+  "id": 75,
+  "intent": "financial_stress_student",
+  "context_for_indexing": "Saya merasa stres karena uang bulanan dari orang tua tidak cukup, apalagi harus bayar keperluan kuliah juga.",
+  "response_to_display": "Masalah keuangan bisa sangat membebani mental. Anda tidak sendiri. Apakah Anda sudah mempertimbangkan mencari pekerjaan paruh waktu atau bantuan kampus?",
+  "keywords": ["keuangan", "uang bulanan", "kuliah", "beban finansial"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda sudah pernah berdiskusi dengan orang tua soal keuangan?",
+    "Apakah kampus Anda menyediakan beasiswa atau bantuan keuangan?",
+    "Apa pekerjaan sampingan yang bisa cocok dengan jadwal kuliah Anda?"
+  ],
+  "follow_up_answers": [
+    "Saya sudah bicara tapi kondisi ekonomi keluarga memang sedang sulit.",
+    "Saya pernah dengar ada beasiswa, tapi belum coba daftar.",
+    "Mungkin saya bisa coba kerja freelance dari rumah agar fleksibel."
+  ]
+  },
+  {
+  "id": 76,
+  "intent": "relationship_distraction",
+  "context_for_indexing": "Saya sedang galau karena hubungan saya. Ini membuat saya kehilangan fokus belajar.",
+  "response_to_display": "Perasaan dari hubungan memang bisa memengaruhi fokus. Validasi dulu perasaan Anda. Setelah itu, coba atur waktu khusus untuk belajar dan waktu untuk memproses emosi. Apa yang paling Anda rasakan sekarang?",
+  "keywords": ["hubungan", "galau", "cinta", "fokus belajar"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda merasa hubungan ini mendukung pertumbuhan pribadi Anda?",
+    "Apakah pasangan Anda tahu bahwa Anda sedang kewalahan?",
+    "Apa hal yang bisa Anda lakukan untuk memulihkan keseimbangan emosi?"
+  ],
+  "follow_up_answers": [
+    "Kadang saya merasa hubungan ini lebih banyak menyita energi saya.",
+    "Saya belum terbuka sepenuhnya soal stres yang saya alami.",
+    "Mungkin saya perlu ambil jarak sejenak untuk menenangkan diri."
+  ]
+  },
+  {
+  "id": 77,
+  "intent": "self_blame_failure",
+  "context_for_indexing": "Setiap kali saya gagal, saya menyalahkan diri saya terus-menerus.",
+  "response_to_display": "Kegagalan bukan akhir, dan menyalahkan diri tidak akan membantu. Coba ubah cara pandang jadi pembelajaran. Apa pelajaran paling berarti dari kegagalan terakhir Anda?",
+  "keywords": ["kegagalan", "menyalahkan diri", "penerimaan diri"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda memperlakukan diri sekeras ini jika teman Anda gagal?",
+    "Apa cara paling sehat yang bisa Anda lakukan setelah mengalami kegagalan?",
+    "Apa satu hal baik yang masih Anda miliki meski gagal?"
+  ],
+  "follow_up_answers": [
+    "Kalau teman saya gagal, saya justru menyemangati mereka.",
+    "Saya bisa coba menulis refleksi dan memaafkan diri sendiri.",
+    "Saya tetap punya tekad untuk terus belajar dan berkembang."
+  ]
+  },
+  {
+  "id": 78,
+  "intent": "post_graduation_anxiety",
+  "context_for_indexing": "Saya takut lulus karena saya tidak tahu mau jadi apa setelah kuliah.",
+  "response_to_display": "Ketidakpastian setelah lulus itu wajar, dan Anda tidak sendirian. Fokus dulu pada langkah kecil. Apa hal yang membuat Anda penasaran untuk dicoba setelah lulus?",
+  "keywords": ["lulus kuliah", "masa depan", "takut", "ketidakpastian"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda memiliki minat khusus yang ingin dikembangkan?",
+    "Sudahkah Anda berdiskusi dengan alumni atau senior tentang pengalaman mereka?",
+    "Apa satu hal yang ingin Anda coba tanpa harus langsung menetapkan karier?"
+  ],
+  "follow_up_answers": [
+    "Saya tertarik dengan dunia konten kreatif, tapi belum percaya diri.",
+    "Saya pernah tanya ke kakak tingkat, katanya coba dulu saja berbagai hal.",
+    "Saya ingin magang atau ikut pelatihan untuk cari tahu minat saya lebih dalam."
+  ]
+  },
+  {
+  "id": 79,
+  "intent": "lack_of_validation",
+  "context_for_indexing": "Saya sering merasa usaha saya tidak dihargai, baik oleh teman maupun keluarga.",
+  "response_to_display": "Validasi itu penting dan Anda pantas mendapatkannya. Tapi kadang kita juga bisa belajar memvalidasi diri. Apa pencapaian kecil yang Anda banggakan hari ini?",
+  "keywords": ["tidak dihargai", "pengakuan", "validasi", "kecewa"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apa bentuk penghargaan yang paling berarti bagi Anda?",
+    "Pernahkah Anda memberi ucapan selamat kepada diri sendiri?",
+    "Apa reaksi Anda saat orang lain menghargai Anda?"
+  ],
+  "follow_up_answers": [
+    "Saya paling suka kalau ada yang mengapresiasi usaha saya, bukan hanya hasil.",
+    "Belum, tapi mungkin saya harus mulai melakukannya.",
+    "Saya biasanya terkejut dan terharu kalau ada yang memberi apresiasi."
+  ]
+  },
+  {
+  "id": 80,
+  "intent": "lack_of_structure",
+  "context_for_indexing": "Saya merasa hari-hari saya berantakan karena tidak punya jadwal yang jelas.",
+  "response_to_display": "Kurangnya struktur bisa membuat semuanya terasa kacau. Coba mulai dengan membuat to-do list harian kecil. Apa satu kegiatan utama Anda hari ini?",
+  "keywords": ["jadwal", "berantakan", "tanpa arah", "kurang teratur"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah Anda pernah mencoba membuat planner atau bullet journal?",
+    "Apa rutinitas pagi yang bisa membantu Anda memulai hari?",
+    "Apa satu hal yang bisa Anda lakukan di jam yang sama setiap hari?"
+  ],
+  "follow_up_answers": [
+    "Saya pernah coba planner tapi tidak konsisten.",
+    "Kalau saya minum air putih dan stretching di pagi hari, rasanya lebih segar.",
+    "Saya bisa coba membaca 15 menit setiap malam sebelum tidur."
+  ]
+  },
+   {
+    "id": 81,
+    "intent": "academic_stress",
+    "context_for_indexing": "Aku mulai takut buka laptop karena tugas skripsi makin numpuk dan aku merasa gagal terus tiap kali nyoba nulis.",
+    "response_to_display": "Perasaan takut itu valid. Kadang, skripsi terasa menakutkan bukan karena susahnya, tapi karena tekanan yang kita berikan ke diri sendiri. Coba mulai dengan 5 menit saja hari ini. Mau coba?",
+    "keywords": ["skripsi", "takut", "prokrastinasi", "tugas akhir", "kuliah"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah kamu pernah menulis tanpa mengedit dulu?",
+      "Kapan terakhir kamu merasa percaya diri menulis?",
+      "Apakah kamu punya teman atau dosen yang bisa diajak diskusi?"
+    ],
+    "follow_up_answers": [
+      "Kadang aku terlalu perfeksionis jadi baru satu paragraf udah aku hapus.",
+      "Waktu bab 1 diterima dulu, aku merasa cukup bangga.",
+      "Aku punya teman seangkatan yang juga sedang skripsi, kami saling curhat."
+    ]
+  },
+  {
+    "id": 82,
+    "intent": "loneliness_isolation",
+    "context_for_indexing": "Akhir-akhir ini aku sering merasa sendirian, meskipun dikelilingi banyak orang. Rasanya kayak gak ada yang benar-benar ngerti.",
+    "response_to_display": "Kesepian bisa terasa bahkan di tengah keramaian. Kamu tidak sendiri. Kadang yang dibutuhkan hanya satu percakapan bermakna. Apa kamu ingin cerita lebih banyak hari ini?",
+    "keywords": ["kesepian", "sendiri", "tidak dimengerti", "isolasi", "kosong"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah kamu punya seseorang yang bisa kamu hubungi saat sedang sedih?",
+      "Apa yang membuat kamu merasa paling dimengerti?",
+      "Kapan terakhir kali kamu merasa terhubung dengan seseorang?"
+    ],
+    "follow_up_answers": [
+      "Kadang aku cuma curhat ke buku harian.",
+      "Waktu seseorang mendengarkan tanpa menghakimi.",
+      "Beberapa bulan lalu saat nongkrong bareng teman SMA."
+    ]
+  },
+  {
+    "id": 83,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Aku mulai mempertanyakan kenapa aku kuliah, apa tujuanku, dan rasanya semua ini sia-sia.",
+    "response_to_display": "Rasa kehilangan arah bisa datang kapan saja, terutama saat kita lelah. Tapi pertanyaan itu penting—karena dari situ kamu bisa mulai menemukan kembali makna. Apa yang dulu membuatmu memilih jurusan ini?",
+    "keywords": ["motivasi", "tujuan", "hilang arah", "kuliah", "lelah"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa alasan awal kamu mengambil jurusan ini?",
+      "Pernahkah kamu merasa bangga dengan apa yang kamu pelajari?",
+      "Kalau semua beban hilang, apa yang ingin kamu lakukan pertama kali?"
+    ],
+    "follow_up_answers": [
+      "Dulu aku ingin bantu orang lewat psikologi.",
+      "Waktu aku bisa bantu teman yang stress, rasanya berguna banget.",
+      "Aku ingin bisa bantu keluargaku dan punya waktu untuk diri sendiri."
+    ]
+  },
+  {
+    "id": 84,
+    "intent": "general_wellbeing_check",
+    "context_for_indexing": "Aku ngerasa kayak jalan di tempat. Setiap hari sama, dan gak ada yang berubah.",
+    "response_to_display": "Kadang hidup terasa datar, tapi bisa jadi kita butuh melihatnya dari sudut pandang yang berbeda. Apa satu hal kecil yang bisa kamu ubah minggu ini untuk membuat harimu berbeda?",
+    "keywords": ["rutinitas", "keseharian", "stagnan", "perasaan umum", "bosan"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah kamu punya waktu khusus untuk diri sendiri?",
+      "Apa hal kecil yang biasanya membuat kamu senang?",
+      "Kapan terakhir kali kamu mencoba sesuatu yang baru?"
+    ],
+    "follow_up_answers": [
+      "Aku sering lupa menyisihkan waktu untuk istirahat.",
+      "Dengar musik favorit bisa bantu banget.",
+      "Sudah lama banget sejak aku keluar rumah buat refreshing."
+    ]
+  },
+  {
+    "id": 85,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Aku merasa semua orang di sekitarku lebih baik, lebih pintar, dan lebih produktif.",
+    "response_to_display": "Perbandingan bisa jadi jebakan yang melemahkan kita. Ingat, perjalanan tiap orang beda. Apa satu pencapaian yang bisa kamu akui dalam dirimu hari ini?",
+    "keywords": ["harga diri", "perbandingan", "insecure", "nilai diri", "overthinking"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa pencapaian kecil yang kamu raih minggu ini?",
+      "Apa yang membuat kamu merasa tidak cukup baik?",
+      "Siapa yang biasanya kamu jadikan pembanding?"
+    ],
+    "follow_up_answers": [
+      "Aku berhasil bangun pagi dan mulai kerjain tugas meskipun berat.",
+      "Sering lihat postingan teman yang produktif bikin minder.",
+      "Aku sering bandingin diriku sama teman satu kelas yang aktif banget."
+    ]
+  },
+  {
+    "id": 86,
+    "intent": "stress_management_general",
+    "context_for_indexing": "Aku merasa overwhelmed akhir-akhir ini. Banyak deadline dan masalah pribadi menumpuk.",
+    "response_to_display": "Saat semuanya terasa berat, coba tarik napas dan ambil waktu sejenak. Kamu tidak harus menyelesaikan semuanya sekaligus. Apa satu hal kecil yang bisa kamu lakukan sekarang?",
+    "keywords": ["stres", "tekanan", "overwhelmed", "deadline", "lelah"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa hal yang paling bikin kamu stres saat ini?",
+      "Apakah kamu punya cara khusus untuk menenangkan diri?",
+      "Apakah kamu sudah mencoba membagi tugas menjadi bagian kecil?"
+    ],
+    "follow_up_answers": [
+      "Tugas akhir dan masalah keluarga datang bersamaan.",
+      "Aku biasanya coba journaling sebelum tidur.",
+      "Belum, aku masih sering kerjakan semua sekaligus dan akhirnya burn out."
+    ]
+  },
+  {
+    "id": 87,
+    "intent": "general_anxiety_worry",
+    "context_for_indexing": "Setiap kali memikirkan masa depan, aku cemas dan gak bisa tenang.",
+    "response_to_display": "Kecemasan tentang masa depan bisa sangat mengganggu. Tapi fokus pada hari ini bisa membantu. Apa satu hal yang bisa kamu kendalikan sekarang?",
+    "keywords": ["cemas", "masa depan", "khawatir", "takut", "anxiety"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa yang paling sering membuatmu cemas soal masa depan?",
+      "Pernahkah kamu merasa lebih tenang setelah melakukan sesuatu untuk dirimu sendiri?",
+      "Bagaimana kamu biasanya menenangkan diri saat panik?"
+    ],
+    "follow_up_answers": [
+      "Takut gagal dan mengecewakan orang tua.",
+      "Kadang setelah mandi dan mendengarkan lagu, aku bisa lebih tenang.",
+      "Aku coba tarik napas pelan dan fokus pada hal-hal kecil di sekitarku."
+    ]
+  },
+  {
+    "id": 88,
+    "intent": "depression_symptoms",
+    "context_for_indexing": "Rasanya tidak ada lagi yang bisa membuatku tertarik. Semua terasa hampa.",
+    "response_to_display": "Kehampaan itu nyata dan menyakitkan. Tapi kamu masih di sini, dan itu berarti kamu kuat. Apa satu hal kecil yang dulu pernah kamu nikmati?",
+    "keywords": ["depresi", "kosong", "lelah", "putus asa", "tidak semangat"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa aktivitas kecil yang dulu membuatmu bahagia?",
+      "Kapan terakhir kamu merasa benar-benar tertawa?",
+      "Apakah kamu punya seseorang untuk sekadar berbagi cerita?"
+    ],
+    "follow_up_answers": [
+      "Aku dulu suka menggambar di waktu senggang.",
+      "Waktu nonton film lucu bareng teman kost.",
+      "Kadang aku cerita ke adik, walau cuma sebentar."
+    ]
+  },
+  {
+    "id": 89,
+    "intent": "motivation_loss",
+    "context_for_indexing": "Setiap hari rasanya kayak diulang aja. Aku bangun, ngerjain tugas, tidur, ulang lagi. Aku butuh alasan buat lanjut.",
+    "response_to_display": "Kejenuhan itu valid. Kadang kita hanya perlu diingatkan bahwa tujuan besar datang dari langkah kecil. Apa satu alasan kecil yang membuatmu tetap bertahan sampai hari ini?",
+    "keywords": ["motivasi", "burnout", "rutinitas", "lelah", "tujuan hidup"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa yang biasanya membuat kamu semangat meskipun sebentar?",
+      "Siapa yang kamu pikirkan saat ingin menyerah?",
+      "Apa impian kecil yang masih kamu simpan?"
+    ],
+    "follow_up_answers": [
+      "Makan makanan favorit kadang jadi penyemangatku.",
+      "Aku selalu ingat ibu yang berharap aku lulus.",
+      "Aku ingin bisa traveling setelah lulus kuliah."
+    ]
+  },
+  {
+    "id": 90,
+    "intent": "self_esteem_self_worth_issues",
+    "context_for_indexing": "Aku merasa kalau aku gak cukup pintar buat kuliah di jurusan ini.",
+    "response_to_display": "Keraguan itu wajar, tapi kamu diterima di sini bukan karena kebetulan. Apa satu hal yang sudah kamu pelajari dengan baik sejauh ini?",
+    "keywords": ["percaya diri", "ragu", "tidak cukup pintar", "nilai diri", "overthinking"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa hal yang membuatmu merasa tidak cukup pintar?",
+      "Apa mata kuliah yang kamu sukai atau kuasai?",
+      "Pernahkah kamu merasa berhasil mengatasi tantangan sebelumnya?"
+    ],
+    "follow_up_answers": [
+      "Nilai ujian kemarin membuatku merasa down.",
+      "Aku suka mata kuliah Psikologi Sosial, aku bisa mengikuti dengan baik.",
+      "Ya, dulu aku pernah merasa kesulitan juga tapi akhirnya bisa lulus mata kuliahnya."
+    ]
+  },
+  {
+    "id": 91,
+    "intent": "academic_stress",
+    "context_for_indexing": "Aku merasa tekanan dari tugas kuliah makin berat, dan aku gak tahu harus mulai dari mana.",
+    "response_to_display": "Tekanan akademik bisa sangat melelahkan. Coba fokus pada satu tugas kecil dulu. Apa tugas yang paling mendesak yang perlu kamu selesaikan hari ini?",
+    "keywords": ["stres akademik", "tugas kuliah", "deadline", "kelelahan"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa yang membuat tugas itu terasa berat bagimu?",
+      "Apakah kamu sudah mencoba membagi tugas menjadi bagian-bagian kecil?",
+      "Siapa yang bisa kamu ajak diskusi untuk membantu menyelesaikan tugas ini?"
+    ],
+    "follow_up_answers": [
+      "Banyaknya materi yang harus dipahami membuatku bingung.",
+      "Belum, aku biasanya langsung mengerjakan semuanya sekaligus.",
+      "Aku bisa tanya ke teman sekelas atau dosen pembimbing."
+    ]
+  },
+  {
+    "id": 92,
+    "intent": "relationship_issues",
+    "context_for_indexing": "Hubunganku dengan pacar lagi gak baik. Kami sering bertengkar dan aku merasa gak didengar.",
+    "response_to_display": "Hubungan yang tidak sehat bisa sangat menguras emosi. Penting untuk berbicara terbuka. Apa satu hal yang ingin kamu sampaikan ke pasanganmu?",
+    "keywords": ["hubungan", "pertengkaran", "tidak didengar", "emosi"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa yang biasanya memicu pertengkaran antara kalian?",
+      "Apakah kamu sudah mencoba berbicara dengan tenang tentang perasaanmu?",
+      "Apa harapanmu untuk hubungan ini ke depannya?"
+    ],
+    "follow_up_answers": [
+      "Kami sering bertengkar karena masalah sepele yang menumpuk.",
+      "Belum, aku takut kalau bicara malah jadi lebih buruk.",
+      "Aku berharap kami bisa saling mendukung dan mengerti satu sama lain."
+    ]
+  },
+  {
+    "id": 93,
+    "intent": "academic_anxiety",
+    "context_for_indexing": "Aku selalu cemas sebelum ujian, bahkan sampai susah tidur semalaman.",
+    "response_to_display": "Kecemasan sebelum ujian itu umum, tapi bisa sangat mengganggu. Coba teknik relaksasi seperti pernapasan dalam. Apa yang biasanya kamu lakukan untuk menenangkan diri sebelum ujian?",
+    "keywords": ["kecemasan", "ujian", "tidak bisa tidur", "stres"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apa yang paling membuatmu cemas saat ujian?",
+      "Apakah kamu sudah mencoba teknik relaksasi sebelumnya?",
+      "Siapa yang biasanya mendukungmu saat menghadapi ujian?"
+    ],
+    "follow_up_answers": [
+      "Takut tidak lulus dan mengecewakan orang tua.",
+      "Belum, aku biasanya hanya berusaha belajar lebih keras.",
+      "Teman-teman sekelas sering saling mendukung sebelum ujian."
+    ]
+  },
+  {
+    "id": 94,
+    "intent": "financial_stress_student",
+    "context_for_indexing": "Aku merasa stres karena uang bulanan dari orang tua tidak cukup untuk biaya kuliah dan hidup sehari-hari.",
+    "response_to_display": "Masalah keuangan bisa sangat membebani pikiran. Coba buat anggaran sederhana untuk melihat di mana bisa menghemat. Apa satu pengeluaran yang bisa kamu kurangi minggu ini?",
+    "keywords": ["keuangan", "uang bulanan", "biaya kuliah", "stres"],
+    "confidence_score": 0.9,
+    "follow_up_questions": [
+      "Apakah kamu sudah mencoba mencari pekerjaan paruh waktu?",
+      "Apa yang paling menguras anggaranmu saat ini?",
+      "Apakah ada bantuan keuangan dari kampus yang bisa kamu manfaatkan?"
+    ],
+    "follow_up_answers": [
+      "Belum, aku belum punya waktu karena tugas kuliah.",
+      "Makan di luar dan transportasi sering bikin anggaran membengkak.",
+      "Aku dengar ada beasiswa, tapi belum sempat daftar."
+    ]
+  },
+  {
+  "id": 95,
+  "intent": "peer_pressure_college",
+  "context_for_indexing": "Aku merasa harus ikut semua kegiatan kampus biar dianggap keren, tapi aku mulai kelelahan.",
+  "response_to_display": "Merasa harus selalu aktif bisa membuat lelah juga. Coba pikirkan, apakah semua kegiatan ini benar-benar sesuai tujuan Anda?",
+  "keywords": ["tekanan teman", "kegiatan kampus", "kelelahan", "peer pressure"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah kamu benar-benar menikmati semua kegiatan yang kamu ikuti?",
+    "Apakah ada aktivitas yang bisa kamu kurangi untuk istirahat?",
+    "Bagaimana perasaanmu jika melewatkan satu kegiatan?"
+  ],
+  "follow_up_answers": [
+    "Ada beberapa yang aku ikuti karena takut ketinggalan, bukan karena suka.",
+    "Mungkin aku bisa berhenti dari satu kepanitiaan yang tidak terlalu penting.",
+    "Awalnya cemas, tapi aku rasa aku butuh batasan juga."
+  ]
+  },
+  {
+  "id": 96,
+  "intent": "academic_identity_crisis",
+  "context_for_indexing": "Aku mulai mempertanyakan jurusan yang aku ambil. Aku gak yakin ini yang aku mau seumur hidup.",
+  "response_to_display": "Meragukan jurusan adalah hal yang wajar, terutama saat kita sedang lelah. Coba pikirkan kembali: Apa alasan kamu memilih jurusan ini di awal?",
+  "keywords": ["keraguan jurusan", "krisis identitas", "kuliah", "masa depan"],
+  "confidence_score": 0.9,  
+  "follow_up_questions": [
+    "Apa aspek dari jurusanmu yang paling kamu sukai?",
+    "Apakah ada alternatif yang pernah kamu pertimbangkan?",
+    "Apa harapanmu setelah lulus nanti?"
+  ],
+  "follow_up_answers": [
+    "Aku suka bagian analisis data, tapi kurang suka sisi praktiknya.",
+    "Dulu aku pernah mempertimbangkan desain juga.",
+    "Aku ingin bekerja di bidang yang tetap membantu orang lain."  
+  ]
+  },
+  {
+  "id": 97,
+  "intent": "motivation_loss",
+  "context_for_indexing": "Aku mulai merasa kuliah hanya formalitas. Semangatku benar-benar hilang.",
+  "response_to_display": "Wajar jika semangat terasa pudar. Coba temukan kembali makna kuliah untuk diri kamu sendiri, bukan sekadar tuntutan. Apa satu momen kuliah yang membuatmu merasa bangga?",
+  "keywords": ["kehilangan motivasi", "formalitas", "tidak bersemangat", "kuliah"],
+  "confidence_score": 0.9,  
+  "follow_up_questions": [
+    "Apa tujuan pribadi kamu dengan kuliah?",
+    "Apakah ada proyek atau tugas yang pernah kamu nikmati?",
+    "Apa mimpi yang dulu pernah kamu kaitkan dengan pendidikan ini?"    
+  ],
+  "follow_up_answers": [
+    "Aku ingin menjadi seorang pemimpin dan memberi manfaat bagi orang lain.",
+    "Aku pernah senang saat mengerjakan proyek penelitian kecil di semester 2.",
+    "Aku pernah bermimpi jadi pengajar yang sabar dan inspiratif."
+  
+  ]
+  },
+  {
+  "id": 98,
+  "intent": "lack_of_direction",
+  "context_for_indexing": "Aku merasa semua orang punya arah, tapi aku bingung dengan hidupku sendiri.",
+  "response_to_display": "Rasa tersesat bisa jadi sinyal bahwa kamu sedang tumbuh. Tak apa bingung. Coba tanyakan pada diri: Apa hal kecil yang membuatmu merasa berarti akhir-akhir ini?",
+  "keywords": ["kebingungan", "tidak punya arah", "tidak tahu tujuan", "kehilangan arah"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah ada momen ketika kamu merasa hidupmu bermakna?",
+    "Apa kegiatan yang membuatmu lupa waktu karena sangat menikmatinya?",
+    "Pernahkah kamu mencoba menuliskan hal-hal yang membuatmu penasaran?"
+  ],
+  "follow_up_answers": [
+    "Saat aku membantu teman yang kesulitan, aku merasa berarti.",
+    "Menulis di jurnal atau blog membuatku merasa hidup.",
+    "Aku suka menulis pertanyaan-pertanyaan besar di notes pribadi aku."
+  ]
+  },
+  {
+  "id": 99,
+  "intent": "lack_of_focus",
+  "context_for_indexing": "Aku sering susah fokus saat belajar, bahkan untuk waktu yang sebentar.",
+  "response_to_display": "Sulit fokus bisa terjadi saat pikiran kita terlalu penuh. Coba mulai dengan waktu belajar yang pendek, seperti 10 menit saja. Apa yang biasanya paling mengalihkan perhatianmu?",
+  "keywords": ["susah fokus", "belajar", "terganggu", "tidak konsentrasi", "gangguan belajar"
+  ],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah kamu sudah mencoba belajar dengan teknik Pomodoro?",
+    "Apa yang biasanya membuatmu terdistraksi saat belajar?",
+    "Bagaimana suasana belajar yang paling nyaman untukmu?"
+  ],
+  "follow_up_answers": [
+    "Aku pernah coba Pomodoro, dan itu cukup membantu selama tidak ada gangguan.",
+    "Biasanya notifikasi HP dan rasa ingin membuka media sosial.",
+    "Aku nyaman belajar dengan musik instrumental dan ruangan tenang."
+  ]
+  },
+  {
+  "id": 100,
+  "intent": "pressure_from_family",
+  "context_for_indexing": "Orang tuaku ingin aku cepat lulus, tapi aku belum siap dengan skripsi.",
+  "response_to_display": "Tekanan dari keluarga bisa menambah beban pikiran. Tapi ini hidupmu, dan penting juga untuk menjaga ritme sesuai kesiapan. Apa yang paling kamu butuhkan sekarang untuk mulai skripsi?",
+  "keywords": ["tekanan keluarga", "lulus", "skripsi", "belum siap", "beban keluarga"],
+  "confidence_score": 0.9,
+  "follow_up_questions": [
+    "Apakah kamu pernah mencoba menjelaskan kondisi kamu ke keluarga?",
+    "Bagian skripsi mana yang menurutmu paling sulit untuk dimulai?",
+    "Apa hal kecil yang bisa membuat proses skripsi terasa lebih ringan?"
+  ],
+  "follow_up_answers": [
+    "Aku belum berani bicara terbuka karena takut mengecewakan.",
+    "Aku bingung mulai dari rumusan masalah.",
+    "Kalau bisa nyicil 1 halaman sehari, mungkin lebih terasa ringan."
+  ]
+  },
+  {
+  "id": 101,
+  "intent": "about_mindfulness_bot",
+  "context_for_indexing": "Apa itu Mindfulness? Kamu ini sebenarnya siapa dan bisa bantu apa saja?",
+  "response_to_display": "Aku Mindfulness, asisten AI yang dirancang untuk membantu kamu menjaga kesehatan mental. Aku bukan pengganti profesional, tapi aku di sini untuk mendengarkan dan mendukungmu. Mau cerita apa hari ini?",
+  "keywords": ["mindfulness", "asisten", "kesehatan mental", "siapa kamu", "tentang kamu"],
+  "confidence_score": 0.95,
+  "follow_up_questions": [
+    "Apa yang bisa kamu bantu selain mendengarkan?",
+    "Kapan waktu terbaik bicara dengan kamu?",
+    "Apakah kamu bisa bantu kalau aku sedang skripsi dan stres?"
+  ],
+  "follow_up_answers": [
+    "Aku bisa bantu dengan mendengarkan, memberi semangat, dan memberi pertanyaan reflektif.",
+    "Kapan pun kamu butuh teman ngobrol, aku di sini 24/7.",
+    "Tentu! Banyak mahasiswa akhir yang ngobrol denganku tentang skripsi dan stres."
+  ]
+  },
+  {
+  "id": 102,
+  "intent": "use_cases_mindfulness",
+  "context_for_indexing": "Kapan aku bisa ngobrol dengan Mindfulness? Apakah hanya saat aku sedih atau juga saat butuh refleksi?",
+  "response_to_display": "Kamu bisa ngobrol denganku kapan saja, entah sedang sedih, bingung, atau hanya ingin mengecek kondisi diri. Aku di sini untuk mendampingi, bukan menghakimi.",
+  "keywords": ["penggunaan", "kapan bisa dipakai", "refleksi diri", "sadari emosi", "mindfulness use case"],
+  "confidence_score": 0.95,
+  "follow_up_questions": [
+    "Apakah kamu menyimpan semua yang aku bicarakan?",
+    "Bisakah kamu bantu aku memahami pola pikirku?",
+    "Apakah kamu punya fitur untuk cek suasana hati?"
+  ],
+  "follow_up_answers": [
+    "Tidak, percakapan kita bersifat pribadi dan tidak disimpan secara permanen.",
+    "Ya, dengan pertanyaan tertentu aku bisa bantu kamu refleksi lebih dalam.",
+    "Betul, kamu bisa cerita dulu lalu aku bantu identifikasi suasana hatimu."
+  ]
+  },
+  {
+  "id": 103,
+  "intent": "limitations_mindfulness",
+  "context_for_indexing": "Apakah Mindfulness bisa menggantikan psikolog? Apakah aku cukup ngobrol sama kamu aja?",
+  "response_to_display": "Aku senang bisa mendampingi kamu, tapi aku bukan pengganti profesional kesehatan mental. Jika kamu merasa sangat kewalahan, aku sarankan mencari bantuan dari tenaga profesional seperti psikolog.",
+  "keywords": ["batasan", "keterbatasan", "bukan psikolog", "profesional", "mindfulness bot"],
+  "confidence_score": 0.95,
+  "follow_up_questions": [
+    "Bagaimana aku tahu kapan waktunya cari bantuan profesional?",
+    "Apakah kamu bisa bantu aku cari layanan psikolog?",
+    "Kalau aku gak sanggup ke psikolog, apa yang bisa aku lakukan?"
+  ],
+  "follow_up_answers": [
+    "Kalau kamu merasa sedih atau cemas terus menerus selama berminggu-minggu, itu bisa jadi sinyal untuk cari bantuan profesional.",
+    "Aku bisa bantu beri rekomendasi umum, atau bantu cari berdasarkan lokasi jika kamu mau.",
+    "Coba mulai dari komunitas support group atau konseling kampus jika ada."
+  ]
+  }
+]
