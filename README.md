@@ -92,6 +92,13 @@ mindfulness-project/
 └── README.md                         # Dokumentasi proyek
 ```
 
+## Mockup Website
+|              |                                       |
+|:------------:|:-------------------------------------:|
+|      Halaman Chat        |![image](https://github.com/user-attachments/assets/44cf3060-d7d2-4fd4-81dc-ae05a3e804e0)                                       |
+
+
+
 ## Instalasi dan Setup Lokal
 
 ## Panduan Instalasi Lokal
