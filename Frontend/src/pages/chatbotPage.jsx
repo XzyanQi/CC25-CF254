@@ -7,8 +7,11 @@ import { sendToMindfulness } from '../api/chatbot';
 import ReactMarkdown from 'react-markdown';
 
 const CHAT_SESSIONS_KEY = 'mindfulnessChatSessions';
+const REQUEST_TIMEOUT = 30000; // 30 seconds
+const MAX_RESPONSE_LENGTH = 5000;
 
 React
+
 // Daftar kata yang dilarang 
 const BANNED_WORDS = new Set([
   'kafir', 'bom', 'gay', 'lesbi', 'trans', 'transgender', 'homo', 'dick', 'iblis', 'lonte', 'pokkai',
@@ -21,27 +24,29 @@ const ChatbotPage = () => {
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isBotTyping, setIsBotTyping] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  
   const abortControllerRef = useRef(null);
   const chatEndRef = useRef(null);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerButtonRef = useRef(null);
   const emojiPickerPopupRef = useRef(null);
-
+  
   const navigate = useNavigate();
 
-  const generateUniqueId = (prefix) => {
+  // Fungsi utilitas untuk menghasilkan ID unik
+  const generateUniqueId = useCallback((prefix) => {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-  };
+  }, []);
 
   // Fungsi untuk membersihkan dan memvalidasi respons bot
-  const cleanBotResponse = (responseData) => {
+  const cleanBotResponse = useCallback((responseData) => {
     if (!responseData) {
       return "Maaf, tidak ada respons dari server.";
     }
 
     let botReplyText = "";
 
-    // Prioritas parsing respons berdasarkan struktur yang paling umum
+    // Penguraian prioritas berdasarkan struktur respons yang paling umum
     if (typeof responseData === 'string') {
       botReplyText = responseData.trim();
     } else if (responseData.message && typeof responseData.message === 'string') {
@@ -59,7 +64,7 @@ const ChatbotPage = () => {
     } else if (responseData.data && typeof responseData.data === 'string') {
       botReplyText = responseData.data.trim();
     } else if (responseData.results && Array.isArray(responseData.results)) {
-      // Handle array responses
+      // Handle array response
       if (responseData.results.length > 0) {
         const firstResult = responseData.results[0];
         if (typeof firstResult === 'string') {
@@ -78,7 +83,7 @@ const ChatbotPage = () => {
         botReplyText = "Respons array kosong dari server.";
       }
     } else if (responseData.choices && Array.isArray(responseData.choices)) {
-      // Handle OpenAI-style responses
+      // Style
       if (responseData.choices.length > 0 && responseData.choices[0].message) {
         botReplyText = responseData.choices[0].message.content?.trim() || 
                       responseData.choices[0].message.text?.trim() || 
@@ -87,123 +92,119 @@ const ChatbotPage = () => {
         botReplyText = "Format choices tidak valid.";
       }
     } else {
-      try {
-        const stringified = JSON.stringify(responseData);
-        console.warn("Struktur respons tidak dikenal, data:", responseData);
-        botReplyText = "Format respons tidak dikenal dari server.";
-      } catch (e) {
-        botReplyText = "Respons tidak dapat diproses.";
-      }
+      console.warn("Struktur respons tidak dikenal, data:", responseData);
+      botReplyText = "Format respons tidak dikenal dari server.";
     }
 
-    // Validasi dan pembersihan final
+    //  validasi dan clean
     if (!botReplyText || botReplyText.length === 0) {
       return "Maaf, respons kosong dari server.";
     }
 
-    // Batasi panjang respons
-    if (botReplyText.length > 5000) {
-      botReplyText = botReplyText.substring(0, 5000) + "... (respons dipotong karena terlalu panjang)";
+    // Limit respons
+    if (botReplyText.length > MAX_RESPONSE_LENGTH) {
+      botReplyText = botReplyText.substring(0, MAX_RESPONSE_LENGTH) + "... (respons dipotong karena terlalu panjang)";
     }
 
     // Bersihkan karakter yang tidak diinginkan
     botReplyText = botReplyText.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
     return botReplyText;
-  };
+  }, []);
 
-  // Fungsi untuk menangani error API dengan lebih baik
-  const handleApiError = (error) => {
+  // Fungsi untuk menangani kesalahan API secara lebih efektif
+  const handleApiError = useCallback((error) => {
     let errorMessage = "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
     
     if (axios.isCancel(error)) {
       console.log('Request dibatalkan:', error.message);
-      return null; // Tidak perlu menampilkan error untuk request yang dibatalkan
+      return null; 
     } else if (error.response) {
-      // Server respond eror
+      // Server responded eror
       const status = error.response.status;
-      switch (status) {
-        case 400:
-          errorMessage = "Permintaan tidak valid. Silakan coba lagi.";
-          break;
-        case 401:
-          errorMessage = "Tidak memiliki akses. Silakan login kembali.";
-          break;
-        case 403:
-          errorMessage = "Akses ditolak oleh server.";
-          break;
-        case 404:
-          errorMessage = "Layanan tidak ditemukan.";
-          break;
-        case 429:
-          errorMessage = "Terlalu banyak permintaan. Silakan tunggu sebentar.";
-          break;
-        case 500:
-          errorMessage = "Server mengalami masalah. Silakan coba lagi nanti.";
-          break;
-        case 503:
-          errorMessage = "Layanan sedang tidak tersedia. Silakan coba lagi nanti.";
-          break;
-        default:
-          errorMessage = `Server error (${status}). Silakan coba lagi.`;
-      }
+      const errorMessages = {
+        400: "Permintaan tidak valid. Silakan coba lagi.",
+        401: "Tidak memiliki akses. Silakan login kembali.",
+        403: "Akses ditolak oleh server.",
+        404: "Layanan tidak ditemukan.",
+        429: "Terlalu banyak permintaan. Silakan tunggu sebentar.",
+        500: "Server mengalami masalah. Silakan coba lagi nanti.",
+        503: "Layanan sedang tidak tersedia. Silakan coba lagi nanti."
+      };
+      
+      errorMessage = errorMessages[status] || `Server error (${status}). Silakan coba lagi.`;
       console.error(`API Error ${status}:`, error.response.data);
     } else if (error.request) {
       // Network error
       errorMessage = "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
       console.error('Network Error:', error.request);
     } else {
-      // Lainnya
       console.error('Error:', error.message);
     }
 
     return errorMessage;
-  };
-
-  useEffect(() => {
-    const savedSessions = localStorage.getItem(CHAT_SESSIONS_KEY);
-    let loadedSessions = [];
-    if (savedSessions) {
-      try {
-        const parsedSessions = JSON.parse(savedSessions);
-        loadedSessions = parsedSessions.map(session => ({
-          ...session,
-          messages: session.messages.map(msg => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp)
-          })),
-          lastUpdated: new Date(session.lastUpdated)
-        }));
-      } catch (error) {
-        console.error("Error parsing chat sessions dari localStorage:", error);
-      }
-    }
-
-    if (loadedSessions.length > 0) {
-      loadedSessions.sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime());
-      setChatSessions(loadedSessions);
-      setActiveSessionId(loadedSessions[0].id);
-    } else {
-       handleNewChat(false);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Check banned words
+  const containsBannedWords = useCallback((text) => {
+    const lowerCaseText = text.toLowerCase();
+    const words = lowerCaseText.split(/[\s.,!?;:]+/).map(word => word.replace(/^[^\w]+|[^\w]+$/g, ""));
+    
+    return words.some(word => word !== '' && BANNED_WORDS.has(word));
+  }, []);
+
+  // Load chat dari sesi lokal
   useEffect(() => {
-    if (chatSessions.length > 0 || localStorage.getItem(CHAT_SESSIONS_KEY)) {
+    const loadSessions = () => {
+      const savedSessions = localStorage.getItem(CHAT_SESSIONS_KEY);
+      let loadedSessions = [];
+      
+      if (savedSessions) {
+        try {
+          const parsedSessions = JSON.parse(savedSessions);
+          loadedSessions = parsedSessions.map(session => ({
+            ...session,
+            messages: session.messages.map(msg => ({
+              ...msg,
+              timestamp: new Date(msg.timestamp)
+            })),
+            lastUpdated: new Date(session.lastUpdated)
+          }));
+        } catch (error) {
+          console.error("Error parsing chat sessions dari localStorage:", error);
+        }
+      }
+
+      if (loadedSessions.length > 0) {
+        loadedSessions.sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime());
+        setChatSessions(loadedSessions);
+        setActiveSessionId(loadedSessions[0].id);
+      } else {
+        handleNewChat(false);
+      }
+    };
+
+    loadSessions();
+  }, []);
+
+  // Save chat ke local
+  useEffect(() => {
+    if (chatSessions.length > 0) {
       localStorage.setItem(CHAT_SESSIONS_KEY, JSON.stringify(chatSessions));
-    } else if (chatSessions.length === 0 && localStorage.getItem(CHAT_SESSIONS_KEY)) {
+    } else if (localStorage.getItem(CHAT_SESSIONS_KEY)) {
       localStorage.removeItem(CHAT_SESSIONS_KEY);
     }
   }, [chatSessions]);
-  
+
+  // Auto-scroll ke akhir ketika message baru tiba
   const activeSession = chatSessions.find(s => s.id === activeSessionId);
   const currentMessages = activeSession ? activeSession.messages : [];
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [currentMessages]); 
+  }, [currentMessages]);
 
+  // bersihin control
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
@@ -212,6 +213,7 @@ const ChatbotPage = () => {
     };
   }, []);
 
+  // Handle emoji picker
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -223,52 +225,61 @@ const ChatbotPage = () => {
         setShowEmojiPicker(false);
       }
     }
+    
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  const onEmojiClick = (emojiData) => {
+  const onEmojiClick = useCallback((emojiData) => {
     setMessage(prevMessage => prevMessage + emojiData.emoji);
-  };
+  }, []);
 
-  const handleNewChat = (updateFromExistingSessions = true) => {
+  const handleNewChat = useCallback((updateFromExistingSessions = true) => {
     const newSessionId = generateUniqueId('session');
-    const initialBotMessageText = "Hello, i'm Mindfulness, your personal assistant. How can I help you today? 😊";
+    const initialBotMessageText = "Halo! Saya Mindfulness, asisten AI kamu untuk mendengarkan dan membantu dalam hal kesehatan mental. Bagaimana perasaanmu hari ini? 😊";
+    
     const newSession = {
       id: newSessionId,
       name: `Chat ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 
       messages: [
         { 
-          id: generateUniqueId('init-bot'), 
+          id: generateUniqueId('bot'),
           text: initialBotMessageText,
-          sender: "bot", 
-          timestamp: new Date() 
+          sender: "bot",
+          timestamp: new Date(),
+          followUps: [
+            "Ceritakan tentang perasaanmu",
+            "Apa yang membuatmu khawatir?",
+            "Bagaimana kualitas tidurmu?"
+          ]
         }
       ],
       lastUpdated: new Date()
     };
+    
     if (updateFromExistingSessions) {
       setChatSessions(prevSessions => [newSession, ...prevSessions]
         .sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime()));
     } else {
       setChatSessions([newSession]);
     }
+    
     setActiveSessionId(newSessionId);
     setMessage('');
     setIsBotTyping(false);
     setShowEmojiPicker(false);
-  };
+  }, [generateUniqueId]);
 
-  const handleSelectSession = (sessionId) => {
+  const handleSelectSession = useCallback((sessionId) => {
     setActiveSessionId(sessionId);
     setMessage('');
     setIsBotTyping(false);
     setShowEmojiPicker(false);
-  };
+  }, []);
   
-  const handleDeleteSession = (sessionIdToDelete, event) => {
+  const handleDeleteSession = useCallback((sessionIdToDelete, event) => {
     event.stopPropagation();
     const currentSessions = chatSessions.filter(session => session.id !== sessionIdToDelete);
     setChatSessions(currentSessions);
@@ -281,24 +292,13 @@ const ChatbotPage = () => {
         handleNewChat(false); 
       }
     }
-  };
+  }, [chatSessions, activeSessionId, handleNewChat]);
 
-  const sendMessage = async () => {
+  const sendMessage = useCallback(async () => {
     const userMessageText = message.trim();
     if (!userMessageText || !activeSessionId) return;
 
-    const lowerCaseUserMessage = userMessageText.toLowerCase();
-    const wordsInMessage = lowerCaseUserMessage.split(/[\s.,!?;:]+/).map(word => word.replace(/^[^\w]+|[^\w]+$/g, ""));
-    
-    let foundBannedWord = false;
-    for (const word of wordsInMessage) {
-      if (BANNED_WORDS.has(word) && word !== '') { 
-        foundBannedWord = true;
-        break;
-      }
-    }
-
-    // Tambahkan pesan pengguna ke UI
+    // tambahin user
     const userMessage = {
       id: generateUniqueId('user'),
       text: userMessageText,
@@ -327,14 +327,21 @@ const ChatbotPage = () => {
     setMessage('');
     setShowEmojiPicker(false);
 
-    if (foundBannedWord) {
+    // Check kata-kata terlang
+    if (containsBannedWords(userMessageText)) {
       console.log("Banned word terdeteksi:", userMessageText);
       const botCannedResponse = {
         id: generateUniqueId('bot-banned'),
-        text: "Maaf, saya tidak mengerti apa yang anda katakan.",
+        text: "Maaf, saya tidak dapat membahas topik tersebut. Mari kita fokus pada hal-hal yang dapat membantu kesehatan mental kamu. Bagaimana perasaanmu hari ini?",
         sender: "bot",
-        timestamp: new Date()
+        timestamp: new Date(),
+        followUps: [
+          "Ceritakan tentang harimu",
+          "Apa yang membuatmu bahagia?",
+          "Bagaimana cara kamu mengatasi stres?"
+        ]
       };
+      
       setChatSessions(prevSessions =>
         prevSessions.map(session =>
           session.id === activeSessionId
@@ -354,27 +361,28 @@ const ChatbotPage = () => {
     setIsBotTyping(true);
 
     try {
-      // Kirim request ke API dengan timeout
+      // Kirim api habis
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), 30000); // 30 detik timeout
+        setTimeout(() => reject(new Error('Request timeout')), REQUEST_TIMEOUT);
       });
 
       const apiPromise = sendToMindfulness(userMessageText, currentController.signal);
       const botResponseData = await Promise.race([apiPromise, timeoutPromise]);
       
-      // Clear abort controller jika request berhasil
+      // bersihkan kalau suskes
       if (abortControllerRef.current === currentController) {
         abortControllerRef.current = null; 
       }
 
-      // Proses respons dengan fungsi pembersihan yang telah diperbaiki
+      // Process response dengan fungsi clean
       const botReplyText = cleanBotResponse(botResponseData);
 
       const botMessage = {
         id: generateUniqueId('bot'),
         text: botReplyText,
         sender: "bot",
-        timestamp: new Date()
+        timestamp: new Date(),
+        followUps: botResponseData?.follow_up_questions || []
       };
 
       setChatSessions(prevSessions =>
@@ -386,21 +394,26 @@ const ChatbotPage = () => {
       );
 
     } catch (error) {
-      // bersihkan abort controller jika request gagal
+      // bersihin eror kalau gagal
       if (abortControllerRef.current === currentController) { 
         abortControllerRef.current = null;
       }
 
-      // Handle error dengan fungsi yang telah diperbaiki
+      // Handle eror
       const errorMessage = handleApiError(error);
       
-      // Hanya tampilkan error message jika bukan canceled request
+      // Menampilkan Eror Halaman
       if (errorMessage) {
         const errorBotMessage = {
           id: generateUniqueId('error'),
           text: errorMessage,
           sender: "bot",
-          timestamp: new Date()
+          timestamp: new Date(),
+          followUps: [
+            "Coba kirim pesan lagi",
+            "Periksa koneksi internet",
+            "Refresh halaman"
+          ]
         };
         
         setChatSessions(prevSessions =>
@@ -414,18 +427,18 @@ const ChatbotPage = () => {
     } finally {
       setIsBotTyping(false);
     }
-  };
+  }, [message, activeSessionId, generateUniqueId, containsBannedWords, cleanBotResponse, handleApiError]);
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
-  };
+  }, [sendMessage]);
   
-  const formatTime = (date) => {
+  const formatTime = useCallback((date) => {
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -433,7 +446,7 @@ const ChatbotPage = () => {
       <div className={`bg-white border-r border-gray-200 transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-0'} overflow-hidden flex flex-col`}>
         <div className="p-4 border-b">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-lg font-semibold text-gray-800">Chatbot</h1>
+            <h1 className="text-lg font-semibold text-gray-800">Mindfulness Chat</h1>
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1 hover:bg-gray-100 rounded">
               <Menu size={20} className="text-gray-600" />
             </button>
@@ -449,8 +462,7 @@ const ChatbotPage = () => {
         
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
           <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">History</h3>
-          {chatSessions
-            .map(session => (
+          {chatSessions.map(session => (
             <div 
               key={session.id}
               onClick={() => handleSelectSession(session.id)}
@@ -478,7 +490,7 @@ const ChatbotPage = () => {
         </div>
       </div>
 
-      {/* Tombol */}
+      {/* Main Chat Area */}
       <div className="flex-1 flex flex-col bg-white">
         <div className="bg-gray-50 border-b border-gray-200 p-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -495,10 +507,9 @@ const ChatbotPage = () => {
               </button>
             )}
             <h2 className="text-lg font-semibold text-gray-800"> 
-              Mindfulness 
+              Mindfulness AI
             </h2>
           </div>
-          <div></div> 
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 bg-gray-100">
@@ -516,11 +527,28 @@ const ChatbotPage = () => {
                       ? 'bg-blue-500 text-white rounded-br-none'
                       : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none'
                   }`}>
-                 {msg.sender === 'bot' ? (
-                  <ReactMarkdown className="text-sm leading-relaxed markdown-body whitespace-pre-wrap">{msg.text}</ReactMarkdown>
-                  ) : ( msg.text.split("\n").map((line, i) => (
-                  <p key={i} className="text-sm mb-2 whitespace-pre-line">{line.trim()}</p>
-                    ))
+                    {msg.sender === 'bot' ? (
+                      <div>
+                        <ReactMarkdown className="text-sm leading-relaxed markdown-body whitespace-pre-wrap">
+                          {msg.text}
+                        </ReactMarkdown>
+                        {Array.isArray(msg.followUps) && msg.followUps.length > 0 && (
+                          <div className="mt-3 pt-2 border-t border-gray-100">
+                            <p className="text-xs text-gray-500 mb-2">Pertanyaan lanjutan:</p>
+                            <ul className="space-y-1">
+                              {msg.followUps.map((q, i) => (
+                                <li key={i} className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded cursor-pointer hover:bg-gray-100 transition-colors">
+                                  {q}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      msg.text.split("\n").map((line, i) => (
+                        <p key={i} className="text-sm mb-2 whitespace-pre-line">{line.trim()}</p>
+                      ))
                     )}
                   </div>
                 </div>
@@ -531,7 +559,7 @@ const ChatbotPage = () => {
             ))}
             {isBotTyping && (
               <div className="flex justify-start">
-                 <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
+                <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
                   <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 text-white">
                     <span className="text-sm font-bold">M</span>
                   </div>
@@ -554,17 +582,17 @@ const ChatbotPage = () => {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Type a new message here..."
+                  placeholder="Ceritakan perasaanmu..."
                   className="flex-1 px-4 py-2.5 border-none focus:ring-0 text-sm bg-transparent"
                   disabled={isBotTyping}
                 />
                 <div className="flex items-center space-x-1 pr-1">
                   <button 
-                      ref={emojiPickerButtonRef}
-                      title="Insert Emoji" 
-                      onClick={() => setShowEmojiPicker(prev => !prev)}
-                      className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors" 
-                      disabled={isBotTyping}
+                    ref={emojiPickerButtonRef}
+                    title="Insert Emoji" 
+                    onClick={() => setShowEmojiPicker(prev => !prev)}
+                    className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors" 
+                    disabled={isBotTyping}
                   >
                     <Smile size={18} />
                   </button>
