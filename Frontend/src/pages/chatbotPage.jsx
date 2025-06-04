@@ -1,22 +1,22 @@
-import axios from 'axios';
-import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
-import { Home, Menu, MessageSquare, Plus, Send, Smile,  Trash2, User } from 'lucide-react';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { sendToMindfulness } from '../api/chatbot';
+import { Home, Menu, MessageSquare, Plus, Send, Smile, Trash2, User } from 'lucide-react';
+import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
 import ReactMarkdown from 'react-markdown';
+import axios from 'axios';
+import { sendToMindfulness } from '../api/chatbot';
 
+// Konstanta
 const CHAT_SESSIONS_KEY = 'mindfulnessChatSessions';
-const REQUEST_TIMEOUT = 30000; // 30 seconds
+const REQUEST_TIMEOUT = 30000; // 30 detik
 const MAX_RESPONSE_LENGTH = 5000;
-
-// Daftar kata yang dilarang 
 const BANNED_WORDS = new Set([
   'kafir', 'bom', 'gay', 'lesbi', 'trans', 'transgender', 'homo', 'dick', 'iblis', 'lonte', 'pokkai',
   'agama', 'islam', 'kristen', 'buddha', 'hindu', 'konghucu', 'yahudi', 'genoshida', 'genosida', 'perang'
 ]);
 
 const ChatbotPage = () => {
+  // STATE
   const [message, setMessage] = useState('');
   const [chatSessions, setChatSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState(null);
@@ -24,27 +24,32 @@ const ChatbotPage = () => {
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
+  // REFS
   const abortControllerRef = useRef(null);
   const chatEndRef = useRef(null);
   const emojiPickerButtonRef = useRef(null);
   const emojiPickerPopupRef = useRef(null);
 
+  // NAVIGATE
   const navigate = useNavigate();
 
-  // Fungsi utilitas untuk menghasilkan ID unik
+  // =========================
+  // UTILITAS & VALIDASI
+  // =========================
   const generateUniqueId = useCallback((prefix) => {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
   }, []);
 
-  // Fungsi untuk membersihkan dan memvalidasi respons bot
-  const cleanBotResponse = useCallback((responseData) => {
-    if (!responseData) {
-      return "Maaf, tidak ada respons dari server.";
-    }
+  const containsBannedWords = useCallback((text) => {
+    const lowerCaseText = text.toLowerCase();
+    const words = lowerCaseText.split(/[\s.,!?;:]+/).map(word => word.replace(/^[^\w]+|[^\w]+$/g, ""));
+    return words.some(word => word !== '' && BANNED_WORDS.has(word));
+  }, []);
 
+  const cleanBotResponse = useCallback((responseData) => {
+    if (!responseData) return "Maaf, tidak ada respons dari server.";
     let botReplyText = "";
 
-    // Penguraian prioritas berdasarkan struktur respons yang paling umum
     if (typeof responseData === 'string') {
       botReplyText = responseData.trim();
     } else if (responseData.message && typeof responseData.message === 'string') {
@@ -62,7 +67,6 @@ const ChatbotPage = () => {
     } else if (responseData.data && typeof responseData.data === 'string') {
       botReplyText = responseData.data.trim();
     } else if (responseData.results && Array.isArray(responseData.results)) {
-      // Handle array response
       if (responseData.results.length > 0) {
         const firstResult = responseData.results[0];
         if (typeof firstResult === 'string') {
@@ -74,51 +78,39 @@ const ChatbotPage = () => {
         } else if (firstResult && typeof firstResult.content === 'string') {
           botReplyText = firstResult.content.trim();
         } else {
-          console.warn("Format results[0] tidak dikenal:", firstResult);
           botReplyText = "Format respons tidak dapat diproses.";
         }
       } else {
         botReplyText = "Respons array kosong dari server.";
       }
     } else if (responseData.choices && Array.isArray(responseData.choices)) {
-      // Style
       if (responseData.choices.length > 0 && responseData.choices[0].message) {
-        botReplyText = responseData.choices[0].message.content?.trim() || 
-                      responseData.choices[0].message.text?.trim() || 
-                      "Respons tidak valid dari choices.";
+        botReplyText = responseData.choices[0].message.content?.trim() ||
+          responseData.choices[0].message.text?.trim() ||
+          "Respons tidak valid dari choices.";
       } else {
         botReplyText = "Format choices tidak valid.";
       }
     } else {
-      console.warn("Struktur respons tidak dikenal, data:", responseData);
       botReplyText = "Format respons tidak dikenal dari server.";
     }
 
-    //  validasi dan clean
     if (!botReplyText || botReplyText.length === 0) {
       return "Maaf, respons kosong dari server.";
     }
-
-    // Limit respons
     if (botReplyText.length > MAX_RESPONSE_LENGTH) {
       botReplyText = botReplyText.substring(0, MAX_RESPONSE_LENGTH) + "... (respons dipotong karena terlalu panjang)";
     }
-
-    // Bersihkan karakter yang tidak diinginkan
     botReplyText = botReplyText.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
     return botReplyText;
   }, []);
 
-  // Fungsi untuk menangani kesalahan API secara lebih efektif
   const handleApiError = useCallback((error) => {
     let errorMessage = "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
-
     if (axios.isCancel(error)) {
-      console.log('Request dibatalkan:', error.message);
-      return null; 
+      return null;
     } else if (error.response) {
-      // Server responded eror
       const status = error.response.status;
       const errorMessages = {
         400: "Permintaan tidak valid. Silakan coba lagi.",
@@ -129,120 +121,24 @@ const ChatbotPage = () => {
         500: "Server mengalami masalah. Silakan coba lagi nanti.",
         503: "Layanan sedang tidak tersedia. Silakan coba lagi nanti."
       };
-
       errorMessage = errorMessages[status] || `Server error (${status}). Silakan coba lagi.`;
-      console.error(`API Error ${status}:`, error.response.data);
     } else if (error.request) {
-      // Network error
       errorMessage = "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
-      console.error('Network Error:', error.request);
-    } else {
-      console.error('Error:', error.message);
     }
-
     return errorMessage;
   }, []);
 
-  // Check banned words
-  const containsBannedWords = useCallback((text) => {
-    const lowerCaseText = text.toLowerCase();
-    const words = lowerCaseText.split(/[\s.,!?;:]+/).map(word => word.replace(/^[^\w]+|[^\w]+$/g, ""));
-
-    return words.some(word => word !== '' && BANNED_WORDS.has(word));
-  }, []);
-
-  // Load chat dari sesi lokal
-  useEffect(() => {
-    const loadSessions = () => {
-      const savedSessions = localStorage.getItem(CHAT_SESSIONS_KEY);
-      let loadedSessions = [];
-
-      if (savedSessions) {
-        try {
-          const parsedSessions = JSON.parse(savedSessions);
-          loadedSessions = parsedSessions.map(session => ({
-            ...session,
-            messages: session.messages.map(msg => ({
-              ...msg,
-              timestamp: new Date(msg.timestamp)
-            })),
-            lastUpdated: new Date(session.lastUpdated)
-          }));
-        } catch (error) {
-          console.error("Error parsing chat sessions dari localStorage:", error);
-        }
-      }
-
-      if (loadedSessions.length > 0) {
-        loadedSessions.sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime());
-        setChatSessions(loadedSessions);
-        setActiveSessionId(loadedSessions[0].id);
-      } else {
-        handleNewChat(false);
-      }
-    };
-
-    loadSessions();
-  }, [handleNewChat]);
-
-  // Save chat ke local
-  useEffect(() => {
-    if (chatSessions.length > 0) {
-      localStorage.setItem(CHAT_SESSIONS_KEY, JSON.stringify(chatSessions));
-    } else if (localStorage.getItem(CHAT_SESSIONS_KEY)) {
-      localStorage.removeItem(CHAT_SESSIONS_KEY);
-    }
-  }, [chatSessions]);
-
-  // Auto-scroll ke akhir ketika message baru tiba
-  const activeSession = chatSessions.find(s => s.id === activeSessionId);
-  const currentMessages = activeSession ? activeSession.messages : [];
-
-  useEffect(() => {
-    if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-  }, [currentMessages]);
-
-  // bersihin control
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
-
-  // Handle emoji picker
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        emojiPickerPopupRef.current && 
-        !emojiPickerPopupRef.current.contains(event.target) &&
-        emojiPickerButtonRef.current && 
-        !emojiPickerButtonRef.current.contains(event.target)
-      ) {
-        setShowEmojiPicker(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const onEmojiClick = useCallback((emojiData) => {
-    setMessage(prevMessage => prevMessage + emojiData.emoji);
-  }, []);
-
+  // =========================
+  // CHAT SESSION MANAGEMENT
+  // =========================
   const handleNewChat = useCallback((updateFromExistingSessions = true) => {
     const newSessionId = generateUniqueId('session');
     const initialBotMessageText = "Halo! Saya Mindfulness, asisten AI kamu untuk mendengarkan dan membantu dalam hal kesehatan mental. Bagaimana perasaanmu hari ini? 😊";
-
     const newSession = {
       id: newSessionId,
-      name: `Chat ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 
+      name: `Chat ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
       messages: [
-        { 
+        {
           id: generateUniqueId('bot'),
           text: initialBotMessageText,
           sender: "bot",
@@ -258,12 +154,10 @@ const ChatbotPage = () => {
     };
 
     if (updateFromExistingSessions) {
-      setChatSessions(prevSessions => [newSession, ...prevSessions]
-        .sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime()));
+      setChatSessions(prev => [newSession, ...prev].sort((a, b) => b.lastUpdated - a.lastUpdated));
     } else {
       setChatSessions([newSession]);
     }
-
     setActiveSessionId(newSessionId);
     setMessage('');
     setIsBotTyping(false);
@@ -279,24 +173,113 @@ const ChatbotPage = () => {
 
   const handleDeleteSession = useCallback((sessionIdToDelete, event) => {
     event.stopPropagation();
-    const currentSessions = chatSessions.filter(session => session.id !== sessionIdToDelete);
-    setChatSessions(currentSessions);
+    const sessionsAfterDelete = chatSessions.filter(session => session.id !== sessionIdToDelete);
+    setChatSessions(sessionsAfterDelete);
 
     if (activeSessionId === sessionIdToDelete) {
-      if (currentSessions.length > 0) {
-        currentSessions.sort((a,b) => b.lastUpdated.getTime() - a.lastUpdated.getTime());
-        setActiveSessionId(currentSessions[0].id);
+      if (sessionsAfterDelete.length > 0) {
+        sessionsAfterDelete.sort((a, b) => b.lastUpdated - a.lastUpdated);
+        setActiveSessionId(sessionsAfterDelete[0].id);
       } else {
-        handleNewChat(false); 
+        handleNewChat(false);
       }
     }
   }, [chatSessions, activeSessionId, handleNewChat]);
 
+  // =========================
+  // LOAD & SAVE SESSION (localStorage)
+  // =========================
+  useEffect(() => {
+    const loadSessions = () => {
+      const savedSessions = localStorage.getItem(CHAT_SESSIONS_KEY);
+      let loadedSessions = [];
+      if (savedSessions) {
+        try {
+          const parsed = JSON.parse(savedSessions);
+          loadedSessions = parsed.map(session => ({
+            ...session,
+            messages: session.messages.map(msg => ({
+              ...msg,
+              timestamp: new Date(msg.timestamp)
+            })),
+            lastUpdated: new Date(session.lastUpdated)
+          }));
+        } catch (e) { loadedSessions = []; }
+      }
+      if (loadedSessions.length > 0) {
+        loadedSessions.sort((a, b) => b.lastUpdated - a.lastUpdated);
+        setChatSessions(loadedSessions);
+        setActiveSessionId(loadedSessions[0].id);
+      } else {
+        handleNewChat(false);
+      }
+    };
+    loadSessions();
+    // eslint-disable-next-line
+  }, [handleNewChat]);
+
+  useEffect(() => {
+    if (chatSessions.length > 0) {
+      localStorage.setItem(CHAT_SESSIONS_KEY, JSON.stringify(chatSessions));
+    } else if (localStorage.getItem(CHAT_SESSIONS_KEY)) {
+      localStorage.removeItem(CHAT_SESSIONS_KEY);
+    }
+  }, [chatSessions]);
+
+  // =========================
+  // AUTO SCROLL
+  // =========================
+  const activeSession = chatSessions.find(s => s.id === activeSessionId);
+  const currentMessages = activeSession ? activeSession.messages : [];
+
+  useEffect(() => {
+    if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [currentMessages]);
+
+  // =========================
+  // CLEANUP ABORT CONTROLLER
+  // =========================
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  // =========================
+  // OUTSIDE CLICK: EMOJI PICKER
+  // =========================
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        emojiPickerPopupRef.current &&
+        !emojiPickerPopupRef.current.contains(event.target) &&
+        emojiPickerButtonRef.current &&
+        !emojiPickerButtonRef.current.contains(event.target)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // =========================
+  // EMOJI PICKER
+  // =========================
+  const onEmojiClick = useCallback((emojiData) => {
+    setMessage(prev => prev + emojiData.emoji);
+  }, []);
+
+  // =========================
+  // SEND MESSAGE
+  // =========================
   const sendMessage = useCallback(async () => {
     const userMessageText = message.trim();
     if (!userMessageText || !activeSessionId) return;
 
-    // tambahin user
+    // Tambahkan pesan user
     const userMessage = {
       id: generateUniqueId('user'),
       text: userMessageText,
@@ -307,27 +290,25 @@ const ChatbotPage = () => {
     setChatSessions(prevSessions =>
       prevSessions.map(session => {
         if (session.id === activeSessionId) {
-          const isFirstUserMessageInSession = session.messages.filter(m => m.sender === 'user').length === 0;
-          const newSessionName = isFirstUserMessageInSession 
+          const isFirstUserMessage = session.messages.filter(m => m.sender === 'user').length === 0;
+          const newSessionName = isFirstUserMessage
             ? userMessage.text.substring(0, 25) + (userMessage.text.length > 25 ? '...' : '')
             : session.name;
-          return { 
-            ...session, 
+          return {
+            ...session,
             name: newSessionName,
-            messages: [...session.messages, userMessage], 
-            lastUpdated: new Date() 
+            messages: [...session.messages, userMessage],
+            lastUpdated: new Date()
           };
         }
         return session;
-      }).sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime())
+      }).sort((a, b) => b.lastUpdated - a.lastUpdated)
     );
-
     setMessage('');
     setShowEmojiPicker(false);
 
-    // Check kata-kata terlarang
+    // Kata terlarang
     if (containsBannedWords(userMessageText)) {
-      console.log("Banned word terdeteksi:", userMessageText);
       const botCannedResponse = {
         id: generateUniqueId('bot-banned'),
         text: "Maaf, saya tidak dapat membahas topik tersebut. Mari kita fokus pada hal-hal yang dapat membantu kesehatan mental kamu. Bagaimana perasaanmu hari ini?",
@@ -339,42 +320,36 @@ const ChatbotPage = () => {
           "Bagaimana cara kamu mengatasi stres?"
         ]
       };
-
       setChatSessions(prevSessions =>
         prevSessions.map(session =>
           session.id === activeSessionId
             ? { ...session, messages: [...session.messages, botCannedResponse], lastUpdated: new Date() }
             : session
-        ).sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime())
+        ).sort((a, b) => b.lastUpdated - a.lastUpdated)
       );
       return;
     }
 
-    // Setup abort controller
+    // Abort Controller
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     const currentController = new AbortController();
-    abortControllerRef.current = currentController; 
+    abortControllerRef.current = currentController;
     setIsBotTyping(true);
 
     try {
-      // Kirim api habis
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('Request timeout')), REQUEST_TIMEOUT);
       });
-
       const apiPromise = sendToMindfulness(userMessageText, currentController.signal);
       const botResponseData = await Promise.race([apiPromise, timeoutPromise]);
-
-      // bersihkan kalau suskes
       if (abortControllerRef.current === currentController) {
-        abortControllerRef.current = null; 
+        abortControllerRef.current = null;
       }
 
-      // Process response dengan fungsi clean
+      // Clean response
       const botReplyText = cleanBotResponse(botResponseData);
-
       const botMessage = {
         id: generateUniqueId('bot'),
         text: botReplyText,
@@ -388,19 +363,13 @@ const ChatbotPage = () => {
           session.id === activeSessionId
             ? { ...session, messages: [...session.messages, botMessage], lastUpdated: new Date() }
             : session
-        ).sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime())
+        ).sort((a, b) => b.lastUpdated - a.lastUpdated)
       );
-
     } catch (error) {
-      // bersihin eror kalau gagal
-      if (abortControllerRef.current === currentController) { 
+      if (abortControllerRef.current === currentController) {
         abortControllerRef.current = null;
       }
-
-      // Handle eror
       const errorMessage = handleApiError(error);
-
-      // Menampilkan Eror Halaman
       if (errorMessage) {
         const errorBotMessage = {
           id: generateUniqueId('error'),
@@ -413,13 +382,12 @@ const ChatbotPage = () => {
             "Refresh halaman"
           ]
         };
-
         setChatSessions(prevSessions =>
           prevSessions.map(session =>
             session.id === activeSessionId
               ? { ...session, messages: [...session.messages, errorBotMessage], lastUpdated: new Date() }
               : session
-          ).sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime())
+          ).sort((a, b) => b.lastUpdated - a.lastUpdated)
         );
       }
     } finally {
@@ -427,6 +395,9 @@ const ChatbotPage = () => {
     }
   }, [message, activeSessionId, generateUniqueId, containsBannedWords, cleanBotResponse, handleApiError]);
 
+  // =========================
+  // HANDLER
+  // =========================
   const handleKeyPress = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -438,6 +409,9 @@ const ChatbotPage = () => {
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }, []);
 
+  // =========================
+  // RENDER / RETURN
+  // =========================
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -449,7 +423,7 @@ const ChatbotPage = () => {
               <Menu size={20} className="text-gray-600" />
             </button>
           </div>
-          <button 
+          <button
             onClick={() => handleNewChat()}
             className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-100 rounded-lg border border-gray-300 mb-4 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
@@ -457,14 +431,13 @@ const ChatbotPage = () => {
             <span className="text-sm font-medium text-gray-800">New Chat</span>
           </button>
         </div>
-
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
           <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">History</h3>
           {chatSessions.map(session => (
-            <div 
+            <div
               key={session.id}
               onClick={() => handleSelectSession(session.id)}
-              title={session.name} 
+              title={session.name}
               className={`group w-full flex items-center justify-between space-x-2 p-2.5 text-left text-sm rounded-lg cursor-pointer transition-colors ${
                 activeSessionId === session.id ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100 text-gray-700'
               }`}
@@ -473,7 +446,7 @@ const ChatbotPage = () => {
                 <MessageSquare size={16} className={activeSessionId === session.id ? 'text-blue-600' : 'text-gray-500'} />
                 <span className="truncate font-medium">{session.name}</span>
               </div>
-              <button 
+              <button
                 onClick={(e) => handleDeleteSession(session.id, e)}
                 className="p-1 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-100 text-red-500 transition-opacity"
                 title="Delete chat"
@@ -492,9 +465,9 @@ const ChatbotPage = () => {
       <div className="flex-1 flex flex-col bg-white">
         <div className="bg-gray-50 border-b border-gray-200 p-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <button 
-              onClick={() => navigate('/home')} 
-              title="Home" 
+            <button
+              onClick={() => navigate('/home')}
+              title="Home"
               className="p-2 hover:bg-gray-200 rounded-full"
             >
               <Home size={20} className="text-gray-700" />
@@ -504,7 +477,7 @@ const ChatbotPage = () => {
                 <Menu size={20} className="text-gray-700" />
               </button>
             )}
-            <h2 className="text-lg font-semibold text-gray-800"> 
+            <h2 className="text-lg font-semibold text-gray-800">
               Mindfulness AI
             </h2>
           </div>
@@ -573,7 +546,7 @@ const ChatbotPage = () => {
 
         <div className="bg-gray-50 border-t border-gray-200 p-4">
           <div className="max-w-3xl mx-auto">
-            <div className="relative"> 
+            <div className="relative">
               <div className="flex items-center bg-white rounded-full border border-gray-300 px-2 py-1 shadow-sm">
                 <input
                   type="text"
@@ -585,11 +558,11 @@ const ChatbotPage = () => {
                   disabled={isBotTyping}
                 />
                 <div className="flex items-center space-x-1 pr-1">
-                  <button 
+                  <button
                     ref={emojiPickerButtonRef}
-                    title="Insert Emoji" 
+                    title="Insert Emoji"
                     onClick={() => setShowEmojiPicker(prev => !prev)}
-                    className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors" 
+                    className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
                     disabled={isBotTyping}
                   >
                     <Smile size={18} />
@@ -604,7 +577,7 @@ const ChatbotPage = () => {
                 </div>
               </div>
               {showEmojiPicker && (
-                <div 
+                <div
                   ref={emojiPickerPopupRef}
                   style={{ position: 'absolute', bottom: 'calc(100% + 8px)', right: '0px', zIndex: 50 }}
                 >
