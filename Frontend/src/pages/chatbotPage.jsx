@@ -10,8 +10,6 @@ const CHAT_SESSIONS_KEY = 'mindfulnessChatSessions';
 const REQUEST_TIMEOUT = 30000; // 30 seconds
 const MAX_RESPONSE_LENGTH = 5000;
 
-React
-
 // Daftar kata yang dilarang 
 const BANNED_WORDS = new Set([
   'kafir', 'bom', 'gay', 'lesbi', 'trans', 'transgender', 'homo', 'dick', 'iblis', 'lonte', 'pokkai',
