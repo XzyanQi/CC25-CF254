@@ -183,7 +183,6 @@ const ChatbotPage = () => {
     };
 
     loadSessions();
-    // Jangan lupa tambahkan handleNewChat di dependencies
   }, [handleNewChat]);
 
   // Save chat ke local
