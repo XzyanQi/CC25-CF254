@@ -29,6 +29,7 @@ const ChatbotPage = () => {
   const emojiPickerButtonRef = useRef(null);
   const emojiPickerPopupRef = useRef(null);
   const [me, setMe] = useState(null);
+  const [we, setWe] = useState(null);
 
   const navigate = useNavigate();
 
