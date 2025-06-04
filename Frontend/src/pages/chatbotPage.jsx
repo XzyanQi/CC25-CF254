@@ -45,64 +45,66 @@ const ChatbotPage = () => {
   }, []);
 
   const cleanBotResponse = useCallback((responseData) => {
-    if (!responseData) return "Maaf, tidak ada respons dari server.";
-    let botReplyText = "";
+  if (!responseData) return "Maaf, tidak ada respons dari server.";
+  let botReplyText = "";
 
-    if (typeof responseData === 'string') {
-      botReplyText = responseData.trim();
-    } else if (responseData.message && typeof responseData.message === 'string') {
-      botReplyText = responseData.message.trim();
-    } else if (responseData.result && typeof responseData.result === 'string') {
-      botReplyText = responseData.result.trim();
-    } else if (responseData.response && typeof responseData.response === 'string') {
-      botReplyText = responseData.response.trim();
-    } else if (responseData.reply && typeof responseData.reply === 'string') {
-      botReplyText = responseData.reply.trim();
-    } else if (responseData.text && typeof responseData.text === 'string') {
-      botReplyText = responseData.text.trim();
-    } else if (responseData.content && typeof responseData.content === 'string') {
-      botReplyText = responseData.content.trim();
-    } else if (responseData.data && typeof responseData.data === 'string') {
-      botReplyText = responseData.data.trim();
-    } else if (responseData.results && Array.isArray(responseData.results)) {
-      if (responseData.results.length > 0) {
-        const firstResult = responseData.results[0];
-        if (typeof firstResult === 'string') {
-          botReplyText = firstResult.trim();
-        } else if (firstResult && typeof firstResult.message === 'string') {
-          botReplyText = firstResult.message.trim();
-        } else if (firstResult && typeof firstResult.text === 'string') {
-          botReplyText = firstResult.text.trim();
-        } else if (firstResult && typeof firstResult.content === 'string') {
-          botReplyText = firstResult.content.trim();
-        } else {
-          botReplyText = "Format respons tidak dapat diproses.";
-        }
+  if (typeof responseData === 'string') {
+    botReplyText = responseData.trim();
+  } else if (responseData.message && typeof responseData.message === 'string') {
+    botReplyText = responseData.message.trim();
+  } else if (responseData.result && typeof responseData.result === 'string') {
+    botReplyText = responseData.result.trim();
+  } else if (responseData.response && typeof responseData.response === 'string') {
+    botReplyText = responseData.response.trim();
+  } else if (responseData.reply && typeof responseData.reply === 'string') {
+    botReplyText = responseData.reply.trim();
+  } else if (responseData.text && typeof responseData.text === 'string') {
+    botReplyText = responseData.text.trim();
+  } else if (responseData.content && typeof responseData.content === 'string') {
+    botReplyText = responseData.content.trim();
+  } else if (responseData.data && typeof responseData.data === 'string') {
+    botReplyText = responseData.data.trim();
+  } else if (responseData.results && Array.isArray(responseData.results)) {
+    if (responseData.results.length > 0) {
+      // Ambil hasil yang response_to_display-nya valid (tidak mengandung 'kesalahan')
+      const validResults = responseData.results.filter(
+        (r) => r.response_to_display && !r.response_to_display.toLowerCase().includes('kesalahan')
+      );
+      // Ambil confidence_score tertinggi
+      const bestResult = validResults.sort(
+        (a, b) => (b.confidence_score || 0) - (a.confidence_score || 0)
+      )[0];
+
+      if (bestResult && bestResult.response_to_display) {
+        botReplyText = bestResult.response_to_display.trim();
       } else {
-        botReplyText = "Respons array kosong dari server.";
-      }
-    } else if (responseData.choices && Array.isArray(responseData.choices)) {
-      if (responseData.choices.length > 0 && responseData.choices[0].message) {
-        botReplyText = responseData.choices[0].message.content?.trim() ||
-          responseData.choices[0].message.text?.trim() ||
-          "Respons tidak valid dari choices.";
-      } else {
-        botReplyText = "Format choices tidak valid.";
+        botReplyText = "Maaf, belum ada jawaban yang cocok untuk pertanyaanmu.";
       }
     } else {
-      botReplyText = "Format respons tidak dikenal dari server.";
+      botReplyText = "Respons array kosong dari server.";
     }
+  } else if (responseData.choices && Array.isArray(responseData.choices)) {
+    if (responseData.choices.length > 0 && responseData.choices[0].message) {
+      botReplyText = responseData.choices[0].message.content?.trim() ||
+        responseData.choices[0].message.text?.trim() ||
+        "Respons tidak valid dari choices.";
+    } else {
+      botReplyText = "Format choices tidak valid.";
+    }
+  } else {
+    botReplyText = "Format respons tidak dikenal dari server.";
+  }
 
-    if (!botReplyText || botReplyText.length === 0) {
-      return "Maaf, respons kosong dari server.";
-    }
-    if (botReplyText.length > MAX_RESPONSE_LENGTH) {
-      botReplyText = botReplyText.substring(0, MAX_RESPONSE_LENGTH) + "... (respons dipotong karena terlalu panjang)";
-    }
-    botReplyText = botReplyText.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+  if (!botReplyText || botReplyText.length === 0) {
+    return "Maaf, respons kosong dari server.";
+  }
+  if (botReplyText.length > MAX_RESPONSE_LENGTH) {
+    botReplyText = botReplyText.substring(0, MAX_RESPONSE_LENGTH) + "... (respons dipotong karena terlalu panjang)";
+  }
+  botReplyText = botReplyText.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
-    return botReplyText;
-  }, []);
+  return botReplyText;
+}, []);
 
   const handleApiError = useCallback((error) => {
     let errorMessage = "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
