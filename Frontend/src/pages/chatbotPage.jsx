@@ -30,6 +30,9 @@ const ChatbotPage = () => {
   const emojiPickerButtonRef = useRef(null);
   const emojiPickerPopupRef = useRef(null);
 
+  // Untuk jawaban pertanyaan lanjutan
+  const [pendingFollowUpAnswer, setPendingFollowUpAnswer] = useState(null);
+
   // Naviagte
   const navigate = useNavigate();
 
@@ -45,9 +48,10 @@ const ChatbotPage = () => {
   }, []);
 
   const cleanBotResponse = useCallback((responseData) => {
-    if (!responseData) return { text: "Maaf, tidak ada respons dari server.", followUps: [] };
+    if (!responseData) return { text: "Maaf, tidak ada respons dari server.", followUps: [], follow_up_answers: [] };
     let botReplyText = "";
     let followUps = [];
+    let followUpAnswers = [];
 
     if (typeof responseData === 'string') {
       botReplyText = responseData.trim();
@@ -79,6 +83,7 @@ const ChatbotPage = () => {
         if (bestResult && bestResult.response_to_display) {
           botReplyText = bestResult.response_to_display.trim();
           followUps = Array.isArray(bestResult.follow_up_questions) ? bestResult.follow_up_questions : [];
+          followUpAnswers = Array.isArray(bestResult.follow_up_answers) ? bestResult.follow_up_answers : [];
         } else {
           botReplyText = "Maaf, belum ada jawaban yang cocok untuk pertanyaanmu.";
         }
@@ -105,7 +110,7 @@ const ChatbotPage = () => {
     }
     botReplyText = botReplyText.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
-    return { text: botReplyText, followUps };
+    return { text: botReplyText, followUps, follow_up_answers: followUpAnswers };
   }, []);
 
 
@@ -131,12 +136,49 @@ const ChatbotPage = () => {
     return errorMessage;
   }, []);
 
-  // Tambah handler klik follow up
-  const handleFollowUpClick = useCallback((question) => {
-    setMessage(question);
-    // Jika ingin langsung mengirim, tambahkan baris berikut:
-    // sendMessage();
-  }, [setMessage]);
+  // Handler klik follow up interaktif: jika ada answer, langsung tampilkan, jika tidak, kirim ke backend
+  const handleFollowUpClick = useCallback(
+    (question, answer = null) => {
+      setMessage('');
+      if (answer) {
+        const userMessage = {
+          id: generateUniqueId('user'),
+          text: question,
+          sender: "user",
+          timestamp: new Date()
+        };
+        const botMessage = {
+          id: generateUniqueId('bot-followup'),
+          text: answer,
+          sender: "bot",
+          timestamp: new Date(),
+          followUps: [],
+          follow_up_answers: []
+        };
+        setChatSessions(prevSessions =>
+          prevSessions.map(session =>
+            session.id === activeSessionId
+              ? {
+                  ...session,
+                  messages: [
+                    ...session.messages,
+                    userMessage,
+                    botMessage
+                  ],
+                  lastUpdated: new Date()
+                }
+              : session
+          ).sort((a, b) => b.lastUpdated - a.lastUpdated)
+        );
+      } else {
+        setMessage(question);
+        setTimeout(() => {
+          sendMessage();
+        }, 100);
+      }
+    },
+    [activeSessionId, generateUniqueId, setChatSessions, sendMessage]
+  );
 
   // Manage Chat Sesi
   const handleNewChat = useCallback((updateFromExistingSessions = true) => {
@@ -155,7 +197,8 @@ const ChatbotPage = () => {
             "Ceritakan tentang perasaanmu",
             "Apa yang membuatmu khawatir?",
             "Bagaimana kualitas tidurmu?"
-          ]
+          ],
+          follow_up_answers: []
         }
       ],
       lastUpdated: new Date()
@@ -314,7 +357,8 @@ const ChatbotPage = () => {
           "Ceritakan tentang harimu",
           "Apa yang membuatmu bahagia?",
           "Bagaimana cara kamu mengatasi stres?"
-        ]
+        ],
+        follow_up_answers: []
       };
       setChatSessions(prevSessions =>
         prevSessions.map(session =>
@@ -345,13 +389,14 @@ const ChatbotPage = () => {
       }
 
       // response bot
-      const { text: botReplyText, followUps } = cleanBotResponse(botResponseData);
+      const { text: botReplyText, followUps, follow_up_answers } = cleanBotResponse(botResponseData);
       const botMessage = {
         id: generateUniqueId('bot'),
         text: botReplyText,
         sender: "bot",
         timestamp: new Date(),
-        followUps
+        followUps,
+        follow_up_answers: follow_up_answers || []
       };
 
       setChatSessions(prevSessions =>
@@ -376,7 +421,8 @@ const ChatbotPage = () => {
             "Coba kirim pesan lagi",
             "Periksa koneksi internet",
             "Refresh halaman"
-          ]
+          ],
+          follow_up_answers: []
         };
         setChatSessions(prevSessions =>
           prevSessions.map(session =>
@@ -420,11 +466,11 @@ const ChatbotPage = () => {
             className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-100 rounded-lg border border-gray-300 mb-4 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <Plus size={18} className="text-gray-700" />
-            <span className="text-sm font-medium text-gray-800">New Chat</span>
+            <span className="text-sm font-medium text-gray-800">Chat Baru</span>
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">History</h3>
+          <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">Riwayat</h3>
           {chatSessions.map(session => (
             <div
               key={session.id}
@@ -441,19 +487,19 @@ const ChatbotPage = () => {
               <button
                 onClick={(e) => handleDeleteSession(session.id, e)}
                 className="p-1 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-100 text-red-500 transition-opacity"
-                title="Delete chat"
+                title="Hapus chat"
               >
                 <Trash2 size={14} />
               </button>
             </div>
           ))}
           {chatSessions.length === 0 && (
-            <p className="text-xs text-gray-400 text-center px-1">No chat history yet.</p>
+            <p className="text-xs text-gray-400 text-center px-1">Belum ada riwayat chat.</p>
           )}
         </div>
       </div>
 
-      {/* Tempat Chat */}
+      // Tempat chat
       <div className="flex-1 flex flex-col bg-white">
         <div className="bg-gray-50 border-b border-gray-200 p-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -503,7 +549,14 @@ const ChatbotPage = () => {
                                 <li
                                   key={i}
                                   className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded cursor-pointer hover:bg-gray-200 transition-colors"
-                                  onClick={() => handleFollowUpClick(q)}
+                                  onClick={() =>
+                                    handleFollowUpClick(
+                                      q,
+                                      Array.isArray(msg.follow_up_answers) && msg.follow_up_answers[i]
+                                        ? msg.follow_up_answers[i]
+                                        : null
+                                    )
+                                  }
                                 >
                                   {q}
                                 </li>
@@ -531,7 +584,7 @@ const ChatbotPage = () => {
                     <span className="text-sm font-bold">M</span>
                   </div>
                   <div className="rounded-xl px-4 py-3 bg-white border border-gray-200 text-gray-800 shadow-sm rounded-bl-none">
-                    <p className="text-sm italic">Mindfulness is typing...</p>
+                    <p className="text-sm italic">Mindfulness sedang mengetik...</p>
                   </div>
                 </div>
               </div>
