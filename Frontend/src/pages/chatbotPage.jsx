@@ -33,9 +33,7 @@ const ChatbotPage = () => {
   // NAVIGATE
   const navigate = useNavigate();
 
-  // =========================
   // UTILITAS & VALIDASI
-  // =========================
   const generateUniqueId = useCallback((prefix) => {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
   }, []);
@@ -128,9 +126,7 @@ const ChatbotPage = () => {
     return errorMessage;
   }, []);
 
-  // =========================
-  // CHAT SESSION MANAGEMENT
-  // =========================
+  // Manage Chat Sesi
   const handleNewChat = useCallback((updateFromExistingSessions = true) => {
     const newSessionId = generateUniqueId('session');
     const initialBotMessageText = "Halo! Saya Mindfulness, asisten AI kamu untuk mendengarkan dan membantu dalam hal kesehatan mental. Bagaimana perasaanmu hari ini? 😊";
@@ -186,9 +182,7 @@ const ChatbotPage = () => {
     }
   }, [chatSessions, activeSessionId, handleNewChat]);
 
-  // =========================
-  // LOAD & SAVE SESSION (localStorage)
-  // =========================
+  // Load dan Save sesi (localStorage)
   useEffect(() => {
     const loadSessions = () => {
       const savedSessions = localStorage.getItem(CHAT_SESSIONS_KEY);
@@ -226,9 +220,7 @@ const ChatbotPage = () => {
     }
   }, [chatSessions]);
 
-  // =========================
-  // AUTO SCROLL
-  // =========================
+  // Auto Scroll
   const activeSession = chatSessions.find(s => s.id === activeSessionId);
   const currentMessages = activeSession ? activeSession.messages : [];
 
@@ -236,9 +228,7 @@ const ChatbotPage = () => {
     if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: "smooth" });
   }, [currentMessages]);
 
-  // =========================
-  // CLEANUP ABORT CONTROLLER
-  // =========================
+  // Clean About Controller
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
@@ -247,9 +237,7 @@ const ChatbotPage = () => {
     };
   }, []);
 
-  // =========================
-  // OUTSIDE CLICK: EMOJI PICKER
-  // =========================
+  // Emoji Pickle
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -265,16 +253,12 @@ const ChatbotPage = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // =========================
-  // EMOJI PICKER
-  // =========================
+  // Emoji Picker
   const onEmojiClick = useCallback((emojiData) => {
     setMessage(prev => prev + emojiData.emoji);
   }, []);
 
-  // =========================
-  // SEND MESSAGE
-  // =========================
+  // Send Message
   const sendMessage = useCallback(async () => {
     const userMessageText = message.trim();
     if (!userMessageText || !activeSessionId) return;
@@ -395,9 +379,7 @@ const ChatbotPage = () => {
     }
   }, [message, activeSessionId, generateUniqueId, containsBannedWords, cleanBotResponse, handleApiError]);
 
-  // =========================
-  // HANDLER
-  // =========================
+  // Handler
   const handleKeyPress = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -409,9 +391,7 @@ const ChatbotPage = () => {
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }, []);
 
-  // =========================
-  // RENDER / RETURN
-  // =========================
+  // Return
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -461,7 +441,7 @@ const ChatbotPage = () => {
         </div>
       </div>
 
-      {/* Main Chat Area */}
+      {/* Tempat Chat */}
       <div className="flex-1 flex flex-col bg-white">
         <div className="bg-gray-50 border-b border-gray-200 p-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
