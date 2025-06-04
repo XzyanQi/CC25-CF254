@@ -71,14 +71,35 @@ def search():
         for i in indices[0]:
             if 0 <= i < len(corpus):
                 doc = corpus[i]
-                results.append(doc.get("response_to_display", "Format tidak sesuai."))
+                results.append({
+                    "response_to_display": doc.get("response_to_display", "Format tidak sesuai."),
+                    "intent": doc.get("intent", ""),
+                    "keywords": doc.get("keywords", []),
+                    "confidence_score": doc.get("confidence_score", 0.0),
+                    "follow_up_questions": doc.get("follow_up_questions", [])
+                })
             else:
-                results.append("Kesalahan mengambil detail dokumen.")
+                results.append({
+                    "response_to_display": "Kesalahan mengambil detail dokumen.",
+                    "intent": "",
+                    "keywords": [],
+                    "confidence_score": 0.0,
+                    "follow_up_questions": []
+                })
     else:
-        results.append("Tidak ada jawaban relevan ditemukan.")
+        results.append({
+            "response_to_display": "Tidak ada jawaban relevan ditemukan.",
+            "intent": "",
+            "keywords": [],
+            "confidence_score": 0.0,
+            "follow_up_questions": []
+        })
 
     print(f" Total waktu proses: {(time.time() - overall_start_time) * 1000:.2f} ms")
-    return jsonify({"query": query, "results": results})
+    return jsonify({
+        "query": query,
+        "results": results
+    })
 
 @application.route("/")
 def root():
