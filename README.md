@@ -95,8 +95,10 @@ mindfulness-project/
 ## Mockup Website
 |            Halaman            |                                   Gambar                                                 |
 |:-----------------------------:|:----------------------------------------------------------------------------------------:|
-|      **Halaman Chat**         |![image](https://github.com/user-attachments/assets/44cf3060-d7d2-4fd4-81dc-ae05a3e804e0) |
-|                               |![image](https://github.com/user-attachments/assets/a303d845-dedf-4039-9a07-3ebded1e156e) |
+|      **Halaman Chat**         |![image](https://github.com/user-attachments/assets/0970cca7-ae54-4f62-8d3b-28a76649e045) |
+|    **Login dan Register**     |![image](https://github.com/user-attachments/assets/f8ca9bd0-30cc-4955-a218-b0d640c320bc) |
+|         **Home**              |![image](https://github.com/user-attachments/assets/5ab08ed9-0a45-49b4-84f1-10b328edd843) |
+|       **About Us**            |![image](https://github.com/user-attachments/assets/f2a59f26-c174-4631-beb4-9a08990ce425) |
 
 
 
