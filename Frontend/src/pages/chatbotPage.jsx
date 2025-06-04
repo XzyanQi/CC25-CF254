@@ -210,32 +210,40 @@ const ChatbotPage = () => {
     }
 
     try {
-      // LOG: Sebelum request
-      console.log("Mengirim pesan ke backend:", userMessageText);
-      const data = await sendToMindfulness(userMessageText);
-      // LOG: Sesudah request
-      console.log("Jawaban dari backend:", data);
+  console.log("Mengirim pesan ke backend:", userMessageText);
+  const data = await sendToMindfulness(userMessageText);
+  console.log("Jawaban dari backend:", data);
 
-      // Ambil hasil teratas dari array results
-      const topResult = Array.isArray(data.results) && data.results.length > 0 ? data.results[0] : {};
-      const botMessage = {
-        id: generateUniqueId('bot'),
-        text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
-        sender: "bot",
-        timestamp: new Date(),
-        followUps: Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [],
-        follow_up_answers: Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : []
-      };
+  let results = Array.isArray(data.results) ? data.results : [];
+  // Filter jawaban template (misal"Terima kasih sudah berbagi")
+  const nonTemplate = results.filter(
+    r =>
+      !r.response_to_display?.toLowerCase().startsWith("terima kasih sudah berbagi")
+      && !r.response_to_display?.toLowerCase().includes("saya di sini untuk mendengarkan")
+  );
+  // Jika ada jawaban non-template, ambil yang confidence_score tertinggi dari non-template
+  let topResult = nonTemplate.length > 0
+    ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
+    : results[0] || {};
 
-      setChatSessions(prevSessions =>
-        prevSessions.map(session =>
-          session.id === activeSessionId
-            ? { ...session, messages: [...session.messages, botMessage], lastUpdated: new Date() }
-            : session
-        )
-      );
-    } catch (error) {
-      // LOG: Error
+  const botMessage = {
+    id: generateUniqueId('bot'),
+    text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
+    sender: "bot",
+    timestamp: new Date(),
+    followUps: Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [],
+    follow_up_answers: Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : []
+  };
+
+  setChatSessions(prevSessions =>
+    prevSessions.map(session =>
+      session.id === activeSessionId
+        ? { ...session, messages: [...session.messages, botMessage], lastUpdated: new Date() }
+        : session
+    )
+  );
+} catch (error) {
+  // error handling
       console.error('Gagal mendapatkan jawaban dari backend:', error);
       setChatSessions(prevSessions =>
         prevSessions.map(session =>
