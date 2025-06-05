@@ -46,6 +46,11 @@ class ChatErrorBoundary extends React.Component {
   }
 }
 
+// Fungsi swap fixFollowUp: dari corpus, follow_up_answers sebenarnya pertanyaan, follow_up_questions sebenarnya jawaban
+function fixFollowUp(follow_up_questions, follow_up_answers) {
+  return [follow_up_answers, follow_up_questions];
+}
+
 const ChatbotPage = () => {
   const [message, setMessage] = useState('');
   const [chatSessions, setChatSessions] = useState([]);
@@ -152,19 +157,6 @@ const ChatbotPage = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Utility: swap followUps dengan follow_up_answers jika terdeteksi tertukar
-  function swapIfNeeded(followUps, followUpAnswers) {
-    const countQ = arr => arr.filter(str => typeof str === 'string' && str.includes('?')).length;
-    if (
-      followUpAnswers.length > 0 &&
-      countQ(followUpAnswers) > countQ(followUps)
-    ) {
-      // Tukar kalau follow_up_answers isinya pertanyaan dan followUps isinya jawaban
-      return [followUpAnswers, followUps];
-    }
-    return [followUps, followUpAnswers];
-  }
-
   // Kirim pesan user
   const handleSendMessage = useCallback(async () => {
     const userMessageText = message.trim();
@@ -195,6 +187,7 @@ const ChatbotPage = () => {
 
     // Kata terlarang dan template
     if ([...BANNED_WORDS].some(word => userMessageText.toLowerCase().includes(word))) {
+      // Template banned: followUps = pertanyaan, follow_up_answers = jawaban
       const botCannedResponse = {
         id: generateUniqueId('bot-banned'),
         text: "Maaf, saya tidak dapat membahas topik tersebut. Mari kita fokus pada hal-hal yang dapat membantu kesehatan mental kamu. Bagaimana perasaanmu hari ini?",
@@ -235,10 +228,10 @@ const ChatbotPage = () => {
         ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
         : results[0] || {};
 
-      // SWAP kalau ada
+      // Di corpus kebalik, fix di sini
       let followUpsRaw = Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [];
       let followUpAnswersRaw = Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : [];
-      const [followUps, follow_up_answers] = swapIfNeeded(followUpsRaw, followUpAnswersRaw);
+      const [followUps, follow_up_answers] = fixFollowUp(followUpsRaw, followUpAnswersRaw);
 
       const botMessage = {
         id: generateUniqueId('bot'),
@@ -283,7 +276,7 @@ const ChatbotPage = () => {
     }
   }, [message, activeSessionId, generateUniqueId]);
 
-  // Fungsi follow up: klik > langsung tampilkan jawaban jika ada
+  // Fungsi follow up
   const handleFollowUpClick = useCallback(
     async (question, answer = null) => {
       if (!activeSessionId) return;
@@ -349,7 +342,7 @@ const ChatbotPage = () => {
 
         let followUpsRaw = Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [];
         let followUpAnswersRaw = Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : [];
-        const [followUps, follow_up_answers] = swapIfNeeded(followUpsRaw, followUpAnswersRaw);
+        const [followUps, follow_up_answers] = fixFollowUp(followUpsRaw, followUpAnswersRaw);
 
         const botMessage = {
           id: generateUniqueId('bot'),
