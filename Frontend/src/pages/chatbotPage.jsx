@@ -21,7 +21,10 @@ const sendToMindfulness = async (message) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ message })
+      body: JSON.stringify({ 
+        message,
+        timestamp: new Date().toISOString()
+      })
     });
 
     if (!response.ok) {
@@ -137,42 +140,53 @@ const ChatbotPage = () => {
   const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
   // Format waktu
-  const formatTime = (date) => {
-    return new Date(date).toLocaleTimeString('id-ID', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
-  };
+const formatTime = (date) => {
+  return new Date(date).toLocaleTimeString('id-ID', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: false 
+  });
+};
+
+// Format tanggal
+const formatFullDate = (date) => {
+  return new Date(date).toLocaleString('id-ID', {
+    dateStyle: 'full',
+    timeStyle: 'short',
+    hour12: false 
+  });
+};
 
   // Handle new chat
   const handleNewChat = useCallback(() => {
-    const newSessionId = generateUniqueId('session');
-    const pesanAwalBot = "Halo! Saya Mindfulness, asisten AI kamu untuk mendengarkan dan membantu dalam hal kesehatan mental. Ceritakan perasaanmu atau masalahmu, aku akan berusaha membantumu.";
-    
-    const newSession = {
-      id: newSessionId,
-      name: `Chat ${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`,
-      messages: [
-        {
-          id: generateUniqueId('bot'),
-          text: pesanAwalBot,
-          sender: "bot",
-          timestamp: new Date(),
-          followUpQuestions: [],
-          followUpAnswers: [],
-          recomendedResponsesToFollowUpAnswers: []
-        }
-      ],
-      lastUpdated: new Date()
-    };
+  const newSessionId = generateUniqueId('session');
+  const now = new Date();
+  const pesanAwalBot = "Halo! Saya Mindfulness, asisten AI kamu untuk mendengarkan dan membantu dalam hal kesehatan mental. Ceritakan perasaanmu atau masalahmu, aku akan berusaha membantumu.";
+  
+  const newSession = {
+    id: newSessionId,
+    name: `Chat ${formatTime(now)}`,
+    messages: [
+      {
+        id: generateUniqueId('bot'),
+        text: pesanAwalBot,
+        sender: "bot",
+        timestamp: now,
+        followUpQuestions: [],
+        followUpAnswers: [],
+        recomendedResponsesToFollowUpAnswers: []
+      }
+    ],
+    lastUpdated: now
+  };
 
-    setChatSessions(prev => [newSession, ...prev]);
-    setActiveSessionId(newSessionId);
-    setMessage('');
-    setShowEmojiPicker(false);
-    setConnectionError(null);
-  }, [generateUniqueId]);
-
+  setChatSessions(prev => [newSession, ...prev]);
+  setActiveSessionId(newSessionId);
+  setMessage('');
+  setShowEmojiPicker(false);
+  setConnectionError(null);
+}, [generateUniqueId]);
+  
   // Handle follow-up
   const handleFollowUpClick = useCallback((question, index) => {
     if (!activeSessionId) return;
@@ -474,21 +488,14 @@ return (
             <span className="text-sm font-medium text-gray-800">Chat Baru</span>
           </button>
           
-          {/* Indikator koneksi dan user */}
-          <div className="flex flex-col space-y-2">
-            <div className="flex items-center space-x-2 text-xs">
-              <div className={`w-2 h-2 rounded-full ${connectionError ? 'bg-red-500' : 'bg-green-500'}`} />
+          {/* Indikator koneksi */}
+          <div className="flex items-center space-x-2 text-xs">
+            <div className={`w-2 h-2 rounded-full ${connectionError ? 'bg-red-500' : 'bg-green-500'}`} />
               <span className={connectionError ? 'text-red-600' : 'text-green-600'}>
                 {connectionError ? 'Offline' : 'Online'}
-              </span>
-            </div>
-            <div className="flex items-center space-x-2 text-xs text-gray-500">
-              <User size={12} />
-              <span>{currentUser}</span>
-            </div>
+            </span>
           </div>
-        </div>
-        
+      
         {/* Daftar sesi chat */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
           <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">Riwayat</h3>
