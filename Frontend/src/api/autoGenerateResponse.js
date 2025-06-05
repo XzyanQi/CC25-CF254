@@ -1,4 +1,4 @@
-import CORPUS_DATA from './model/corpus_final.json';
+import corpus from './corpus_final.json';
 
 function buildKeywordIndex(corpus) {
   const arr = [];
