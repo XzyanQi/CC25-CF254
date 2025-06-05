@@ -2,7 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const routes = require('./routes/route') 
+const routes = require('./routes/route'); 
+
 
 app.use(cors({
   origin: "https://mindfulnessnlp.vercel.app", 
@@ -18,6 +19,7 @@ app.get('/', (req, res) => {
     res.send('Welcome to the API root! Actual endpoints are likely under /api');
 });
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000, API base path /api');
-})
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}, API base path /api`);
+});
