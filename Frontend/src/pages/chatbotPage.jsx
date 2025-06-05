@@ -156,7 +156,7 @@ const ChatbotPage = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle user mengirim pesan
+  // Fungsi mengirim pesan user
   const handleSendMessage = useCallback(async () => {
     const userMessageText = message.trim();
     if (!userMessageText || !activeSessionId) return;
@@ -184,7 +184,7 @@ const ChatbotPage = () => {
     setMessage('');
     setShowEmojiPicker(false);
 
-    // Kata terlarang
+    // Kata terlarang dan template
     if ([...BANNED_WORDS].some(word => userMessageText.toLowerCase().includes(word))) {
       const botCannedResponse = {
         id: generateUniqueId('bot-banned'),
@@ -196,7 +196,11 @@ const ChatbotPage = () => {
           "Apa yang membuatmu bahagia?",
           "Bagaimana cara kamu mengatasi stres?"
         ],
-        follow_up_answers: []
+        follow_up_answers: [
+          "Setiap hari, meskipun terasa berat, pasti ada satu hal kecil yang bisa kamu syukuri. Semangat ya, kamu tidak sendiri!",
+          "Hal membahagiakan bisa datang dari hal-hal sederhana. Semoga hari ini kamu menemukan kebahagiaan kecil yang berarti.",
+          "Mengatasi stres itu proses, dan kamu sudah hebat bisa melewatinya sejauh ini. Tetap jaga dirimu, kamu pasti bisa!"
+        ]
       };
       setChatSessions(prevSessions =>
         prevSessions.map(session =>
@@ -210,41 +214,36 @@ const ChatbotPage = () => {
     }
 
     try {
-  console.log("Mengirim pesan ke backend:", userMessageText);
-  const data = await sendToMindfulness(userMessageText);
-  console.log("Jawaban dari backend:", data);
+      const data = await sendToMindfulness(userMessageText);
 
-  let results = Array.isArray(data.results) ? data.results : [];
-  // Filter jawaban template (misal"Terima kasih sudah berbagi")
-  const nonTemplate = results.filter(
-    r =>
-      !r.response_to_display?.toLowerCase().startsWith("terima kasih sudah berbagi")
-      && !r.response_to_display?.toLowerCase().includes("saya di sini untuk mendengarkan")
-  );
-  // Jika ada jawaban non-template, ambil yang confidence_score tertinggi dari non-template
-  let topResult = nonTemplate.length > 0
-    ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
-    : results[0] || {};
+      let results = Array.isArray(data.results) ? data.results : [];
+      // Filter jawaban template
+      const nonTemplate = results.filter(
+        r =>
+          !r.response_to_display?.toLowerCase().startsWith("terima kasih sudah berbagi")
+          && !r.response_to_display?.toLowerCase().includes("saya di sini untuk mendengarkan")
+      );
+      let topResult = nonTemplate.length > 0
+        ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
+        : results[0] || {};
 
-  const botMessage = {
-    id: generateUniqueId('bot'),
-    text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
-    sender: "bot",
-    timestamp: new Date(),
-    followUps: Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [],
-    follow_up_answers: Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : []
-  };
+      const botMessage = {
+        id: generateUniqueId('bot'),
+        text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
+        sender: "bot",
+        timestamp: new Date(),
+        followUps: Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [],
+        follow_up_answers: Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : []
+      };
 
-  setChatSessions(prevSessions =>
-    prevSessions.map(session =>
-      session.id === activeSessionId
-        ? { ...session, messages: [...session.messages, botMessage], lastUpdated: new Date() }
-        : session
-    )
-  );
-} catch (error) {
-  // error handling
-      console.error('Gagal mendapatkan jawaban dari backend:', error);
+      setChatSessions(prevSessions =>
+        prevSessions.map(session =>
+          session.id === activeSessionId
+            ? { ...session, messages: [...session.messages, botMessage], lastUpdated: new Date() }
+            : session
+        )
+      );
+    } catch (error) {
       setChatSessions(prevSessions =>
         prevSessions.map(session =>
           session.id === activeSessionId
@@ -271,93 +270,117 @@ const ChatbotPage = () => {
     }
   }, [message, activeSessionId, generateUniqueId]);
 
-  // Handle follow up
-  const handleFollowUpClick = useCallback(async (question) => {
-  if (!activeSessionId) return;
+  // Fungsi follow up: klik > langsung tampilkan jawaban jika ada
+  const handleFollowUpClick = useCallback(
+    async (question, answer = null) => {
+      if (!activeSessionId) return;
 
-  // Buat pesan user
-  const userMessage = {
-    id: generateUniqueId('user'),
-    text: question,
-    sender: "user",
-    timestamp: new Date()
-  };
+      // Buat pesan user
+      const userMessage = {
+        id: generateUniqueId('user'),
+        text: question,
+        sender: "user",
+        timestamp: new Date()
+      };
 
-  setIsBotTyping(true);
+      setIsBotTyping(true);
 
-  setChatSessions(prevSessions =>
-    prevSessions.map(session =>
-      session.id === activeSessionId
-        ? {
-            ...session,
-            messages: [...session.messages, userMessage],
-            lastUpdated: new Date()
-          }
-        : session
-    )
-  );
+      setChatSessions(prevSessions =>
+        prevSessions.map(session =>
+          session.id === activeSessionId
+            ? {
+                ...session,
+                messages: [...session.messages, userMessage],
+                lastUpdated: new Date()
+              }
+            : session
+        )
+      );
+      setMessage('');
+      setShowEmojiPicker(false);
 
-  setMessage('');
-  setShowEmojiPicker(false);
-
-  try {
-    // Kirim follow up ke backend seperti pesan biasa
-    console.log("Mengirim follow up ke backend:", question);
-    const data = await sendToMindfulness(question);
-    console.log("Jawaban dari backend (follow up):", data);
-
-    let results = Array.isArray(data.results) ? data.results : [];
-    const nonTemplate = results.filter(
-      r =>
-        !r.response_to_display?.toLowerCase().startsWith("terima kasih sudah berbagi")
-        && !r.response_to_display?.toLowerCase().includes("saya di sini untuk mendengarkan")
-    );
-    let topResult = nonTemplate.length > 0
-      ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
-      : results[0] || {};
-
-    const botMessage = {
-      id: generateUniqueId('bot'),
-      text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
-      sender: "bot",
-      timestamp: new Date(),
-      followUps: Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [],
-      follow_up_answers: Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : []
-    };
-
-    setChatSessions(prevSessions =>
-      prevSessions.map(session =>
-        session.id === activeSessionId
-          ? { ...session, messages: [...session.messages, botMessage], lastUpdated: new Date() }
-          : session
-      )
-    );
-  } catch (error) {
-    setChatSessions(prevSessions =>
-      prevSessions.map(session =>
-        session.id === activeSessionId
-          ? {
-              ...session,
-              messages: [
-                ...session.messages,
-                {
-                  id: generateUniqueId('error'),
-                  text: "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
-                  sender: "bot",
-                  timestamp: new Date(),
-                  followUps: [],
-                  follow_up_answers: []
+      // Jika ada jawaban follow_up_answers dari message (langsung muncul)
+      if (answer) {
+        const botMessage = {
+          id: generateUniqueId('bot-followup'),
+          text: answer,
+          sender: "bot",
+          timestamp: new Date(),
+          followUps: [],
+          follow_up_answers: []
+        };
+        setChatSessions(prevSessions =>
+          prevSessions.map(session =>
+            session.id === activeSessionId
+              ? {
+                  ...session,
+                  messages: [...session.messages, botMessage],
+                  lastUpdated: new Date()
                 }
-              ],
-              lastUpdated: new Date()
-            }
-          : session
-      )
-    );
-  } finally {
-    setIsBotTyping(false);
-  }
-}, [activeSessionId, generateUniqueId]);
+              : session
+          )
+        );
+        setIsBotTyping(false);
+        return;
+      }
+
+      // Jika tidak ada answer, fallback ke backend
+      try {
+        const data = await sendToMindfulness(question);
+        let results = Array.isArray(data.results) ? data.results : [];
+        const nonTemplate = results.filter(
+          r =>
+            !r.response_to_display?.toLowerCase().startsWith("terima kasih sudah berbagi") &&
+            !r.response_to_display?.toLowerCase().includes("saya di sini untuk mendengarkan")
+        );
+        let topResult = nonTemplate.length > 0
+          ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
+          : results[0] || {};
+
+        const botMessage = {
+          id: generateUniqueId('bot'),
+          text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
+          sender: "bot",
+          timestamp: new Date(),
+          followUps: Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [],
+          follow_up_answers: Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : []
+        };
+
+        setChatSessions(prevSessions =>
+          prevSessions.map(session =>
+            session.id === activeSessionId
+              ? { ...session, messages: [...session.messages, botMessage], lastUpdated: new Date() }
+              : session
+          )
+        );
+      } catch (error) {
+        setChatSessions(prevSessions =>
+          prevSessions.map(session =>
+            session.id === activeSessionId
+              ? {
+                  ...session,
+                  messages: [
+                    ...session.messages,
+                    {
+                      id: generateUniqueId('error'),
+                      text: "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
+                      sender: "bot",
+                      timestamp: new Date(),
+                      followUps: [],
+                      follow_up_answers: []
+                    }
+                  ],
+                  lastUpdated: new Date()
+                }
+              : session
+          )
+        );
+      } finally {
+        setIsBotTyping(false);
+      }
+    },
+    [activeSessionId, generateUniqueId]
+  );
 
   const handleKeyPress = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
