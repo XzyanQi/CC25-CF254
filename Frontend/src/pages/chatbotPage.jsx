@@ -15,14 +15,20 @@ const BANNED_WORDS = new Set([
 
 // Fungsi api
 const sendToMindfulness = async (message) => {
+  const url = `${import.meta.env.VITE_API_BASE_URL}/chat/search`;
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/chat/search`, {
+    console.log('[DEBUG] URL fetch:', url);
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ message }) 
     });
+
+    if (response.status === 404) {
+      throw new Error('Endpoint tidak ditemukan (404). Cek URL backend dan ENV!');
+    }
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
