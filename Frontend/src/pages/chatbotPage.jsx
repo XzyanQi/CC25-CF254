@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Menu, MessageSquare, Plus, Send, Smile, Trash2, User } from 'lucide-react';
+import { Home, Menu, MessageSquare, Plus, Send, Smile, Trash2, User, XCircle } from 'lucide-react';
 import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
 import ReactMarkdown from 'react-markdown';
 import { sendToMindfulness } from '../api/chatbot';
@@ -60,6 +60,7 @@ const ChatbotPage = () => {
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [abortController, setAbortController] = useState(null);
 
   const chatEndRef = useRef(null);
   const emojiPickerButtonRef = useRef(null);
@@ -158,12 +159,20 @@ const ChatbotPage = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Fungsi untuk cancel typing
+  const cancelTyping = useCallback(() => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+    }
+    setIsBotTyping(false);
+  }, [abortController]);
+
   // Kirim pesan user
   const handleSendMessage = useCallback(async () => {
     const userMessageText = message.trim();
     if (!userMessageText || !activeSessionId) return;
 
-    // Tambahkan pesan user ke chat
     const userMessage = {
       id: generateUniqueId('user'),
       text: userMessageText,
@@ -188,7 +197,6 @@ const ChatbotPage = () => {
 
     // Kata terlarang dan template
     if ([...BANNED_WORDS].some(word => userMessageText.toLowerCase().includes(word))) {
-      // Template banned: followUps = pertanyaan, follow_up_answers = jawaban
       const botCannedResponse = {
         id: generateUniqueId('bot-banned'),
         text: "Maaf, saya tidak dapat membahas topik tersebut. Mari kita fokus pada hal-hal yang dapat membantu kesehatan mental kamu. Bagaimana perasaanmu hari ini?",
@@ -239,8 +247,11 @@ const ChatbotPage = () => {
     }
 
     // kirim ke backend kalau hilang
+    const controller = new AbortController();
+    setAbortController(controller);
+
     try {
-      const data = await sendToMindfulness(userMessageText);
+      const data = await sendToMindfulness(userMessageText, { signal: controller.signal });
 
       let results = Array.isArray(data.results) ? data.results : [];
       const nonTemplate = results.filter(
@@ -252,7 +263,6 @@ const ChatbotPage = () => {
         ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
         : results[0] || {};
 
-      // Di corpus kebalik, fix di sini
       let followUpsRaw = Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [];
       let followUpAnswersRaw = Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : [];
       const [followUps, follow_up_answers] = fixFollowUp(followUpsRaw, followUpAnswersRaw);
@@ -274,31 +284,49 @@ const ChatbotPage = () => {
         )
       );
     } catch (error) {
-      setChatSessions(prevSessions =>
-        prevSessions.map(session =>
-          session.id === activeSessionId
-            ? {
-                ...session,
-                messages: [
-                  ...session.messages,
-                  {
-                    id: generateUniqueId('error'),
-                    text: "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
-                    sender: "bot",
-                    timestamp: new Date(),
-                    followUps: [],
-                    follow_up_answers: []
-                  }
-                ],
-                lastUpdated: new Date()
-              }
-            : session
-        )
-      );
+      if (error.name === 'AbortError') {
+        setChatSessions(prevSessions =>
+          prevSessions.map(session =>
+            session.id === activeSessionId
+              ? { ...session, messages: [...session.messages, {
+                  id: generateUniqueId('error'),
+                  text: "Jawaban dibatalkan.",
+                  sender: "bot",
+                  timestamp: new Date(),
+                  followUps: [],
+                  follow_up_answers: []
+                }], lastUpdated: new Date() }
+              : session
+          )
+        );
+      } else {
+        setChatSessions(prevSessions =>
+          prevSessions.map(session =>
+            session.id === activeSessionId
+              ? {
+                  ...session,
+                  messages: [
+                    ...session.messages,
+                    {
+                      id: generateUniqueId('error'),
+                      text: "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
+                      sender: "bot",
+                      timestamp: new Date(),
+                      followUps: [],
+                      follow_up_answers: []
+                    }
+                  ],
+                  lastUpdated: new Date()
+                }
+              : session
+          )
+        );
+      }
     } finally {
       setIsBotTyping(false);
+      setAbortController(null);
     }
-  }, [message, activeSessionId, generateUniqueId]);
+  }, [message, activeSessionId, generateUniqueId, abortController]);
 
   // Fungsi follow up
   const handleFollowUpClick = useCallback(
@@ -352,8 +380,11 @@ const ChatbotPage = () => {
         return;
       }
 
+      const controller = new AbortController();
+      setAbortController(controller);
+
       try {
-        const data = await sendToMindfulness(question);
+        const data = await sendToMindfulness(question, { signal: controller.signal });
         let results = Array.isArray(data.results) ? data.results : [];
         const nonTemplate = results.filter(
           r =>
@@ -385,32 +416,50 @@ const ChatbotPage = () => {
           )
         );
       } catch (error) {
-        setChatSessions(prevSessions =>
-          prevSessions.map(session =>
-            session.id === activeSessionId
-              ? {
-                  ...session,
-                  messages: [
-                    ...session.messages,
-                    {
-                      id: generateUniqueId('error'),
-                      text: "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
-                      sender: "bot",
-                      timestamp: new Date(),
-                      followUps: [],
-                      follow_up_answers: []
-                    }
-                  ],
-                  lastUpdated: new Date()
-                }
-              : session
-          )
-        );
+        if (error.name === 'AbortError') {
+          setChatSessions(prevSessions =>
+            prevSessions.map(session =>
+              session.id === activeSessionId
+                ? { ...session, messages: [...session.messages, {
+                    id: generateUniqueId('error'),
+                    text: "Jawaban dibatalkan.",
+                    sender: "bot",
+                    timestamp: new Date(),
+                    followUps: [],
+                    follow_up_answers: []
+                  }], lastUpdated: new Date() }
+                : session
+            )
+          );
+        } else {
+          setChatSessions(prevSessions =>
+            prevSessions.map(session =>
+              session.id === activeSessionId
+                ? {
+                    ...session,
+                    messages: [
+                      ...session.messages,
+                      {
+                        id: generateUniqueId('error'),
+                        text: "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
+                        sender: "bot",
+                        timestamp: new Date(),
+                        followUps: [],
+                        follow_up_answers: []
+                      }
+                    ],
+                    lastUpdated: new Date()
+                  }
+                : session
+            )
+          );
+        }
       } finally {
         setIsBotTyping(false);
+        setAbortController(null);
       }
     },
-    [activeSessionId, generateUniqueId]
+    [activeSessionId, generateUniqueId, abortController]
   );
 
   const handleKeyPress = useCallback((e) => {
@@ -561,7 +610,7 @@ const ChatbotPage = () => {
                 </div>
               ))}
               {isBotTyping && (
-                <div className="flex justify-start">
+                <div className="flex items-center gap-2 justify-start">
                   <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
                     <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 text-white">
                       <span className="text-sm font-bold">M</span>
@@ -569,6 +618,15 @@ const ChatbotPage = () => {
                     <div className="rounded-xl px-4 py-3 bg-white border border-gray-200 text-gray-800 shadow-sm rounded-bl-none">
                       <p className="text-sm italic">Mindfulness sedang mengetik...</p>
                     </div>
+                    {/* Tombol cancel typing */}
+                    <button
+                      onClick={cancelTyping}
+                      title="Batalkan jawaban"
+                      className="ml-2 text-red-400 hover:text-red-600 transition-colors flex items-center justify-center rounded-full"
+                      style={{ minWidth: 32, minHeight: 32 }}
+                    >
+                      <XCircle size={22} />
+                    </button>
                   </div>
                 </div>
               )}
