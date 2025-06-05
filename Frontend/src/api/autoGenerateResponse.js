@@ -1,5 +1,6 @@
 import corpus from '../model/corpus_final.json';
 
+// Membangun indeks keyword dari corpus
 function buildKeywordIndex(corpus) {
   const arr = [];
   corpus.forEach(item => {
@@ -17,6 +18,7 @@ function buildKeywordIndex(corpus) {
   return arr;
 }
 
+// Menentukan tipe respon dari intent
 function getTypeFromIntent(intent) {
   if (/esteem|worth|insecure|imposter|self_care|self_blame|lack_of_support|depression|isolation|loneliness|validation|not valued|guilt|overthinking/i.test(intent)) return "validasi";
   if (/motivation|burnout|loss|stuck|semangat|direction|purpose|lack_of_direction|motivation_loss|motivasi/i.test(intent)) return "motivasi";
@@ -26,18 +28,19 @@ function getTypeFromIntent(intent) {
   return "umum";
 }
 
+// Cari match keyword terbaik
 function findBestMatch(userMessage, keywordIndex) {
   const msg = userMessage.toLowerCase();
-  // urutkan agar keyword yang lebih spesifik/mirip diprioritaskan
   const sorted = keywordIndex.slice().sort((a, b) => b.keyword.length - a.keyword.length);
   return sorted.find(item => msg.includes(item.keyword));
 }
 
+// Pilih random template
 function randomPick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// Variasi template yang saling terkait (tidak kebalik)
+// Template auto response
 const templates = {
   motivasi: [
     (k, ctx, resp) => `Langkahmu menghadapi "${k}" sangat berani. ${resp} Kadang memang berat, tapi ketekunanmu akan membuahkan hasil.`,
@@ -91,14 +94,14 @@ const templates = {
   ]
 };
 
-function autoGenerateResponse(userMessage, corpus = CORPUS_DATA) {
-  const keywordIndex = buildKeywordIndex(corpus);
+// Fungsi utama auto generate response
+function autoGenerateResponse(userMessage, corpusParam = corpus) {
+  const keywordIndex = buildKeywordIndex(corpusParam);
   const match = findBestMatch(userMessage, keywordIndex);
   if (!match) return null;
 
   const type = getTypeFromIntent(match.intent);
   const tmplArr = templates[type] || templates.umum;
-  // Gabungkan context, response, dan keyword dengan urutan yang benar
   const finalText = randomPick(tmplArr)(match.keyword, match.context, match.response);
 
   return {
