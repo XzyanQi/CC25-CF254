@@ -5,9 +5,10 @@ import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
 import ReactMarkdown from 'react-markdown';
 import { sendToMindfulness } from '../api/chatbot';
 
-// Konstanta untuk aplikasi
+// Konstanta
 const CHAT_SESSIONS_KEY = 'mindfulnessChatSessions';
 const MAX_RESPONSE_LENGTH = 5000;
+const TIMEOUT_DURATION = 30000; // 30 detik timeout
 const BANNED_WORDS = new Set([
   'kafir', 'bom', 'gay', 'lesbi', 'trans', 'transgender', 'homo', 'dick', 'iblis', 'lonte', 'pokkai',
   'agama', 'islam', 'kristen', 'buddha', 'hindu', 'konghucu', 'yahudi', 'genoshida', 'genosida', 'perang'
@@ -16,7 +17,7 @@ const BANNED_WORDS = new Set([
 // Komponen Status Koneksi
 const ConnectionStatus = ({ isConnecting, lastError }) => {
   if (!isConnecting && !lastError) return null;
-
+  
   return (
     <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
       lastError ? 'bg-red-100' : 'bg-blue-100'
@@ -119,7 +120,7 @@ const ChatbotPage = () => {
     });
   };
 
-  // Manajemen sesi chat
+  // Handle new chat
   const handleNewChat = useCallback(() => {
     const newSessionId = generateUniqueId('session');
     const pesanAwalBot = "Halo! Saya Mindfulness, asisten AI kamu untuk mendengarkan dan membantu dalam hal kesehatan mental. Ceritakan perasaanmu atau masalahmu, aku akan berusaha membantumu.";
@@ -146,23 +147,218 @@ const ChatbotPage = () => {
     setMessage('');
     setShowEmojiPicker(false);
     setConnectionError(null);
-    console.log('[CHAT] Membuat sesi chat baru:', newSessionId);
   }, [generateUniqueId]);
 
-  // Handle pemilihan sesi
+  // Handle follow-up
+  const handleFollowUpClick = useCallback((question, index) => {
+    if (!activeSessionId) return;
+
+    const session = chatSessions.find(s => s.id === activeSessionId);
+    if (!session) return;
+
+    const lastBotMsg = [...session.messages].reverse().find(msg => 
+      msg.sender === "bot" && 
+      Array.isArray(msg.followUpQuestions) && 
+      msg.followUpQuestions.length > 0
+    );
+
+    const userMessage = {
+      id: generateUniqueId('user'),
+      text: question,
+      sender: "user",
+      timestamp: new Date()
+    };
+
+    setChatSessions(prevSessions =>
+      prevSessions.map(session =>
+        session.id === activeSessionId
+          ? {
+              ...session,
+              messages: [...session.messages, userMessage],
+              lastUpdated: new Date()
+            }
+          : session
+      )
+    );
+
+    if (lastBotMsg?.recomendedResponsesToFollowUpAnswers?.[index]) {
+      const botResponse = {
+        id: generateUniqueId('bot'),
+        text: lastBotMsg.recomendedResponsesToFollowUpAnswers[index],
+        sender: "bot",
+        timestamp: new Date(),
+        followUpQuestions: [],
+        followUpAnswers: [],
+        recomendedResponsesToFollowUpAnswers: []
+      };
+
+      setChatSessions(prevSessions =>
+        prevSessions.map(session =>
+          session.id === activeSessionId
+            ? {
+                ...session,
+                messages: [...session.messages, botResponse],
+                lastUpdated: new Date()
+              }
+            : session
+        )
+      );
+    }
+  }, [activeSessionId, chatSessions, generateUniqueId]);
+
+  // Handle send message
+  const handleSendMessage = useCallback(async () => {
+    const userMessageText = message.trim();
+    if (!userMessageText || !activeSessionId) return;
+
+    setConnectionError(null);
+
+    const userMessage = {
+      id: generateUniqueId('user'),
+      text: userMessageText,
+      sender: "user",
+      timestamp: new Date()
+    };
+
+    setIsBotTyping(true);
+
+    setChatSessions(prevSessions =>
+      prevSessions.map(session =>
+        session.id === activeSessionId
+          ? {
+              ...session,
+              messages: [...session.messages, userMessage],
+              lastUpdated: new Date()
+            }
+          : session
+      )
+    );
+
+    setMessage('');
+    setShowEmojiPicker(false);
+
+    if ([...BANNED_WORDS].some(word => userMessageText.toLowerCase().includes(word))) {
+      const botResponse = {
+        id: generateUniqueId('bot'),
+        text: "Maaf, saya tidak dapat membahas topik tersebut. Mari fokus pada kesehatan mentalmu. Bagaimana perasaanmu hari ini?",
+        sender: "bot",
+        timestamp: new Date(),
+        followUpQuestions: [
+          "Ceritakan tentang harimu",
+          "Apa yang membuatmu bahagia?",
+          "Bagaimana cara kamu mengatasi stres?"
+        ],
+        followUpAnswers: [
+          "Setiap hari pasti ada hal baik yang bisa disyukuri. Ayo ceritakan lebih lanjut.",
+          "Kebahagiaan bisa datang dari hal sederhana. Mari berbagi cerita.",
+          "Kamu hebat sudah mencoba mengatasi stres. Bagaimana prosesnya?"
+        ]
+      };
+
+      setChatSessions(prevSessions =>
+        prevSessions.map(session =>
+          session.id === activeSessionId
+            ? { ...session, messages: [...session.messages, botResponse] }
+            : session
+        )
+      );
+      
+      setIsBotTyping(false);
+      return;
+    }
+
+    try {
+      const controller = new AbortController();
+      setAbortController(controller);
+
+      const timeoutId = setTimeout(() => {
+        if (controller) {
+          controller.abort();
+        }
+      }, TIMEOUT_DURATION);
+
+      const response = await sendToMindfulness(userMessageText);
+      
+      clearTimeout(timeoutId);
+      
+      if (!response || !response.response_to_display) {
+        throw new Error('Format respons tidak valid');
+      }
+
+      const botMessage = {
+        id: generateUniqueId('bot'),
+        text: response.response_to_display,
+        sender: "bot",
+        timestamp: new Date(),
+        intent: response.intent,
+        confidence_score: response.confidence_score,
+        followUpQuestions: Array.isArray(response.follow_up_questions) ? response.follow_up_questions : [],
+        followUpAnswers: Array.isArray(response.follow_up_answers) ? response.follow_up_answers : [],
+        recomendedResponsesToFollowUpAnswers: Array.isArray(response.recomended_responses_to_follow_up_answers) 
+          ? response.recomended_responses_to_follow_up_answers 
+          : []
+      };
+
+      setChatSessions(prevSessions =>
+        prevSessions.map(session =>
+          session.id === activeSessionId
+            ? { ...session, messages: [...session.messages, botMessage] }
+            : session
+        )
+      );
+
+    } catch (error) {
+      console.error('[CHAT] Error:', error);
+      
+      let errorMessage = "Maaf, terjadi kesalahan. Silakan coba lagi.";
+      
+      if (error.name === 'AbortError') {
+        errorMessage = "Permintaan dibatalkan.";
+      } else if (!navigator.onLine) {
+        errorMessage = "Tidak ada koneksi internet.";
+      } else if (error.message.includes('timeout')) {
+        errorMessage = "Waktu respons habis. Silakan coba lagi.";
+      } else if (error.message.includes('Format respons tidak valid')) {
+        errorMessage = "Terjadi kesalahan pada format respons server.";
+      }
+
+      setConnectionError(errorMessage);
+
+      const errorBotMessage = {
+        id: generateUniqueId('bot-error'),
+        text: errorMessage,
+        sender: "bot",
+        timestamp: new Date(),
+        followUpQuestions: [],
+        followUpAnswers: []
+      };
+
+      setChatSessions(prevSessions =>
+        prevSessions.map(session =>
+          session.id === activeSessionId
+            ? { ...session, messages: [...session.messages, errorBotMessage] }
+            : session
+        )
+      );
+
+    } finally {
+      setIsBotTyping(false);
+      setAbortController(null);
+    }
+  }, [message, activeSessionId, generateUniqueId]);
+
+  // Handle session selection
   const handleSelectSession = useCallback((sessionId) => {
     setActiveSessionId(sessionId);
     setMessage('');
     setShowEmojiPicker(false);
     setConnectionError(null);
-    console.log('[CHAT] Memilih sesi:', sessionId);
   }, []);
 
-  // Handle penghapusan sesi
+  // Handle session deletion
   const handleDeleteSession = useCallback((sessionIdToDelete, event) => {
     event.stopPropagation();
     setChatSessions(prev => prev.filter(session => session.id !== sessionIdToDelete));
-    console.log('[CHAT] Menghapus sesi:', sessionIdToDelete);
     
     if (activeSessionId === sessionIdToDelete) {
       const remainingSessions = chatSessions.filter(s => s.id !== sessionIdToDelete);
@@ -174,7 +370,21 @@ const ChatbotPage = () => {
     }
   }, [chatSessions, activeSessionId, handleNewChat]);
 
-  // Load/save sesi dari localStorage
+  // Handle emoji selection
+  const onEmojiClick = (emojiData) => {
+    setMessage(prev => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
+
+  // Handle keyboard events
+  const handleKeyPress = useCallback((e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  }, [handleSendMessage]);
+
+  // Load/save sessions from/to localStorage
   useEffect(() => {
     const savedSessions = localStorage.getItem(CHAT_SESSIONS_KEY);
     if (savedSessions) {
@@ -182,7 +392,6 @@ const ChatbotPage = () => {
         const parsed = JSON.parse(savedSessions);
         setChatSessions(parsed);
         setActiveSessionId(parsed[0]?.id || null);
-        console.log('[CHAT] Memuat sesi dari localStorage');
       } catch (e) {
         console.error('[CHAT] Error parsing localStorage:', e);
         handleNewChat();
@@ -196,11 +405,10 @@ const ChatbotPage = () => {
   useEffect(() => {
     if (chatSessions.length > 0) {
       localStorage.setItem(CHAT_SESSIONS_KEY, JSON.stringify(chatSessions));
-      console.log('[CHAT] Menyimpan sesi ke localStorage');
     }
   }, [chatSessions]);
 
-  // Auto scroll
+    // Auto scroll
   useEffect(() => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -237,150 +445,6 @@ const ChatbotPage = () => {
     };
   }, [abortController]);
 
-  // Handle kirim pesan
-  const handleSendMessage = useCallback(async () => {
-    const userMessageText = message.trim();
-    if (!userMessageText || !activeSessionId) return;
-
-    setConnectionError(null);
-
-    // Buat pesan user
-    const userMessage = {
-      id: generateUniqueId('user'),
-      text: userMessageText,
-      sender: "user",
-      timestamp: new Date()
-    };
-
-    setIsBotTyping(true);
-
-    // Update state dengan pesan user
-    setChatSessions(prevSessions =>
-      prevSessions.map(session =>
-        session.id === activeSessionId
-          ? {
-              ...session,
-              messages: [...session.messages, userMessage],
-              lastUpdated: new Date()
-            }
-          : session
-      )
-    );
-
-    setMessage('');
-    setShowEmojiPicker(false);
-
-    // Cek kata terlarang
-    if ([...BANNED_WORDS].some(word => userMessageText.toLowerCase().includes(word))) {
-      const botResponse = {
-        id: generateUniqueId('bot'),
-        text: "Maaf, saya tidak dapat membahas topik tersebut. Mari fokus pada kesehatan mentalmu. Bagaimana perasaanmu hari ini?",
-        sender: "bot",
-        timestamp: new Date(),
-        followUpQuestions: [
-          "Ceritakan tentang harimu",
-          "Apa yang membuatmu bahagia?",
-          "Bagaimana cara kamu mengatasi stres?"
-        ],
-        followUpAnswers: [
-          "Setiap hari pasti ada hal baik yang bisa disyukuri. Ayo ceritakan lebih lanjut.",
-          "Kebahagiaan bisa datang dari hal sederhana. Mari berbagi cerita.",
-          "Kamu hebat sudah mencoba mengatasi stres. Bagaimana prosesnya?"
-        ]
-      };
-
-      setChatSessions(prevSessions =>
-        prevSessions.map(session =>
-          session.id === activeSessionId
-            ? { ...session, messages: [...session.messages, botResponse] }
-            : session
-        )
-      );
-      
-      setIsBotTyping(false);
-      return;
-    }
-
-    // Kirim ke backend
-    try {
-      const controller = new AbortController();
-      setAbortController(controller);
-
-      const response = await sendToMindfulness(userMessageText);
-      
-      if (!response) throw new Error('Tidak ada respons dari server');
-
-      const botMessage = {
-        id: generateUniqueId('bot'),
-        text: response.text || "Maaf, saya tidak mengerti. Bisa dijelaskan dengan cara lain?",
-        sender: "bot",
-        timestamp: new Date(),
-        followUpQuestions: response.followUpQuestions || [],
-        followUpAnswers: response.followUpAnswers || [],
-        recomendedResponsesToFollowUpAnswers: response.recomendedResponsesToFollowUpAnswers || []
-      };
-
-      setChatSessions(prevSessions =>
-        prevSessions.map(session =>
-          session.id === activeSessionId
-            ? { ...session, messages: [...session.messages, botMessage] }
-            : session
-        )
-      );
-
-    } catch (error) {
-      console.error('[CHAT] Error:', error);
-      
-      let errorMessage = "Maaf, terjadi kesalahan. Silakan coba lagi.";
-      
-      if (error.name === 'AbortError') {
-        errorMessage = "Permintaan dibatalkan.";
-      } else if (!navigator.onLine) {
-        errorMessage = "Tidak ada koneksi internet.";
-      } else if (error.message.includes('timeout')) {
-        errorMessage = "Waktu respons habis. Silakan coba lagi.";
-      }
-
-      setConnectionError(errorMessage);
-
-      // Tambahkan pesan error ke chat
-      const errorBotMessage = {
-        id: generateUniqueId('bot-error'),
-        text: errorMessage,
-        sender: "bot",
-        timestamp: new Date(),
-        followUpQuestions: [],
-        followUpAnswers: []
-      };
-
-      setChatSessions(prevSessions =>
-        prevSessions.map(session =>
-          session.id === activeSessionId
-            ? { ...session, messages: [...session.messages, errorBotMessage] }
-            : session
-        )
-      );
-
-    } finally {
-      setIsBotTyping(false);
-      setAbortController(null);
-    }
-  }, [message, activeSessionId, generateUniqueId]);
-
-  // Handle emoji picker
-  const onEmojiClick = (emojiData) => {
-    setMessage(prev => prev + emojiData.emoji);
-    setShowEmojiPicker(false);
-  };
-
-  // Handle keyboard
-  const handleKeyPress = useCallback((e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  }, [handleSendMessage]);
-
   // Loading state
   if (!isInitialized) {
     return (
@@ -393,7 +457,6 @@ const ChatbotPage = () => {
     );
   }
 
-  // Render utama
   const activeSession = chatSessions.find(s => s.id === activeSessionId);
   const currentMessages = activeSession?.messages || [];
 
@@ -424,12 +487,18 @@ const ChatbotPage = () => {
               <span className="text-sm font-medium text-gray-800">Chat Baru</span>
             </button>
             
-            {/* Indikator koneksi */}
-            <div className="flex items-center space-x-2 text-xs">
-              <div className={`w-2 h-2 rounded-full ${connectionError ? 'bg-red-500' : 'bg-green-500'}`} />
-              <span className={connectionError ? 'text-red-600' : 'text-green-600'}>
-                {connectionError ? 'Offline' : 'Online'}
-              </span>
+            {/* Indikator koneksi dan user */}
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center space-x-2 text-xs">
+                <div className={`w-2 h-2 rounded-full ${connectionError ? 'bg-red-500' : 'bg-green-500'}`} />
+                <span className={connectionError ? 'text-red-600' : 'text-green-600'}>
+                  {connectionError ? 'Offline' : 'Online'}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2 text-xs text-gray-500">
+                <User size={12} />
+                <span>{XzyanQi}</span>
+              </div>
             </div>
           </div>
           
@@ -489,6 +558,13 @@ const ChatbotPage = () => {
                 Mindfulness AI
               </h2>
             </div>
+
+            <div className="text-xs text-gray-500">
+              {new Date().toLocaleString('id-ID', {
+                dateStyle: 'full',
+                timeStyle: 'short'
+              })}
+            </div>
           </div>
 
           {/* Area Pesan */}
@@ -524,7 +600,7 @@ const ChatbotPage = () => {
                                 {msg.followUpQuestions.map((question, idx) => (
                                   <button
                                     key={idx}
-                                    onClick={() => handleFollowUpClick(question)}
+                                    onClick={() => handleFollowUpClick(question, idx)}
                                     className="block w-full text-left text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
                                   >
                                     {question}
