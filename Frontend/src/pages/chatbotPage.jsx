@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Home, Menu, MessageSquare, Plus, Send, Smile, Trash2, User, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
 import ReactMarkdown from 'react-markdown';
-import { sendToMindfulness } from '../api/chatbot';
 
 // Konstanta
 const CHAT_SESSIONS_KEY = 'mindfulnessChatSessions';
