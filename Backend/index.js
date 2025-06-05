@@ -2,15 +2,13 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const routes = require('./routes/route'); 
+const routes = require('./routes/route') 
 
-app.use(cors({
-  origin: "https://mindfulnessnlp.vercel.app", 
-  credentials: true
-}));
-
+app.use(cors({}));
 app.use(express.json());
-app.use('/api', routes);
+
+
+app.use('/api', routes); 
 
 app.get('/', (req, res) => {
     res.send('Welcome to the API root! Actual endpoints are likely under /api');
