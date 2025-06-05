@@ -1,5 +1,6 @@
 import axios from "axios";
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:3000").replace(/\/+$/, "");
 
 export const getUserByEmail = async (email) => {
     try {
@@ -9,9 +10,10 @@ export const getUserByEmail = async (email) => {
             }
         });
         console.log("Frontend: getUserByEmail response:", response);
-        return response; 
+        return response.data; // Kembalikan hanya data
     } catch (error) {
         console.error("Frontend: getUserByEmail error:", error.response || error.message); 
-        return error.response; 
+        // Kembalikan response error agar mudah ditangani di komponen
+        return error.response ? error.response.data : { error: error.message };
     }
 };
