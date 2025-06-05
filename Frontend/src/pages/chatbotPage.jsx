@@ -47,7 +47,6 @@ class ChatErrorBoundary extends React.Component {
 }
 
 const ChatbotPage = () => {
-  // State
   const [message, setMessage] = useState('');
   const [chatSessions, setChatSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState(null);
@@ -56,15 +55,12 @@ const ChatbotPage = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Refs
   const chatEndRef = useRef(null);
   const emojiPickerButtonRef = useRef(null);
   const emojiPickerPopupRef = useRef(null);
 
-  // Navigation
   const navigate = useNavigate();
 
-  // Utilitas
   const generateUniqueId = useCallback((prefix) => {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
   }, []);
@@ -156,7 +152,20 @@ const ChatbotPage = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fungsi mengirim pesan user
+  // Utility: swap followUps dengan follow_up_answers jika terdeteksi tertukar
+  function swapIfNeeded(followUps, followUpAnswers) {
+    const countQ = arr => arr.filter(str => typeof str === 'string' && str.includes('?')).length;
+    if (
+      followUpAnswers.length > 0 &&
+      countQ(followUpAnswers) > countQ(followUps)
+    ) {
+      // Tukar kalau follow_up_answers isinya pertanyaan dan followUps isinya jawaban
+      return [followUpAnswers, followUps];
+    }
+    return [followUps, followUpAnswers];
+  }
+
+  // Kirim pesan user
   const handleSendMessage = useCallback(async () => {
     const userMessageText = message.trim();
     if (!userMessageText || !activeSessionId) return;
@@ -217,7 +226,6 @@ const ChatbotPage = () => {
       const data = await sendToMindfulness(userMessageText);
 
       let results = Array.isArray(data.results) ? data.results : [];
-      // Filter jawaban template
       const nonTemplate = results.filter(
         r =>
           !r.response_to_display?.toLowerCase().startsWith("terima kasih sudah berbagi")
@@ -227,13 +235,18 @@ const ChatbotPage = () => {
         ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
         : results[0] || {};
 
+      // SWAP kalau ada
+      let followUpsRaw = Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [];
+      let followUpAnswersRaw = Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : [];
+      const [followUps, follow_up_answers] = swapIfNeeded(followUpsRaw, followUpAnswersRaw);
+
       const botMessage = {
         id: generateUniqueId('bot'),
         text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
         sender: "bot",
         timestamp: new Date(),
-        followUps: Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [],
-        follow_up_answers: Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : []
+        followUps,
+        follow_up_answers
       };
 
       setChatSessions(prevSessions =>
@@ -275,7 +288,6 @@ const ChatbotPage = () => {
     async (question, answer = null) => {
       if (!activeSessionId) return;
 
-      // Buat pesan user
       const userMessage = {
         id: generateUniqueId('user'),
         text: question,
@@ -299,7 +311,6 @@ const ChatbotPage = () => {
       setMessage('');
       setShowEmojiPicker(false);
 
-      // Jika ada jawaban follow_up_answers dari message (langsung muncul)
       if (answer) {
         const botMessage = {
           id: generateUniqueId('bot-followup'),
@@ -324,7 +335,6 @@ const ChatbotPage = () => {
         return;
       }
 
-      // Jika tidak ada answer, fallback ke backend
       try {
         const data = await sendToMindfulness(question);
         let results = Array.isArray(data.results) ? data.results : [];
@@ -337,13 +347,17 @@ const ChatbotPage = () => {
           ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
           : results[0] || {};
 
+        let followUpsRaw = Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [];
+        let followUpAnswersRaw = Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : [];
+        const [followUps, follow_up_answers] = swapIfNeeded(followUpsRaw, followUpAnswersRaw);
+
         const botMessage = {
           id: generateUniqueId('bot'),
           text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
           sender: "bot",
           timestamp: new Date(),
-          followUps: Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [],
-          follow_up_answers: Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : []
+          followUps,
+          follow_up_answers
         };
 
         setChatSessions(prevSessions =>
@@ -392,7 +406,6 @@ const ChatbotPage = () => {
   const formatTime = (date) =>
     new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  // Loading state
   if (!isInitialized) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
@@ -404,7 +417,6 @@ const ChatbotPage = () => {
     );
   }
 
-  // Render
   return (
     <ChatErrorBoundary>
       <div className="flex h-screen bg-gray-50">
