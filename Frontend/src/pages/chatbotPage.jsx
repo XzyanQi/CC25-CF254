@@ -14,7 +14,6 @@ const BANNED_WORDS = new Set([
   'agama', 'islam', 'kristen', 'buddha', 'hindu', 'konghucu', 'yahudi', 'genoshida', 'genosida', 'perang'
 ]);
 
-// Error Boundary untuk menangkap error di komponen chat
 class ChatErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -47,7 +46,6 @@ class ChatErrorBoundary extends React.Component {
   }
 }
 
-// Fungsi fix mapping follow up (JSON kamu terbalik)
 function getFollowUpMapping(follow_up_questions, follow_up_answers) {
   // follow_up_answers di JSON = pertanyaan, follow_up_questions di JSON = jawaban
   // return [pertanyaan, jawaban]
@@ -91,7 +89,8 @@ const ChatbotPage = () => {
           sender: "bot",
           timestamp: new Date(),
           followUpQuestions: [],
-          followUpAnswers: []
+          followUpAnswers: [],
+          recomendedResponsesToFollowUpAnswers: []
         }
       ],
       lastUpdated: new Date()
@@ -225,7 +224,8 @@ const ChatbotPage = () => {
           "Setiap hari, meskipun terasa berat, pasti ada satu hal kecil yang bisa kamu syukuri. Semangat ya, kamu tidak sendiri!",
           "Hal membahagiakan bisa datang dari hal-hal sederhana. Semoga hari ini kamu menemukan kebahagiaan kecil yang berarti.",
           "Mengatasi stres itu proses, dan kamu sudah hebat bisa melewatinya sejauh ini. Tetap jaga dirimu, kamu pasti bisa!"
-        ]
+        ],
+        recomendedResponsesToFollowUpAnswers: []
       };
       setChatSessions(prevSessions =>
         prevSessions.map(session =>
@@ -242,7 +242,6 @@ const ChatbotPage = () => {
     // auto generate dari corpus
     const autoResp = autoGenerateResponse(userMessageText);
     if (autoResp) {
-      // mapping follow up
       const [followUpQuestions, followUpAnswers] = getFollowUpMapping(
         autoResp.followUpQuestions,
         autoResp.followUpAnswers
@@ -253,7 +252,8 @@ const ChatbotPage = () => {
         sender: "bot",
         timestamp: new Date(),
         followUpQuestions,
-        followUpAnswers
+        followUpAnswers,
+        recomendedResponsesToFollowUpAnswers: Array.isArray(autoResp.recomendedResponsesToFollowUpAnswers) ? autoResp.recomendedResponsesToFollowUpAnswers : []
       };
       setChatSessions(prevSessions =>
         prevSessions.map(session =>
@@ -285,7 +285,6 @@ const ChatbotPage = () => {
         ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
         : results[0] || {};
 
-      // mapping follow up
       const [followUpQuestions, followUpAnswers] = getFollowUpMapping(
         topResult.follow_up_questions,
         topResult.follow_up_answers
@@ -297,7 +296,8 @@ const ChatbotPage = () => {
         sender: "bot",
         timestamp: new Date(),
         followUpQuestions,
-        followUpAnswers
+        followUpAnswers,
+        recomendedResponsesToFollowUpAnswers: Array.isArray(topResult.recomended_responses_to_follow_up_answers) ? topResult.recomended_responses_to_follow_up_answers : []
       };
 
       setChatSessions(prevSessions =>
@@ -319,7 +319,8 @@ const ChatbotPage = () => {
                   sender: "bot",
                   timestamp: new Date(),
                   followUpQuestions: [],
-                  followUpAnswers: []
+                  followUpAnswers: [],
+                  recomendedResponsesToFollowUpAnswers: []
                 }], lastUpdated: new Date() }
               : session
           )
@@ -339,7 +340,8 @@ const ChatbotPage = () => {
                       sender: "bot",
                       timestamp: new Date(),
                       followUpQuestions: [],
-                      followUpAnswers: []
+                      followUpAnswers: [],
+                      recomendedResponsesToFollowUpAnswers: []
                     }
                   ],
                   lastUpdated: new Date()
@@ -355,20 +357,29 @@ const ChatbotPage = () => {
     }
   }, [message, activeSessionId, generateUniqueId, abortController]);
 
-  // Fungsi follow up
+  // Fungsi follow up (langsung menampilkan rekomendasi tanpa request backend jika ada)
   const handleFollowUpClick = useCallback(
-    async (question, answer = null) => {
+    (question, answer = null) => {
       if (!activeSessionId) return;
 
+      // Cari pesan bot terakhir yang punya followUpQuestions & recommendedResponses
+      const session = chatSessions.find(s => s.id === activeSessionId);
+      if (!session) return;
+      const lastBotMsg = [...session.messages].reverse().find(
+        msg => msg.sender === "bot" && Array.isArray(msg.followUpQuestions) && msg.followUpQuestions.length > 0
+      );
+      let idx = -1;
+      if (lastBotMsg && Array.isArray(lastBotMsg.followUpQuestions)) {
+        idx = lastBotMsg.followUpQuestions.findIndex(q => q === question);
+      }
+
+      // Tambahkan pesan user dulu
       const userMessage = {
         id: generateUniqueId('user'),
         text: question,
         sender: "user",
         timestamp: new Date()
       };
-
-      setIsBotTyping(true);
-
       setChatSessions(prevSessions =>
         prevSessions.map(session =>
           session.id === activeSessionId
@@ -383,14 +394,21 @@ const ChatbotPage = () => {
       setMessage('');
       setShowEmojiPicker(false);
 
-      if (answer) {
+      // Jika ada rekomendasi jawaban untuk follow-up, tampilkan langsung
+      if (
+        lastBotMsg &&
+        Array.isArray(lastBotMsg.recomendedResponsesToFollowUpAnswers) &&
+        idx !== -1 &&
+        lastBotMsg.recomendedResponsesToFollowUpAnswers[idx]
+      ) {
         const botMessage = {
           id: generateUniqueId('bot-followup'),
-          text: answer,
+          text: lastBotMsg.recomendedResponsesToFollowUpAnswers[idx],
           sender: "bot",
           timestamp: new Date(),
           followUpQuestions: [],
-          followUpAnswers: []
+          followUpAnswers: [],
+          recomendedResponsesToFollowUpAnswers: []
         };
         setChatSessions(prevSessions =>
           prevSessions.map(session =>
@@ -404,95 +422,15 @@ const ChatbotPage = () => {
           )
         );
         setIsBotTyping(false);
-        console.log('[BOT] Jawaban follow up langsung dari data');
+        console.log('[BOT] Jawaban follow up langsung dari data rekomendasi');
         return;
       }
 
-      const controller = new AbortController();
-      setAbortController(controller);
-
-      try {
-        console.log('[BOT] Mengirim follow up ke backend...');
-        const data = await sendToMindfulness(question, { signal: controller.signal });
-        let results = Array.isArray(data.results) ? data.results : [];
-        const nonTemplate = results.filter(
-          r =>
-            !r.response_to_display?.toLowerCase().startsWith("terima kasih sudah berbagi") &&
-            !r.response_to_display?.toLowerCase().includes("saya di sini untuk mendengarkan")
-        );
-        let topResult = nonTemplate.length > 0
-          ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
-          : results[0] || {};
-
-        const [followUpQuestions, followUpAnswers] = getFollowUpMapping(
-          topResult.follow_up_questions,
-          topResult.follow_up_answers
-        );
-
-        const botMessage = {
-          id: generateUniqueId('bot'),
-          text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
-          sender: "bot",
-          timestamp: new Date(),
-          followUpQuestions,
-          followUpAnswers
-        };
-
-        setChatSessions(prevSessions =>
-          prevSessions.map(session =>
-            session.id === activeSessionId
-              ? { ...session, messages: [...session.messages, botMessage], lastUpdated: new Date() }
-              : session
-          )
-        );
-        console.log('[BOT] Jawaban follow up backend diterima');
-      } catch (error) {
-        if (error.name === 'AbortError') {
-          setChatSessions(prevSessions =>
-            prevSessions.map(session =>
-              session.id === activeSessionId
-                ? { ...session, messages: [...session.messages, {
-                    id: generateUniqueId('error'),
-                    text: "Jawaban dibatalkan.",
-                    sender: "bot",
-                    timestamp: new Date(),
-                    followUpQuestions: [],
-                    followUpAnswers: []
-                  }], lastUpdated: new Date() }
-                : session
-            )
-          );
-          console.log('[BOT] Jawaban follow up backend dibatalkan oleh user');
-        } else {
-          setChatSessions(prevSessions =>
-            prevSessions.map(session =>
-              session.id === activeSessionId
-                ? {
-                    ...session,
-                    messages: [
-                      ...session.messages,
-                      {
-                        id: generateUniqueId('error'),
-                        text: "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
-                        sender: "bot",
-                        timestamp: new Date(),
-                        followUpQuestions: [],
-                        followUpAnswers: []
-                      }
-                    ],
-                    lastUpdated: new Date()
-                  }
-                : session
-            )
-          );
-          console.error('[BOT] Error follow up backend:', error);
-        }
-      } finally {
-        setIsBotTyping(false);
-        setAbortController(null);
-      }
+      // Fallback: kalau tidak ada, request ke backend (opsional)
+      // setIsBotTyping(true);
+      // kode request ke backend kalau (opsional) backup
     },
-    [activeSessionId, generateUniqueId, abortController]
+    [activeSessionId, chatSessions, generateUniqueId]
   );
 
   const handleKeyPress = useCallback((e) => {
