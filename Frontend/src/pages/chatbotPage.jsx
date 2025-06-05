@@ -4,7 +4,7 @@ import { Home, Menu, MessageSquare, Plus, Send, Smile, Trash2, User } from 'luci
 import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
 import ReactMarkdown from 'react-markdown';
 import { sendToMindfulness } from '../api/chatbot';
-import { autoGenerateResponse } from '../api/autoGenerateResponse'; 
+import { autoGenerateResponse } from '../api/autoGenerateResponse';
 
 // Konstanta
 const CHAT_SESSIONS_KEY = 'mindfulnessChatSessions';
