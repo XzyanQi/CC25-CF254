@@ -5,7 +5,6 @@ import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
 import ReactMarkdown from 'react-markdown';
 import { sendToMindfulness } from '../api/chatbot';
 
-
 // Konstanta
 const CHAT_SESSIONS_KEY = 'mindfulnessChatSessions';
 const MAX_RESPONSE_LENGTH = 5000;
@@ -239,35 +238,7 @@ const ChatbotPage = () => {
       return;
     }
 
-    // auto generate dari corpus
-    const autoResp = autoGenerateResponse(userMessageText);
-    if (autoResp) {
-      const [followUpQuestions, followUpAnswers] = getFollowUpMapping(
-        autoResp.followUpQuestions,
-        autoResp.followUpAnswers
-      );
-      const botMessage = {
-        id: generateUniqueId('bot-auto'),
-        text: autoResp.text,
-        sender: "bot",
-        timestamp: new Date(),
-        followUpQuestions,
-        followUpAnswers,
-        recomendedResponsesToFollowUpAnswers: Array.isArray(autoResp.recomendedResponsesToFollowUpAnswers) ? autoResp.recomendedResponsesToFollowUpAnswers : []
-      };
-      setChatSessions(prevSessions =>
-        prevSessions.map(session =>
-          session.id === activeSessionId
-            ? { ...session, messages: [...session.messages, botMessage], lastUpdated: new Date() }
-            : session
-        )
-      );
-      setIsBotTyping(false);
-      console.log('[BOT] Bot auto generate jawaban dari corpus');
-      return;
-    }
-
-    // kirim ke backend kalau hilang
+    // kirim ke backend saja, JANGAN gunakan autoGenerateResponse
     const controller = new AbortController();
     setAbortController(controller);
 
