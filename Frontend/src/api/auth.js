@@ -1,25 +1,58 @@
-import axios from "axios";
+import axios from 'axios';
 
-// Konfigurasi base URL dengan normalisasi trailing slash
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:3000").replace(/\/+$/, "");
+const AUTH_TIMEOUT = 15000; // 15 detik
+const TOKEN_STORAGE_KEY = 'auth_token';
+const TOKEN_EXPIRY_DAYS = 7;
 
 // Axios instance khusus untuk authentication
 const authApiClient = axios.create({
   baseURL: BASE_URL,
-  timeout: 15000, // 15 detik timeout untuk auth operations
+  timeout: AUTH_TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   },
-  withCredentials: true // Penting untuk cookie handling
+  withCredentials: true
 });
 
-// Request interceptor untuk auth
+// Token Management
+
+const getStoredToken = () => {
+  // Priority: localStorage -> cookie
+  return localStorage.getItem(TOKEN_STORAGE_KEY) || getCookieValue(TOKEN_STORAGE_KEY);
+};
+
+const storeToken = (token) => {
+  if (!token) return;
+  
+  // Store in localStorage
+  localStorage.setItem(TOKEN_STORAGE_KEY, token);
+  
+  // Store in secure cookie
+  const expires = new Date(Date.now() + TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = `${TOKEN_STORAGE_KEY}=${token}; expires=${expires}; path=/; secure; samesite=strict`;
+};
+
+const clearStoredToken = () => {
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+  document.cookie = `${TOKEN_STORAGE_KEY}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+};
+
+const getCookieValue = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+};
+
+
+// Request interceptor
 authApiClient.interceptors.request.use(
   (config) => {
-    console.log('Auth API Request:', config.method?.toUpperCase(), config.url);
+    console.log(`Auth API Request: ${config.method?.toUpperCase()} ${config.url}`);
     
-    // Tambahkan token jika ada di localStorage atau cookie
+    // Add token if available
     const token = getStoredToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -33,12 +66,12 @@ authApiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor untuk auth
+// Response interceptor
 authApiClient.interceptors.response.use(
   (response) => {
-    console.log('Auth API Response:', response.status, response.config.url);
+    console.log(`Auth API Response: ${response.status} ${response.config.url}`);
     
-    // Simpan token jika ada di response
+    // Store token if present in response
     if (response.data?.token) {
       storeToken(response.data.token);
     }
@@ -52,237 +85,219 @@ authApiClient.interceptors.response.use(
       url: error.config?.url
     });
 
-    // Handle unauthorized responses
     if (error.response?.status === 401) {
       clearStoredToken();
+    
     }
     
     return Promise.reject(error);
   }
 );
 
-// Utility functions untuk token management
-const getStoredToken = () => {
-  // Coba ambil dari localStorage dulu, kemudian dari cookie
-  return localStorage.getItem('token') || getCookieValue('token');
-};
+// Eror handle
 
-const storeToken = (token) => {
-  localStorage.setItem('token', token);
-  // Set cookie dengan expire 7 hari
-  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
-  document.cookie = `token=${token}; expires=${expires}; path=/; secure; samesite=strict`;
-};
-
-const clearStoredToken = () => {
-  localStorage.removeItem('token');
-  document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-};
-
-const getCookieValue = (name) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-  return null;
-};
-
-// Enhanced error handling function
-const handleAuthError = (error, operation) => {
+const createErrorResponse = (error, operation) => {
   console.error(`Auth ${operation} Error:`, error);
+
+  const baseError = {
+    success: false,
+    operation,
+    timestamp: new Date().toISOString()
+  };
 
   if (error.response) {
     // Server responded with error status
-    const errorData = {
-      success: false,
-      status: error.response.status,
-      message: error.response.data?.message || 
-               error.response.data?.error || 
-               `${operation} failed`,
-      data: error.response.data,
-      timestamp: new Date().toISOString()
-    };
-
-    // Special handling untuk different status codes
-    switch (error.response.status) {
+    const status = error.response.status;
+    const data = error.response.data;
+    
+    let message = data?.message || data?.error || `${operation} failed`;
+    
+    // Status-specific messages
+    switch (status) {
       case 400:
-        errorData.message = error.response.data?.message || 'Invalid request data';
+        message = data?.message || 'Invalid request data';
         break;
       case 401:
-        errorData.message = 'Invalid credentials or session expired';
+        message = 'Invalid credentials or session expired';
         clearStoredToken();
         break;
       case 403:
-        errorData.message = 'Access forbidden';
+        message = 'Access forbidden';
         break;
       case 404:
-        errorData.message = 'Authentication endpoint not found';
+        message = 'Authentication endpoint not found';
         break;
       case 429:
-        errorData.message = 'Too many attempts. Please try again later';
+        message = 'Too many attempts. Please try again later';
         break;
       case 500:
-        errorData.message = 'Server error. Please try again later';
+        message = 'Server error. Please try again later';
         break;
     }
 
-    return errorData;
-  } else if (error.request) {
+    return {
+      ...baseError,
+      status,
+      message,
+      data: data || null
+    };
+  } 
+  
+  if (error.request) {
     // Network error
     return {
-      success: false,
+      ...baseError,
       status: 'NETWORK_ERROR',
-      message: 'Unable to connect to server. Please check your connection.',
-      timestamp: new Date().toISOString()
+      message: 'Unable to connect to server. Please check your connection.'
     };
-  } else {
-    // Unexpected error
-    return {
-      success: false,
-      status: 'UNEXPECTED_ERROR',
-      message: error.message || 'An unexpected error occurred',
-      timestamp: new Date().toISOString()
-    };
+  }
+  
+  // Unexpected error
+  return {
+    ...baseError,
+    status: 'UNEXPECTED_ERROR',
+    message: error.message || 'An unexpected error occurred'
+  };
+};
+
+const createSuccessResponse = (response, message = 'Operation successful') => ({
+  success: true,
+  status: response.status,
+  message,
+  data: response.data,
+  timestamp: new Date().toISOString()
+});
+
+// validasi
+
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const validatePassword = (password) => {
+  return password && password.length >= 6;
+};
+
+const validateLoginPayload = (payload) => {
+  if (!payload) throw new Error('Payload is required');
+  if (!payload.email) throw new Error('Email is required');
+  if (!payload.password) throw new Error('Password is required');
+  if (!validateEmail(payload.email)) throw new Error('Invalid email format');
+  if (!validatePassword(payload.password)) throw new Error('Password must be at least 6 characters long');
+};
+
+const validateRegisterPayload = (payload) => {
+  validateLoginPayload(payload); 
+  if (payload.confirmPassword && payload.password !== payload.confirmPassword) {
+    throw new Error('Passwords do not match');
   }
 };
 
-// Login function
+//APi
+
 export const login = async (payload) => {
   try {
-    // Validasi input
-    if (!payload || !payload.email || !payload.password) {
-      throw new Error('Email and password are required');
-    }
-
+    validateLoginPayload(payload);
+    
     console.log('Attempting login for:', payload.email);
 
     const response = await authApiClient.post('/api/auth/login', {
       email: payload.email.trim().toLowerCase(),
       password: payload.password,
-      ...payload // Include other fields if any
+      rememberMe: payload.rememberMe || false
     });
 
-    console.log('Login successful:', response.data);
-
-    return {
-      success: true,
-      data: response.data,
-      status: response.status,
-      message: 'Login successful'
-    };
+    console.log('Login successful');
+    return createSuccessResponse(response, 'Login successful');
 
   } catch (error) {
-    return handleAuthError(error, 'Login');
+    return createErrorResponse(error, 'Login');
   }
 };
 
-// Register function
 export const register = async (payload) => {
   try {
-    // Validasi input
-    if (!payload || !payload.email || !payload.password) {
-      throw new Error('Email and password are required');
-    }
-
-    // Additional validation
-    if (payload.password.length < 6) {
-      throw new Error('Password must be at least 6 characters long');
-    }
-
+    validateRegisterPayload(payload);
+    
     console.log('Attempting registration for:', payload.email);
 
     const response = await authApiClient.post('/api/auth/register', {
       email: payload.email.trim().toLowerCase(),
       password: payload.password,
       name: payload.name?.trim(),
-      ...payload // Include other fields
+      ...payload
     });
 
-    console.log('Registration successful:', response.data);
-
-    return {
-      success: true,
-      data: response.data,
-      status: response.status,
-      message: 'Registration successful'
-    };
+    console.log('Registration successful');
+    return createSuccessResponse(response, 'Registration successful');
 
   } catch (error) {
-    return handleAuthError(error, 'Registration');
+    return createErrorResponse(error, 'Registration');
   }
 };
 
-// Logout function
 export const logout = async () => {
   try {
     console.log('Attempting logout...');
 
-    const response = await authApiClient.post('/api/auth/logout'); // Changed to POST
-
+    const response = await authApiClient.post('/api/auth/logout');
+    
     // Clear stored tokens
     clearStoredToken();
-
+    
     console.log('Logout successful');
-
-    return {
-      success: true,
-      data: response.data,
-      status: response.status,
-      message: 'Logout successful'
-    };
+    return createSuccessResponse(response, 'Logout successful');
 
   } catch (error) {
     // Even if server logout fails, clear local tokens
     clearStoredToken();
     
-    const errorResult = handleAuthError(error, 'Logout');
+    const errorResult = createErrorResponse(error, 'Logout');
     
     // Return success anyway since local logout succeeded
     return {
       success: true,
       message: 'Logged out locally',
-      serverError: errorResult
+      serverError: errorResult,
+      timestamp: new Date().toISOString()
     };
   }
 };
 
-// Reset password function
 export const resetPassword = async (payload) => {
   try {
-    // Validasi input
-    if (!payload || !payload.email) {
+    if (!payload?.email) {
       throw new Error('Email is required for password reset');
+    }
+    
+    if (!validateEmail(payload.email)) {
+      throw new Error('Invalid email format');
     }
 
     console.log('Requesting password reset for:', payload.email);
 
     const response = await authApiClient.post('/api/auth/reset-password', {
-      email: payload.email.trim().toLowerCase(),
-      ...payload
+      email: payload.email.trim().toLowerCase()
     });
 
     console.log('Password reset request successful');
-
-    return {
-      success: true,
-      data: response.data,
-      status: response.status,
-      message: 'Password reset email sent'
-    };
+    return createSuccessResponse(response, 'Password reset email sent');
 
   } catch (error) {
-    return handleAuthError(error, 'Password Reset');
+    return createErrorResponse(error, 'Password Reset');
   }
 };
 
-// Confirm password reset function
 export const confirmPasswordReset = async (payload) => {
   try {
-    if (!payload || !payload.token || !payload.newPassword) {
-      throw new Error('Reset token and new password are required');
-    }
-
-    if (payload.newPassword.length < 6) {
+    if (!payload?.token) throw new Error('Reset token is required');
+    if (!payload?.newPassword) throw new Error('New password is required');
+    if (!validatePassword(payload.newPassword)) {
       throw new Error('New password must be at least 6 characters long');
+    }
+    if (payload.confirmPassword && payload.newPassword !== payload.confirmPassword) {
+      throw new Error('Passwords do not match');
     }
 
     const response = await authApiClient.post('/api/auth/confirm-reset-password', {
@@ -291,19 +306,13 @@ export const confirmPasswordReset = async (payload) => {
       confirmPassword: payload.confirmPassword
     });
 
-    return {
-      success: true,
-      data: response.data,
-      status: response.status,
-      message: 'Password reset successful'
-    };
+    return createSuccessResponse(response, 'Password reset successful');
 
   } catch (error) {
-    return handleAuthError(error, 'Password Reset Confirmation');
+    return createErrorResponse(error, 'Password Reset Confirmation');
   }
 };
 
-// Verify token function
 export const verifyToken = async () => {
   try {
     const token = getStoredToken();
@@ -312,68 +321,68 @@ export const verifyToken = async () => {
     }
 
     const response = await authApiClient.get('/api/auth/verify');
-
-    return {
-      success: true,
-      data: response.data,
-      status: response.status,
-      message: 'Token is valid'
-    };
+    return createSuccessResponse(response, 'Token is valid');
 
   } catch (error) {
     clearStoredToken();
-    return handleAuthError(error, 'Token Verification');
+    return createErrorResponse(error, 'Token Verification');
   }
 };
 
-// Refresh token function
 export const refreshToken = async () => {
   try {
     const response = await authApiClient.post('/api/auth/refresh');
-
-    return {
-      success: true,
-      data: response.data,
-      status: response.status,
-      message: 'Token refreshed'
-    };
+    return createSuccessResponse(response, 'Token refreshed');
 
   } catch (error) {
     clearStoredToken();
-    return handleAuthError(error, 'Token Refresh');
+    return createErrorResponse(error, 'Token Refresh');
   }
 };
 
-// Get current user function
 export const getCurrentUser = async () => {
   try {
     const response = await authApiClient.get('/api/auth/me');
-
-    return {
-      success: true,
-      data: response.data,
-      status: response.status
-    };
+    return createSuccessResponse(response, 'User data retrieved');
 
   } catch (error) {
-    return handleAuthError(error, 'Get Current User');
+    return createErrorResponse(error, 'Get Current User');
   }
 };
 
-// Auth health check
-export const checkAuthHealth = async () => {
+export const updateProfile = async (payload) => {
   try {
-    const response = await authApiClient.get('/api/auth/health');
-    return { status: 'healthy', data: response.data };
+    if (!payload) throw new Error('Profile data is required');
+
+    const response = await authApiClient.put('/api/auth/profile', payload);
+    return createSuccessResponse(response, 'Profile updated successfully');
+
   } catch (error) {
-    return { 
-      status: 'unhealthy', 
-      error: error.response?.data || error.message 
-    };
+    return createErrorResponse(error, 'Update Profile');
   }
 };
 
-// Utility functions untuk komponen
+export const changePassword = async (payload) => {
+  try {
+    if (!payload?.currentPassword) throw new Error('Current password is required');
+    if (!payload?.newPassword) throw new Error('New password is required');
+    if (!validatePassword(payload.newPassword)) {
+      throw new Error('New password must be at least 6 characters long');
+    }
+
+    const response = await authApiClient.post('/api/auth/change-password', {
+      currentPassword: payload.currentPassword,
+      newPassword: payload.newPassword,
+      confirmPassword: payload.confirmPassword
+    });
+
+    return createSuccessResponse(response, 'Password changed successfully');
+
+  } catch (error) {
+    return createErrorResponse(error, 'Change Password');
+  }
+};
+
 export const isAuthenticated = () => {
   return !!getStoredToken();
 };
@@ -384,4 +393,49 @@ export const getAuthToken = () => {
 
 export const clearAuthentication = () => {
   clearStoredToken();
+};
+
+export const getAuthHeaders = () => {
+  const token = getStoredToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+// Auth health check
+export const checkAuthHealth = async () => {
+  try {
+    const response = await authApiClient.get('/api/auth/health');
+    return { 
+      status: 'healthy', 
+      data: response.data,
+      timestamp: new Date().toISOString()
+    };
+  } catch (error) {
+    return { 
+      status: 'unhealthy', 
+      error: error.response?.data || error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+};
+
+// Auto-refresh token before expiry 
+export const setupAutoRefresh = (intervalMinutes = 30) => {
+  return setInterval(async () => {
+    if (isAuthenticated()) {
+      try {
+        await refreshToken();
+        console.log('Token auto-refreshed');
+      } catch (error) {
+        console.error('Auto-refresh failed:', error);
+      }
+    }
+  }, intervalMinutes * 60 * 1000);
+};
+
+// Cleanup function
+export const cleanup = (refreshInterval) => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+  clearAuthentication();
 };
