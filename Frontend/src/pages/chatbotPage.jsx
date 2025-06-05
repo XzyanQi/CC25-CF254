@@ -47,9 +47,14 @@ class ChatErrorBoundary extends React.Component {
   }
 }
 
-// Fungsi swap fixFollowUp: dari corpus, follow_up_answers sebenarnya pertanyaan, follow_up_questions sebenarnya jawaban
-function fixFollowUp(follow_up_questions, follow_up_answers) {
-  return [follow_up_answers, follow_up_questions];
+// Fungsi fix mapping follow up (JSON kamu terbalik)
+function getFollowUpMapping(follow_up_questions, follow_up_answers) {
+  // follow_up_answers di JSON = pertanyaan, follow_up_questions di JSON = jawaban
+  // return [pertanyaan, jawaban]
+  return [
+    Array.isArray(follow_up_answers) ? follow_up_answers : [],
+    Array.isArray(follow_up_questions) ? follow_up_questions : [],
+  ];
 }
 
 const ChatbotPage = () => {
@@ -85,8 +90,8 @@ const ChatbotPage = () => {
           text: initialBotMessageText,
           sender: "bot",
           timestamp: new Date(),
-          followUps: [],
-          follow_up_answers: []
+          followUpQuestions: [],
+          followUpAnswers: []
         }
       ],
       lastUpdated: new Date()
@@ -211,12 +216,12 @@ const ChatbotPage = () => {
         text: "Maaf, saya tidak dapat membahas topik tersebut. Mari kita fokus pada hal-hal yang dapat membantu kesehatan mental kamu. Bagaimana perasaanmu hari ini?",
         sender: "bot",
         timestamp: new Date(),
-        followUps: [
+        followUpQuestions: [
           "Ceritakan tentang harimu",
           "Apa yang membuatmu bahagia?",
           "Bagaimana cara kamu mengatasi stres?"
         ],
-        follow_up_answers: [
+        followUpAnswers: [
           "Setiap hari, meskipun terasa berat, pasti ada satu hal kecil yang bisa kamu syukuri. Semangat ya, kamu tidak sendiri!",
           "Hal membahagiakan bisa datang dari hal-hal sederhana. Semoga hari ini kamu menemukan kebahagiaan kecil yang berarti.",
           "Mengatasi stres itu proses, dan kamu sudah hebat bisa melewatinya sejauh ini. Tetap jaga dirimu, kamu pasti bisa!"
@@ -237,13 +242,18 @@ const ChatbotPage = () => {
     // auto generate dari corpus
     const autoResp = autoGenerateResponse(userMessageText);
     if (autoResp) {
+      // mapping follow up
+      const [followUpQuestions, followUpAnswers] = getFollowUpMapping(
+        autoResp.followUpQuestions,
+        autoResp.followUpAnswers
+      );
       const botMessage = {
         id: generateUniqueId('bot-auto'),
         text: autoResp.text,
         sender: "bot",
         timestamp: new Date(),
-        followUps: autoResp.followUps,
-        follow_up_answers: autoResp.followUpAnswers
+        followUpQuestions,
+        followUpAnswers
       };
       setChatSessions(prevSessions =>
         prevSessions.map(session =>
@@ -275,17 +285,19 @@ const ChatbotPage = () => {
         ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
         : results[0] || {};
 
-      let followUpsRaw = Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [];
-      let followUpAnswersRaw = Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : [];
-      const [followUps, follow_up_answers] = fixFollowUp(followUpsRaw, followUpAnswersRaw);
+      // mapping follow up
+      const [followUpQuestions, followUpAnswers] = getFollowUpMapping(
+        topResult.follow_up_questions,
+        topResult.follow_up_answers
+      );
 
       const botMessage = {
         id: generateUniqueId('bot'),
         text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
         sender: "bot",
         timestamp: new Date(),
-        followUps,
-        follow_up_answers
+        followUpQuestions,
+        followUpAnswers
       };
 
       setChatSessions(prevSessions =>
@@ -306,8 +318,8 @@ const ChatbotPage = () => {
                   text: "Jawaban dibatalkan.",
                   sender: "bot",
                   timestamp: new Date(),
-                  followUps: [],
-                  follow_up_answers: []
+                  followUpQuestions: [],
+                  followUpAnswers: []
                 }], lastUpdated: new Date() }
               : session
           )
@@ -326,8 +338,8 @@ const ChatbotPage = () => {
                       text: "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
                       sender: "bot",
                       timestamp: new Date(),
-                      followUps: [],
-                      follow_up_answers: []
+                      followUpQuestions: [],
+                      followUpAnswers: []
                     }
                   ],
                   lastUpdated: new Date()
@@ -377,8 +389,8 @@ const ChatbotPage = () => {
           text: answer,
           sender: "bot",
           timestamp: new Date(),
-          followUps: [],
-          follow_up_answers: []
+          followUpQuestions: [],
+          followUpAnswers: []
         };
         setChatSessions(prevSessions =>
           prevSessions.map(session =>
@@ -412,17 +424,18 @@ const ChatbotPage = () => {
           ? nonTemplate.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0))[0]
           : results[0] || {};
 
-        let followUpsRaw = Array.isArray(topResult.follow_up_questions) ? topResult.follow_up_questions : [];
-        let followUpAnswersRaw = Array.isArray(topResult.follow_up_answers) ? topResult.follow_up_answers : [];
-        const [followUps, follow_up_answers] = fixFollowUp(followUpsRaw, followUpAnswersRaw);
+        const [followUpQuestions, followUpAnswers] = getFollowUpMapping(
+          topResult.follow_up_questions,
+          topResult.follow_up_answers
+        );
 
         const botMessage = {
           id: generateUniqueId('bot'),
           text: topResult.response_to_display?.slice(0, MAX_RESPONSE_LENGTH) || "Maaf, belum ada jawaban yang cocok.",
           sender: "bot",
           timestamp: new Date(),
-          followUps,
-          follow_up_answers
+          followUpQuestions,
+          followUpAnswers
         };
 
         setChatSessions(prevSessions =>
@@ -443,8 +456,8 @@ const ChatbotPage = () => {
                     text: "Jawaban dibatalkan.",
                     sender: "bot",
                     timestamp: new Date(),
-                    followUps: [],
-                    follow_up_answers: []
+                    followUpQuestions: [],
+                    followUpAnswers: []
                   }], lastUpdated: new Date() }
                 : session
             )
@@ -463,8 +476,8 @@ const ChatbotPage = () => {
                         text: "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
                         sender: "bot",
                         timestamp: new Date(),
-                        followUps: [],
-                        follow_up_answers: []
+                        followUpQuestions: [],
+                        followUpAnswers: []
                       }
                     ],
                     lastUpdated: new Date()
@@ -595,18 +608,18 @@ const ChatbotPage = () => {
                           <ReactMarkdown className="text-sm leading-relaxed markdown-body whitespace-pre-wrap">
                             {msg.text}
                           </ReactMarkdown>
-                          {Array.isArray(msg.followUps) && msg.followUps.length > 0 && (
+                          {Array.isArray(msg.followUpQuestions) && msg.followUpQuestions.length > 0 && (
                             <div className="mt-3 pt-2 border-t border-gray-100">
                               <p className="text-xs text-gray-500 mb-2">Pertanyaan lanjutan:</p>
                               <ul className="space-y-1">
-                                {msg.followUps.map((q, i) => (
+                                {msg.followUpQuestions.map((q, i) => (
                                   <li
                                     key={i}
                                     className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded cursor-pointer hover:bg-gray-200 transition-colors"
                                     onClick={() => handleFollowUpClick(
                                       q,
-                                      Array.isArray(msg.follow_up_answers) && msg.follow_up_answers[i]
-                                        ? msg.follow_up_answers[i]
+                                      Array.isArray(msg.followUpAnswers) && msg.followUpAnswers[i]
+                                        ? msg.followUpAnswers[i]
                                         : null
                                     )}
                                   >
