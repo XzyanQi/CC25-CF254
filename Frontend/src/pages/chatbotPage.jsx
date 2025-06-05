@@ -95,18 +95,21 @@ const ChatbotPage = () => {
     setActiveSessionId(newSessionId);
     setMessage('');
     setShowEmojiPicker(false);
+    console.log('[CHAT] Membuat sesi chat baru:', newSessionId);
   }, [generateUniqueId]);
 
   const handleSelectSession = useCallback((sessionId) => {
     setActiveSessionId(sessionId);
     setMessage('');
     setShowEmojiPicker(false);
+    console.log('[CHAT] Memilih sesi:', sessionId);
   }, []);
 
   const handleDeleteSession = useCallback((sessionIdToDelete, event) => {
     event.stopPropagation();
     const sessionsAfterDelete = chatSessions.filter(session => session.id !== sessionIdToDelete);
     setChatSessions(sessionsAfterDelete);
+    console.log('[CHAT] Menghapus sesi:', sessionIdToDelete);
     if (activeSessionId === sessionIdToDelete) {
       if (sessionsAfterDelete.length > 0) {
         setActiveSessionId(sessionsAfterDelete[0].id);
@@ -124,7 +127,10 @@ const ChatbotPage = () => {
         const parsed = JSON.parse(savedSessions);
         setChatSessions(parsed);
         setActiveSessionId(parsed[0]?.id || null);
-      } catch {}
+        console.log('[CHAT] Memuat sesi dari localStorage');
+      } catch (e) {
+        console.error('[CHAT] Error parsing localStorage:', e);
+      }
     } else {
       handleNewChat();
     }
@@ -133,6 +139,7 @@ const ChatbotPage = () => {
   useEffect(() => {
     if (chatSessions.length > 0) {
       localStorage.setItem(CHAT_SESSIONS_KEY, JSON.stringify(chatSessions));
+      console.log('[CHAT] Menyimpan sesi ke localStorage');
     }
   }, [chatSessions]);
 
@@ -164,6 +171,7 @@ const ChatbotPage = () => {
     if (abortController) {
       abortController.abort();
       setAbortController(null);
+      console.log('[CHAT] Jawaban bot dibatalkan oleh user.');
     }
     setIsBotTyping(false);
   }, [abortController]);
@@ -194,6 +202,7 @@ const ChatbotPage = () => {
     );
     setMessage('');
     setShowEmojiPicker(false);
+    console.log('[USER] Mengirim pesan:', userMessageText);
 
     // Kata terlarang dan template
     if ([...BANNED_WORDS].some(word => userMessageText.toLowerCase().includes(word))) {
@@ -221,6 +230,7 @@ const ChatbotPage = () => {
         )
       );
       setIsBotTyping(false);
+      console.log('[BOT] Mengirim pesan banned (kata terlarang)');
       return;
     }
 
@@ -243,6 +253,7 @@ const ChatbotPage = () => {
         )
       );
       setIsBotTyping(false);
+      console.log('[BOT] Bot auto generate jawaban dari corpus');
       return;
     }
 
@@ -251,6 +262,7 @@ const ChatbotPage = () => {
     setAbortController(controller);
 
     try {
+      console.log('[BOT] Mengirim ke backend (sendToMindfulness)...');
       const data = await sendToMindfulness(userMessageText, { signal: controller.signal });
 
       let results = Array.isArray(data.results) ? data.results : [];
@@ -283,6 +295,7 @@ const ChatbotPage = () => {
             : session
         )
       );
+      console.log('[BOT] Jawaban backend diterima dan dikirim ke chat');
     } catch (error) {
       if (error.name === 'AbortError') {
         setChatSessions(prevSessions =>
@@ -299,6 +312,7 @@ const ChatbotPage = () => {
               : session
           )
         );
+        console.log('[BOT] Jawaban backend dibatalkan oleh user');
       } else {
         setChatSessions(prevSessions =>
           prevSessions.map(session =>
@@ -321,6 +335,7 @@ const ChatbotPage = () => {
               : session
           )
         );
+        console.error('[BOT] Error backend:', error);
       }
     } finally {
       setIsBotTyping(false);
@@ -377,6 +392,7 @@ const ChatbotPage = () => {
           )
         );
         setIsBotTyping(false);
+        console.log('[BOT] Jawaban follow up langsung dari data');
         return;
       }
 
@@ -384,6 +400,7 @@ const ChatbotPage = () => {
       setAbortController(controller);
 
       try {
+        console.log('[BOT] Mengirim follow up ke backend...');
         const data = await sendToMindfulness(question, { signal: controller.signal });
         let results = Array.isArray(data.results) ? data.results : [];
         const nonTemplate = results.filter(
@@ -415,6 +432,7 @@ const ChatbotPage = () => {
               : session
           )
         );
+        console.log('[BOT] Jawaban follow up backend diterima');
       } catch (error) {
         if (error.name === 'AbortError') {
           setChatSessions(prevSessions =>
@@ -431,6 +449,7 @@ const ChatbotPage = () => {
                 : session
             )
           );
+          console.log('[BOT] Jawaban follow up backend dibatalkan oleh user');
         } else {
           setChatSessions(prevSessions =>
             prevSessions.map(session =>
@@ -453,6 +472,7 @@ const ChatbotPage = () => {
                 : session
             )
           );
+          console.error('[BOT] Error follow up backend:', error);
         }
       } finally {
         setIsBotTyping(false);
