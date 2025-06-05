@@ -1,5 +1,5 @@
 const axios = require("axios");
-const PYTHON_API_URL = process.env.PYTHON_API_URL || "http://localhost:8080/search";
+const PYTHON_API_URL = process.env.PYTHON_API_URL
 
 const sendToPythonService = async (text, top_kVal = 3) => {
   try {
