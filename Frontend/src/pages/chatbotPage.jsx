@@ -497,7 +497,7 @@ const ChatbotPage = () => {
               </div>
               <div className="flex items-center space-x-2 text-xs text-gray-500">
                 <User size={12} />
-                <span>{XzyanQi}</span>
+                <span>{}</span>
               </div>
             </div>
           </div>
