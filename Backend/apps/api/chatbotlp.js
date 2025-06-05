@@ -6,6 +6,7 @@ const sendToPythonService = async (text, top_kVal = 3) => {
     const response = await axios.post(PYTHON_API_URL, { text, top_k: top_kVal });
     return response.data;
   } catch (error) {
+    console.error('[chatbotlp.js] Error from Python API:', error.response?.data || error.message || error);
     throw new Error("Layanan AI Mindfulness tidak dapat dihubungi.");
   }
 };
