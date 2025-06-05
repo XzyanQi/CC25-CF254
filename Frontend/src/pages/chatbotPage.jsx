@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Home, Menu, MessageSquare, Plus, Send, Smile, Trash2, User, XCircle } from 'lucide-react';
-import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
-import ReactMarkdown from 'react-markdown';
-import { sendToMindfulness } from '../api/chatbot';
+import { Home, Menu, MessageSquare, Plus, Send, Smile, Trash2, User, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
+
+// Konfigurasi API yang lebih robust
+const API_CONFIG = {
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080',
+  timeout: 30000,
+  retryAttempts: 3,
+  retryDelay: 1000
+};
 
 // Konstanta
 const CHAT_SESSIONS_KEY = 'mindfulnessChatSessions';
@@ -13,28 +17,108 @@ const BANNED_WORDS = new Set([
   'agama', 'islam', 'kristen', 'buddha', 'hindu', 'konghucu', 'yahudi', 'genoshida', 'genosida', 'perang'
 ]);
 
+// Utility functions untuk API calls
+const apiUtils = {
+  async makeRequest(endpoint, options = {}) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
+
+    try {
+      const response = await fetch(`${API_CONFIG.baseURL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          ...options.headers,
+        },
+        signal: options.signal || controller.signal,
+        ...options,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      clearTimeout(timeoutId);
+      
+      if (error.name === 'AbortError') {
+        throw new Error('Request dibatalkan atau timeout');
+      }
+      
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+      }
+      
+      throw error;
+    }
+  },
+
+  async sendToMindfulness(message, options = {}) {
+    const payload = {
+      message: message.trim(),
+      timestamp: new Date().toISOString()
+    };
+
+    console.log('[API] Mengirim request ke /search:', payload);
+    
+    for (let attempt = 1; attempt <= API_CONFIG.retryAttempts; attempt++) {
+      try {
+        const data = await this.makeRequest('/search', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          signal: options.signal,
+        });
+        
+        console.log('[API] Response berhasil diterima:', data);
+        return data;
+      } catch (error) {
+        console.error(`[API] Attempt ${attempt} failed:`, error.message);
+        
+        if (attempt === API_CONFIG.retryAttempts || error.name === 'AbortError') {
+          throw error;
+        }
+        
+        // Delay sebelum retry
+        await new Promise(resolve => setTimeout(resolve, API_CONFIG.retryDelay * attempt));
+      }
+    }
+  }
+};
+
+// Error Boundary Component
 class ChatErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
   }
+
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
   }
+
   componentDidCatch(error, errorInfo) {
     console.error('Chat Error:', error, errorInfo);
   }
+
   render() {
     if (this.state.hasError) {
       return (
         <div className="flex items-center justify-center h-screen bg-gray-50">
-          <div className="text-center p-8 bg-white rounded-lg shadow-lg">
+          <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-red-600 mb-4">Oops! Terjadi kesalahan</h2>
-            <p className="text-gray-600 mb-4">Silakan refresh halaman atau coba lagi nanti.</p>
+            <p className="text-gray-600 mb-6">
+              {this.state.error?.message || 'Silakan refresh halaman atau coba lagi nanti.'}
+            </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 mx-auto"
             >
+              <RefreshCw size={16} />
               Refresh Halaman
             </button>
           </div>
@@ -45,9 +129,31 @@ class ChatErrorBoundary extends React.Component {
   }
 }
 
+// Connection Status Component
+const ConnectionStatus = ({ isConnecting, lastError }) => {
+  if (!isConnecting && !lastError) return null;
+
+  return (
+    <div className={`fixed top-4 right-4 z-50 p-3 rounded-lg shadow-lg max-w-sm ${
+      lastError ? 'bg-red-100 border border-red-300' : 'bg-blue-100 border border-blue-300'
+    }`}>
+      <div className="flex items-center gap-2">
+        {isConnecting ? (
+          <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent" />
+        ) : (
+          <AlertCircle className="w-4 h-4 text-red-500" />
+        )}
+        <span className={`text-sm font-medium ${
+          lastError ? 'text-red-700' : 'text-blue-700'
+        }`}>
+          {isConnecting ? 'Mengirim pesan...' : `Error: ${lastError}`}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 function getFollowUpMapping(follow_up_questions, follow_up_answers) {
-  // follow_up_answers di JSON = pertanyaan, follow_up_questions di JSON = jawaban
-  // return [pertanyaan, jawaban]
   return [
     Array.isArray(follow_up_answers) ? follow_up_answers : [],
     Array.isArray(follow_up_questions) ? follow_up_questions : [],
@@ -63,12 +169,11 @@ const ChatbotPage = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [abortController, setAbortController] = useState(null);
+  const [connectionError, setConnectionError] = useState(null);
 
   const chatEndRef = useRef(null);
   const emojiPickerButtonRef = useRef(null);
   const emojiPickerPopupRef = useRef(null);
-
-  const navigate = useNavigate();
 
   const generateUniqueId = useCallback((prefix) => {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
@@ -98,6 +203,7 @@ const ChatbotPage = () => {
     setActiveSessionId(newSessionId);
     setMessage('');
     setShowEmojiPicker(false);
+    setConnectionError(null);
     console.log('[CHAT] Membuat sesi chat baru:', newSessionId);
   }, [generateUniqueId]);
 
@@ -105,6 +211,7 @@ const ChatbotPage = () => {
     setActiveSessionId(sessionId);
     setMessage('');
     setShowEmojiPicker(false);
+    setConnectionError(null);
     console.log('[CHAT] Memilih sesi:', sessionId);
   }, []);
 
@@ -133,12 +240,14 @@ const ChatbotPage = () => {
         console.log('[CHAT] Memuat sesi dari localStorage');
       } catch (e) {
         console.error('[CHAT] Error parsing localStorage:', e);
+        handleNewChat();
       }
     } else {
       handleNewChat();
     }
     setIsInitialized(true);
   }, [handleNewChat]);
+
   useEffect(() => {
     if (chatSessions.length > 0) {
       localStorage.setItem(CHAT_SESSIONS_KEY, JSON.stringify(chatSessions));
@@ -177,12 +286,32 @@ const ChatbotPage = () => {
       console.log('[CHAT] Jawaban bot dibatalkan oleh user.');
     }
     setIsBotTyping(false);
+    setConnectionError(null);
   }, [abortController]);
+
+  // Test koneksi ke backend
+  const testConnection = useCallback(async () => {
+    try {
+      console.log('[SYSTEM] Testing connection to backend...');
+      await fetch(`${API_CONFIG.baseURL}/`, { 
+        method: 'GET',
+        signal: AbortSignal.timeout(5000)
+      });
+      console.log('[SYSTEM] Backend connection successful');
+      return true;
+    } catch (error) {
+      console.error('[SYSTEM] Backend connection failed:', error.message);
+      return false;
+    }
+  }, []);
 
   // Kirim pesan user
   const handleSendMessage = useCallback(async () => {
     const userMessageText = message.trim();
     if (!userMessageText || !activeSessionId) return;
+
+    // Reset error state
+    setConnectionError(null);
 
     const userMessage = {
       id: generateUniqueId('user'),
@@ -238,13 +367,21 @@ const ChatbotPage = () => {
       return;
     }
 
-    // kirim ke backend saja, JANGAN gunakan autoGenerateResponse
+    // Test koneksi sebelum mengirim
+    const isConnected = await testConnection();
+    if (!isConnected) {
+      setConnectionError('Tidak dapat terhubung ke server');
+      setIsBotTyping(false);
+      return;
+    }
+
+    // Kirim ke backend
     const controller = new AbortController();
     setAbortController(controller);
 
     try {
-      console.log('[BOT] Mengirim ke backend (sendToMindfulness)...');
-      const data = await sendToMindfulness(userMessageText, { signal: controller.signal });
+      console.log('[BOT] Mengirim ke backend...');
+      const data = await apiUtils.sendToMindfulness(userMessageText, { signal: controller.signal });
 
       let results = Array.isArray(data.results) ? data.results : [];
       const nonTemplate = results.filter(
@@ -280,60 +417,54 @@ const ChatbotPage = () => {
       );
       console.log('[BOT] Jawaban backend diterima dan dikirim ke chat');
     } catch (error) {
+      let errorMessage = "Terjadi kesalahan saat menghubungi server.";
+      
       if (error.name === 'AbortError') {
-        setChatSessions(prevSessions =>
-          prevSessions.map(session =>
-            session.id === activeSessionId
-              ? { ...session, messages: [...session.messages, {
-                  id: generateUniqueId('error'),
-                  text: "Jawaban dibatalkan.",
-                  sender: "bot",
-                  timestamp: new Date(),
-                  followUpQuestions: [],
-                  followUpAnswers: [],
-                  recomendedResponsesToFollowUpAnswers: []
-                }], lastUpdated: new Date() }
-              : session
-          )
-        );
-        console.log('[BOT] Jawaban backend dibatalkan oleh user');
-      } else {
-        setChatSessions(prevSessions =>
-          prevSessions.map(session =>
-            session.id === activeSessionId
-              ? {
-                  ...session,
-                  messages: [
-                    ...session.messages,
-                    {
-                      id: generateUniqueId('error'),
-                      text: "Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.",
-                      sender: "bot",
-                      timestamp: new Date(),
-                      followUpQuestions: [],
-                      followUpAnswers: [],
-                      recomendedResponsesToFollowUpAnswers: []
-                    }
-                  ],
-                  lastUpdated: new Date()
-                }
-              : session
-          )
-        );
-        console.error('[BOT] Error backend:', error);
+        errorMessage = "Jawaban dibatalkan.";
+      } else if (error.message.includes('timeout')) {
+        errorMessage = "Timeout - Server terlalu lama merespons.";
+      } else if (error.message.includes('500')) {
+        errorMessage = "Server mengalami masalah internal. Silakan coba lagi.";
+      } else if (error.message.includes('tidak dapat terhubung')) {
+        errorMessage = "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
       }
+
+      setConnectionError(errorMessage);
+
+      setChatSessions(prevSessions =>
+        prevSessions.map(session =>
+          session.id === activeSessionId
+            ? {
+                ...session,
+                messages: [
+                  ...session.messages,
+                  {
+                    id: generateUniqueId('error'),
+                    text: `${errorMessage} Silakan coba lagi.`,
+                    sender: "bot",
+                    timestamp: new Date(),
+                    followUpQuestions: [],
+                    followUpAnswers: [],
+                    recomendedResponsesToFollowUpAnswers: []
+                  }
+                ],
+                lastUpdated: new Date()
+              }
+            : session
+        )
+      );
+      console.error('[BOT] Error backend:', error);
     } finally {
       setIsBotTyping(false);
       setAbortController(null);
     }
-  }, [message, activeSessionId, generateUniqueId, abortController]);
+  }, [message, activeSessionId, generateUniqueId, abortController, testConnection]);
 
-  // Fungsi follow up (langsung menampilkan rekomendasi tanpa request backend jika ada)
+  // Fungsi follow up
   const handleFollowUpClick = useCallback(
     (question, answer = null) => {
       if (!activeSessionId) return;
 
-      // Cari pesan bot terakhir yang punya followUpQuestions & recommendedResponses
       const session = chatSessions.find(s => s.id === activeSessionId);
       if (!session) return;
       const lastBotMsg = [...session.messages].reverse().find(
@@ -344,7 +475,6 @@ const ChatbotPage = () => {
         idx = lastBotMsg.followUpQuestions.findIndex(q => q === question);
       }
 
-      // Tambahkan pesan user dulu
       const userMessage = {
         id: generateUniqueId('user'),
         text: question,
@@ -365,7 +495,6 @@ const ChatbotPage = () => {
       setMessage('');
       setShowEmojiPicker(false);
 
-      // Jika ada rekomendasi jawaban untuk follow-up, tampilkan langsung
       if (
         lastBotMsg &&
         Array.isArray(lastBotMsg.recomendedResponsesToFollowUpAnswers) &&
@@ -396,10 +525,6 @@ const ChatbotPage = () => {
         console.log('[BOT] Jawaban follow up langsung dari data rekomendasi');
         return;
       }
-
-      // Fallback: kalau tidak ada, request ke backend (opsional)
-      // setIsBotTyping(true);
-      // kode request ke backend kalau (opsional) backup
     },
     [activeSessionId, chatSessions, generateUniqueId]
   );
@@ -428,6 +553,8 @@ const ChatbotPage = () => {
   return (
     <ChatErrorBoundary>
       <div className="flex h-screen bg-gray-50">
+        <ConnectionStatus isConnecting={isBotTyping} lastError={connectionError} />
+        
         {/* Sidebar */}
         <div className={`bg-white border-r border-gray-200 transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-0'} overflow-hidden flex flex-col`}>
           <div className="p-4 border-b">
@@ -444,7 +571,16 @@ const ChatbotPage = () => {
               <Plus size={18} className="text-gray-700" />
               <span className="text-sm font-medium text-gray-800">Chat Baru</span>
             </button>
+            
+            {/* Connection indicator */}
+            <div className="flex items-center space-x-2 text-xs">
+              <div className={`w-2 h-2 rounded-full ${connectionError ? 'bg-red-500' : 'bg-green-500'}`} />
+              <span className={connectionError ? 'text-red-600' : 'text-green-600'}>
+                {connectionError ? 'Offline' : 'Online'}
+              </span>
+            </div>
           </div>
+          
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
             <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">Riwayat</h3>
             {chatSessions.map(session => (
@@ -480,8 +616,8 @@ const ChatbotPage = () => {
           <div className="bg-gray-50 border-b border-gray-200 p-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <button
-                onClick={() => navigate('/home')}
-                title="Home"
+                onClick={() => window.history.back()}
+                title="Kembali"
                 className="p-2 hover:bg-gray-200 rounded-full"
               >
                 <Home size={20} className="text-gray-700" />
@@ -494,6 +630,11 @@ const ChatbotPage = () => {
               <h2 className="text-lg font-semibold text-gray-800">
                 Mindfulness AI
               </h2>
+            </div>
+            
+            {/* API Status */}
+            <div className="text-xs text-gray-500">
+              API: {API_CONFIG.baseURL}
             </div>
           </div>
 
@@ -514,9 +655,9 @@ const ChatbotPage = () => {
                     }`}>
                       {msg.sender === 'bot' ? (
                         <div>
-                          <ReactMarkdown className="text-sm leading-relaxed markdown-body whitespace-pre-wrap">
+                          <div className="text-sm leading-relaxed whitespace-pre-wrap">
                             {msg.text}
-                          </ReactMarkdown>
+                          </div>
                           {Array.isArray(msg.followUpQuestions) && msg.followUpQuestions.length > 0 && (
                             <div className="mt-3 pt-2 border-t border-gray-100">
                               <p className="text-xs text-gray-500 mb-2">Pertanyaan lanjutan:</p>
@@ -552,23 +693,14 @@ const ChatbotPage = () => {
                 </div>
               ))}
               {isBotTyping && (
-                <div className="flex items-center gap-2 justify-start">
-                  <div className="flex items-start space-x-3 max-w-xs lg:max-w-md">
-                    <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0 text-white">
-                      <span className="text-sm font-bold">M</span>
-                    </div>
-                    <div className="rounded-xl px-4 py-3 bg-white border border-gray-200 text-gray-800 shadow-sm rounded-bl-none">
-                      <p className="text-sm italic">Mindfulness sedang mengetik...</p>
-                    </div>
-                    {/* Tombol cancel typing */}
-                    <button
-                      onClick={cancelTyping}
-                      title="Batalkan jawaban"
-                      className="ml-2 text-red-400 hover:text-red-600 transition-colors flex items-center justify-center rounded-full"
-                      style={{ minWidth: 32, minHeight: 32 }}
-                    >
-                      <XCircle size={22} />
-                    </button>
+                <div
+                                {isBotTyping && (
+                <div className="flex items-start space-x-3 animate-pulse">
+                  <div className="w-8 h-8 rounded-full bg-purple-200 flex items-center justify-center text-white">
+                    <span className="text-sm font-bold">M</span>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm text-sm text-gray-500">
+                    Mindfulness sedang mengetik...
                   </div>
                 </div>
               )}
@@ -576,60 +708,57 @@ const ChatbotPage = () => {
             </div>
           </div>
 
-          <div className="bg-gray-50 border-t border-gray-200 p-4">
-            <div className="max-w-3xl mx-auto">
-              <div className="relative">
-                <div className="flex items-center bg-white rounded-full border border-gray-300 px-2 py-1 shadow-sm">
-                  <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Ceritakan perasaanmu..."
-                    className="flex-1 px-4 py-2.5 border-none focus:ring-0 text-sm bg-transparent"
-                    disabled={isBotTyping}
-                  />
-                  <div className="flex items-center space-x-1 pr-1">
-                    <button
-                      ref={emojiPickerButtonRef}
-                      title="Insert Emoji"
-                      onClick={() => setShowEmojiPicker(prev => !prev)}
-                      className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
-                      disabled={isBotTyping}
-                    >
-                      <Smile size={18} />
-                    </button>
-                    <button
-                      onClick={handleSendMessage}
-                      className="p-2.5 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors disabled:opacity-50"
-                      disabled={isBotTyping || !message.trim()}
-                    >
-                      <Send size={18} />
-                    </button>
-                  </div>
+          {/* Chat input */}
+          <div className="border-t border-gray-200 bg-white p-4">
+            <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} className="flex items-center space-x-3">
+              <button
+                type="button"
+                ref={emojiPickerButtonRef}
+                onClick={() => setShowEmojiPicker(prev => !prev)}
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <Smile size={20} className="text-gray-600" />
+              </button>
+              {showEmojiPicker && (
+                <div
+                  ref={emojiPickerPopupRef}
+                  className="absolute bottom-20 left-4 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-3"
+                >
+                  {/* Placeholder untuk Emoji Picker - bisa pakai emoji-mart atau komponen lain */}
+                  <p className="text-sm text-gray-500">[Emoji Picker Placeholder]</p>
                 </div>
-                {showEmojiPicker && (
-                  <div
-                    ref={emojiPickerPopupRef}
-                    style={{ position: 'absolute', bottom: 'calc(100% + 8px)', right: '0px', zIndex: 50 }}
-                  >
-                    <EmojiPicker
-                      onEmojiClick={(emojiData) => setMessage(prev => prev + emojiData.emoji)}
-                      autoFocusSearch={false}
-                      emojiStyle={EmojiStyle.NATIVE}
-                      theme={Theme.LIGHT}
-                      height={350}
-                      lazyLoadEmojis={true}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
+              )}
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={handleKeyPress}
+                rows={1}
+                className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Tulis pesan..."
+              />
+              <button
+                type="submit"
+                disabled={!message.trim() || isBotTyping}
+                className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors disabled:opacity-50"
+              >
+                <Send size={18} />
+              </button>
+              {isBotTyping && (
+                <button
+                  type="button"
+                  onClick={cancelTyping}
+                  className="p-2 rounded-full bg-red-100 text-red-500 hover:bg-red-200 transition-colors"
+                  title="Batalkan jawaban"
+                >
+                  <XCircle size={18} />
+                </button>
+              )}
+            </form>
           </div>
         </div>
       </div>
     </ChatErrorBoundary>
   );
 };
-
+        
 export default ChatbotPage;
