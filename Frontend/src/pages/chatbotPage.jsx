@@ -13,7 +13,7 @@ const BANNED_WORDS = new Set([
   'agama', 'islam', 'kristen', 'buddha', 'hindu', 'konghucu', 'yahudi', 'genoshida', 'genosida', 'perang'
 ]);
 
-// Fungsi API
+// Fungsi api
 const sendToMindfulness = async (message) => {
   try {
     const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/chat/search`, {
@@ -464,37 +464,39 @@ return (
       <ConnectionStatus isConnecting={isBotTyping} lastError={connectionError} />
       
       {/* Sidebar */}
-      <div className={`bg-white border-r border-gray-200 transition-all duration-300 ${
-        sidebarOpen ? 'w-64' : 'w-0'
-      } overflow-hidden flex flex-col`}>
-        <div className="p-4 border-b">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-lg font-semibold text-gray-800">Mindfulness Chat</h1>
-            <button 
-              onClick={() => setSidebarOpen(!sidebarOpen)} 
-              className="p-1 hover:bg-gray-100 rounded"
-            >
-              <Menu size={20} className="text-gray-600" />
-            </button>
-          </div>
-          <button
-            onClick={handleNewChat}
-            className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-100 rounded-lg border border-gray-300 mb-4 transition-colors"
-          >
-            <Plus size={18} className="text-gray-700" />
-            <span className="text-sm font-medium text-gray-800">Chat Baru</span>
-          </button>
-          
-          {/* Indikator koneksi */}
-          <div className="flex items-center space-x-2 text-xs">
-            <div className={`w-2 h-2 rounded-full ${connectionError ? 'bg-red-500' : 'bg-green-500'}`} />
-              <span className={connectionError ? 'text-red-600' : 'text-green-600'}>
-                {connectionError ? 'Offline' : 'Online'}
-            </span>
-          </div>
+<div className={`bg-white border-r border-gray-200 transition-all duration-300 ${
+  sidebarOpen ? 'w-64' : 'w-0'
+} overflow-hidden flex flex-col`}>
+  {/* Header Sidebar */}
+  <div className="p-4 border-b">
+    <div className="flex items-center justify-between mb-4">
+      <h1 className="text-lg font-semibold text-gray-800">Mindfulness Chat</h1>
+      <button 
+        onClick={() => setSidebarOpen(!sidebarOpen)} 
+        className="p-1 hover:bg-gray-100 rounded"
+      >
+        <Menu size={20} className="text-gray-600" />
+      </button>
+    </div>
+    <button
+      onClick={handleNewChat}
+      className="w-full flex items-center space-x-3 p-3 text-left hover:bg-gray-100 rounded-lg border border-gray-300 mb-4 transition-colors"
+    >
+      <Plus size={18} className="text-gray-700" />
+      <span className="text-sm font-medium text-gray-800">Chat Baru</span>
+    </button>
+    
+    {/* Indikator koneksi */}
+    <div className="flex items-center space-x-2 text-xs">
+      <div className={`w-2 h-2 rounded-full ${connectionError ? 'bg-red-500' : 'bg-green-500'}`} />
+      <span className={connectionError ? 'text-red-600' : 'text-green-600'}>
+        {connectionError ? 'Offline' : 'Online'}
+      </span>
+    </div>
+  </div>
       
         {/* Daftar sesi chat */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+       <div className="flex-1 overflow-y-auto p-4 space-y-2">
           <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-1">Riwayat</h3>
           {chatSessions.map(session => (
             <div
