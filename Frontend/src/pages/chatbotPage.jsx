@@ -14,6 +14,7 @@ const BANNED_WORDS = new Set([
 ]);
 
 // Fungsi API
+// Fungsi API - Versi yang benar tanpa username
 const sendToMindfulness = async (message) => {
   try {
     const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/chat/search`, {
@@ -21,10 +22,7 @@ const sendToMindfulness = async (message) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ 
-        message,
-        timestamp: new Date().toISOString()
-      })
+      body: JSON.stringify({ message }) 
     });
 
     if (!response.ok) {
