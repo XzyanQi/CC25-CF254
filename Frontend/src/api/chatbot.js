@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:3000").replace(/\/+$/, "");
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:3000").replace(/\/+$/,"");
 const CHATBOT_API_ENDPOINT = "/api/chatbotApi/search";
 const API_URL = `${BASE_URL}${CHATBOT_API_ENDPOINT}`;
 
