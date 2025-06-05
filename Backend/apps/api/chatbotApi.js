@@ -4,7 +4,6 @@ const { sendToPythonService } = require('./chatbotlp');
 
 router.post('/search', async (req, res) => {
   try {
-    // Auto Convert: terima baik 'text' maupun 'query', kirim ke Python pakai 'text'
     const text = req.body.text || req.body.query;
     const top_k = req.body.top_k || 3;
 
@@ -15,7 +14,8 @@ router.post('/search', async (req, res) => {
     const resultFromPython = await sendToPythonService(text, top_k);
     res.json(resultFromPython);
   } catch (error) {
-    console.error('[Node.js Route - chatbotApi.js] Error di endpoint /search:', error.message);
+    // Log error lengkap
+    console.error('[Node.js Route - chatbotApi.js] Error di endpoint /search:', error.stack || error.message || error);
     res.status(500).json({ message: error.message || 'Terjadi kesalahan internal pada server.' });
   }
 });
