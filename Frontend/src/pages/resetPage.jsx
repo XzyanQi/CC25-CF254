@@ -104,7 +104,7 @@ export default function ResetPage() {
                         <img 
                             src={mindfulnessLogo} 
                             alt="Mindfulness Logo" 
-                            className="w-40 h-auto mx-auto mb-4"
+                            className="w-64 h-auto mx-auto mb-4"
                         />
                         <h2 className="text-3xl font-bold text-gray-800">Reset Password</h2>
                         <p className="text-sm text-gray-500 mt-1">
