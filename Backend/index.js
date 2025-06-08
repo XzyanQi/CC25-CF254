@@ -23,8 +23,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}, API base path /api`);
 });
-// Gunakan process.env.PORT agar kompatibel dengan Railway
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}, API base path /api`);
-});
