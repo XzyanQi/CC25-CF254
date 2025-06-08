@@ -6,7 +6,7 @@ const routes = require('./routes/route');
 
 //  CORS khusus untuk frontend Vercel + localhost dev
 app.use(cors({
-  origin: ['https://mindfulness-one.vercel.app', 'http://localhost:5173'], // frontend production + local dev
+  origin: ['https://mindfulnessnlp.vercel.app', 'http://localhost:5173'], // frontend production + local dev
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
