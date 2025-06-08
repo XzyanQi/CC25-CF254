@@ -93,7 +93,7 @@ export default function LoginPage() {
                         <img 
                             src={mindfulnessLogo} 
                             alt="Mindfulness Logo" 
-                            className="w-60 h-auto mx-auto mb-4" 
+                            className="w-64 h-auto mx-auto mb-4" 
                         />
                         <p className="text-sm text-gray-500 mt-1">Selamat datang kembali! Silakan login.</p>
                     </div>
