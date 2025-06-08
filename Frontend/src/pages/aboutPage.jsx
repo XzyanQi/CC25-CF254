@@ -44,7 +44,7 @@ const AboutPage = () => {
       >
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="relative z-10 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold">Tentang Mindfulness</h1>
+          <h1 className="text-4xl md:text-6xl font-bold">Mindfulness</h1>
         </div>
       </section>
 
