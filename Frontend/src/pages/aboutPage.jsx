@@ -1,7 +1,6 @@
 import { User } from 'lucide-react';
 import React from 'react';
 import mindfulnessLogo from '../assets/mindfulness.png';
-import heroBgAbout from '../assets/mt.jpg';
 
 React
 const teamMembers = [
@@ -40,7 +39,7 @@ const AboutPage = () => {
       <section
         id="about-hero" 
         className="relative h-[40vh] md:h-[50vh] bg-cover bg-center flex items-center justify-center text-white scroll-mt-20"
-        style={{ backgroundImage: `url(${heroBgAbout})` }}
+        style={{ backgroundImage: `url(${mindfulnesslogo})` }}
       >
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="relative z-10 text-center">
