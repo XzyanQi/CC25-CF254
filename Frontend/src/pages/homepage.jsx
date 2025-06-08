@@ -73,7 +73,7 @@ const Homepage = () => {
     <img 
       src={mindfulnessLogo} 
       alt="Mindfulness Logo" 
-      className="h-14 w-auto object-contain" 
+      className="h-30 w-auto object-contain" 
     />
     </div>
     <nav className="hidden md:flex space-x-8">
