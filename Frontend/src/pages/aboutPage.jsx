@@ -33,11 +33,6 @@ const AboutPage = () => {
             <a href="/chat" className="text-gray-600 hover:text-purple-600 transition-colors">Chatbot</a>
             <a href="#about-testimonials-info" className="text-gray-600 hover:text-purple-600 transition-colors">Testimoni</a>
           </nav>
-          <button
-            onClick={handleLogout}
-            title="Logout"
-            className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-            >
           <User size={20} className="text-gray-700" />
         </button>
       </header>
