@@ -68,12 +68,12 @@ const Homepage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100">
       {/* Header */}
-      <header className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+       <header className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-sm shadow-sm">
         <div className="flex items-center space-x-3"> 
           <img 
             src={mindfulnessLogo} 
             alt="Mindfulness Logo" 
-            className="h-16 w-auto" 
+            className="h-24 w-auto" 
           />
           {/* Teks "Mindfulness" di samping logo */}
           <span className="font-semibold text-gray-800 text-xl">Mindfulness</span> 
