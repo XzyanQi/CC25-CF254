@@ -24,7 +24,7 @@ const AboutPage = () => {
             alt="Mindfulness Logo" 
             className="h-10 w-auto" 
           />
-          <span className="font-semibold text-gray-800 text-xl">Mindfulness</span>
+          {/*<span className="font-semibold text-gray-800 text-xl">Mindfulness</span>*/}
         </div>
         <nav className="hidden md:flex space-x-8">
           <a href="/home" className="text-gray-600 hover:text-purple-600 transition-colors">Home</a>
