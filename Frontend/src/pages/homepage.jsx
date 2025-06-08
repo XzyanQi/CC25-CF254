@@ -73,7 +73,7 @@ const Homepage = () => {
           <img 
             src={mindfulnessLogo} 
             alt="Mindfulness Logo" 
-            className="h-10 w-auto" 
+            className="h-16 w-auto" 
           />
           {/* Teks "Mindfulness" di samping logo */}
           <span className="font-semibold text-gray-800 text-xl">Mindfulness</span> 
