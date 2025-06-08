@@ -17,24 +17,29 @@ const AboutPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100">
       {/* Header */}
-      <header className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
-        <div className="flex items-center space-x-3">
+      <header className="flex justify-between items-center px-6 py-2 bg-white/80 backdrop-blur-sm shadow-sm h-[72px]">
+        <div className="flex items-center h-full">
+        <div className="h-full flex items-center overflow-hidden">
           <img 
             src={mindfulnessLogo} 
             alt="Mindfulness Logo" 
-            className="h-10 w-auto" 
+            className="h-full max-h-[60px] w-auto object-contain"
           />
-          {/*<span className="font-semibold text-gray-800 text-xl">Mindfulness</span>*/}
         </div>
-        <nav className="hidden md:flex space-x-8">
-          <a href="/home" className="text-gray-600 hover:text-purple-600 transition-colors">Home</a>
-          <a href="#about-intro" className="text-gray-600 hover:text-purple-600 transition-colors">About Us</a>
-          <a href="/chat" className="text-gray-600 hover:text-purple-600 transition-colors">Chatbot</a>
-          <a href="#about-testimonials-info" className="text-gray-600 hover:text-purple-600 transition-colors">Testimoni</a>
-        </nav>
-        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors">
+        </div>
+          <nav className="hidden md:flex space-x-8">
+            <a href="#home" className="text-gray-600 hover:text-purple-600 transition-colors">Home</a>
+            <a href="#about-intro" className="text-gray-600 hover:text-purple-600 transition-colors">About</a>
+            <a href="/chat" className="text-gray-600 hover:text-purple-600 transition-colors">Chatbot</a>
+            <a href="#about-testimonials-info" className="text-gray-600 hover:text-purple-600 transition-colors">Testimoni</a>
+          </nav>
+          <button
+            onClick={handleLogout}
+            title="Logout"
+            className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+            >
           <User size={20} className="text-gray-700" />
-        </div>
+        </button>
       </header>
 
       <section
