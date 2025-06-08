@@ -26,7 +26,7 @@ const AboutPage = () => {
           />
         </div>
         <nav className="hidden md:flex space-x-8">
- 	          <a href="#home" className="text-gray-600 hover:text-purple-600 transition-colors">Home</a>
+ 	          <a href="/home" className="text-gray-600 hover:text-purple-600 transition-colors">Home</a>
             <a href="#about-intro" className="text-gray-600 hover:text-purple-600 transition-colors">About</a>
             <a href="/chat" className="text-gray-600 hover:text-purple-600 transition-colors">Chatbot</a>
             <a href="#about-testimonials-info" className="text-gray-600 hover:text-purple-600 transition-colors">Testimoni</a>
