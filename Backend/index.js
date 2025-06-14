@@ -18,8 +18,12 @@ app.get('/', (req, res) => {
   res.send('Welcome to the API root! Actual endpoints are likely under /api');
 });
 
-// gunakan process.env.PORT biar cocok Railway
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}, API base path /api`);
-});
+// app.listen buat railway, render, dll
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}, API base path /api`);
+// });
+
+// Export untuk serverless
+module.exports = app;
+module.exports.handler = serverless(app);
