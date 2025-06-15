@@ -2,230 +2,230 @@ const express = require('express');
 const router = express.Router();
 const { sendToPythonService, checkPythonServiceHealth } = require('./chatbotlp');
 
-const validateRequest = (req, res, next) => {
+const PESAN_ERROR = {
+  TEKS_KOSONG: 'Teks tidak boleh kosong. Mohon isi pesan Anda.',
+  TEKS_INVALID: 'Format teks tidak valid. Teks harus berupa tulisan.',
+  TEKS_TERLALU_PANJANG: 'Teks terlalu panjang. Maksimal 1000 karakter.',
+  TOP_K_INVALID: 'Nilai top_k harus antara 1 sampai 10.',
+  SERVER_ERROR: 'Terjadi kesalahan pada server.',
+  AI_TIDAK_TERSEDIA: 'Layanan AI sedang tidak tersedia. Silakan coba lagi nanti.',
+  TIMEOUT: 'Waktu respons habis. Silakan coba lagi.',
+  RATE_LIMIT: 'Terlalu banyak permintaan. Mohon tunggu beberapa saat.'
+};
+
+// Middleware validasi request
+const validasiRequest = (req, res, next) => {
   const { text, query, top_k } = req.body;
-  const inputText = text || query;
+  const teksMasuk = text || query;
   
-  if (!inputText) {
+  if (!teksMasuk) {
     return res.status(400).json({ 
-      success: false,
-      message: 'Input text is required. Please provide "text" or "query" in the request body.',
-      error: 'MISSING_TEXT_INPUT'
+      sukses: false,
+      pesan: PESAN_ERROR.TEKS_KOSONG,
+      error: 'TEKS_KOSONG'
     });
   }
   
-  if (typeof inputText !== 'string') {
+  if (typeof teksMasuk !== 'string') {
     return res.status(400).json({
-      success: false,
-      message: 'Input text must be a string.',
-      error: 'INVALID_TEXT_TYPE'
+      sukses: false,
+      pesan: PESAN_ERROR.TEKS_INVALID,
+      error: 'FORMAT_TEKS_INVALID'
     });
   }
   
-  const trimmedText = inputText.trim();
-  if (trimmedText.length === 0) {
+  const teksBersih = teksMasuk.trim();
+  if (teksBersih.length === 0) {
     return res.status(400).json({
-      success: false,
-      message: 'Input text cannot be empty.',
-      error: 'EMPTY_TEXT_INPUT'
+      sukses: false,
+      pesan: PESAN_ERROR.TEKS_KOSONG,
+      error: 'TEKS_KOSONG_SETELAH_TRIM'
     });
   }
   
-  if (trimmedText.length > 1000) {
+  if (teksBersih.length > 1000) {
     return res.status(400).json({
-      success: false,
-      message: 'Input text is too long. Maximum 1000 characters allowed.',
-      error: 'TEXT_TOO_LONG'
+      sukses: false,
+      pesan: PESAN_ERROR.TEKS_TERLALU_PANJANG,
+      error: 'TEKS_TERLALU_PANJANG'
     });
   }
   
-  // Validate top_k
+  // Validasi top_k
   if (top_k !== undefined) {
-    const top_kNum = Number(top_k);
-    if (isNaN(top_kNum) || top_kNum < 1 || top_kNum > 10) {
+    const nilaiTopK = Number(top_k);
+    if (isNaN(nilaiTopK) || nilaiTopK < 1 || nilaiTopK > 10) {
       return res.status(400).json({
-        success: false,
-        message: 'top_k must be a number between 1 and 10.',
-        error: 'INVALID_TOP_K'
+        sukses: false,
+        pesan: PESAN_ERROR.TOP_K_INVALID,
+        error: 'TOP_K_INVALID'
       });
     }
   }
   
-  // Add validated data to request
-  req.validatedData = {
-    text: trimmedText,
+  req.dataTervalidasi = {
+    text: teksBersih,
     top_k: Number(top_k) || 3
   };
   
   next();
 };
 
-// Main search endpoint
-router.post('/search', validateRequest, async (req, res) => {
-  const startTime = Date.now();
-  const { text, top_k } = req.validatedData;
+// Endpoint utama pencarian
+router.post('/search', validasiRequest, async (req, res) => {
+  const waktuMulai = Date.now();
+  const { text, top_k } = req.dataTervalidasi;
   
   try {
-    console.log(`[chatbotApi.js] Processing search request:`);
-    console.log(`[chatbotApi.js] Text: "${text}"`);
+    console.log(`[chatbotApi.js] Memproses permintaan pencarian:`)
+    console.log(`[chatbotApi.js] Teks: "${text}"`);
     console.log(`[chatbotApi.js] Top K: ${top_k}`);
-    console.log(`[chatbotApi.js] Request ID: ${req.headers['x-request-id'] || 'N/A'}`);
+    console.log(`[chatbotApi.js] ID Request: ${req.headers['x-request-id'] || 'N/A'}`);
     
-    // Call Python service
-    const resultFromPython = await sendToPythonService(text, top_k);
+    // Panggil layanan Python
+    const hasilDariPython = await sendToPythonService(text, top_k);
     
-    const processingTime = Date.now() - startTime;
-    console.log(`[chatbotApi.js] Request processed successfully in ${processingTime}ms`);
+    const waktuProses = Date.now() - waktuMulai;
+    console.log(`[chatbotApi.js] Permintaan berhasil diproses dalam ${waktuProses}ms`);
     
-    // Validate Python service response
-    if (!resultFromPython) {
-      throw new Error('Empty response from Python service');
+    if (!hasilDariPython) {
+      throw new Error('Tidak ada respons dari layanan AI');
     }
     
-    // Standardize response format
-    const response = {
-      success: true,
-      data: resultFromPython,
+    // Format respons standar
+    const respons = {
+      sukses: true,
+      data: hasilDariPython,
       meta: {
-        processing_time_ms: processingTime,
-        timestamp: new Date().toISOString(),
-        request_id: req.headers['x-request-id'] || null
+        waktu_proses_ms: waktuProses,
+        waktu: new Date().toISOString(),
+        id_request: req.headers['x-request-id'] || null
       }
     };
     
-    res.json(response);
+    res.json(respons);
     
   } catch (error) {
-    const processingTime = Date.now() - startTime;
+    const waktuProses = Date.now() - waktuMulai;
     
-    // Log error dengan detail lengkap
-    console.error(`[chatbotApi.js] Error processing search request:`, {
+    console.error(`[chatbotApi.js] Error saat memproses permintaan:`, {
       error: error.message,
       stack: error.stack,
       text: text,
       top_k: top_k,
-      processing_time_ms: processingTime,
-      request_id: req.headers['x-request-id'] || null
+      waktu_proses_ms: waktuProses,
+      id_request: req.headers['x-request-id'] || null
     });
     
-    // Determine error status and message
+    // Tentukan status dan pesan error
     let statusCode = 500;
-    let errorMessage = 'Internal server error occurred.';
-    let errorCode = 'INTERNAL_ERROR';
+    let pesanError = PESAN_ERROR.SERVER_ERROR;
+    let kodeError = 'ERROR_SERVER';
     
     if (error.message.includes('Network error') || error.message.includes('Cannot connect')) {
       statusCode = 502;
-      errorMessage = 'AI service is temporarily unavailable. Please try again later.';
-      errorCode = 'SERVICE_UNAVAILABLE';
-    } else if (error.message.includes('timeout') || error.message.includes('took too long')) {
+      pesanError = PESAN_ERROR.AI_TIDAK_TERSEDIA;
+      kodeError = 'LAYANAN_TIDAK_TERSEDIA';
+    } else if (error.message.includes('timeout')) {
       statusCode = 504;
-      errorMessage = 'Request timeout. The AI service is taking too long to respond.';
-      errorCode = 'REQUEST_TIMEOUT';
-    } else if (error.message.includes('Bad request') || error.message.includes('Validation error')) {
-      statusCode = 400;
-      errorMessage = error.message;
-      errorCode = 'VALIDATION_ERROR';
-    } else if (error.message.includes('Unauthorized')) {
-      statusCode = 401;
-      errorMessage = 'Unauthorized access to AI service.';
-      errorCode = 'UNAUTHORIZED';
+      pesanError = PESAN_ERROR.TIMEOUT;
+      kodeError = 'TIMEOUT';
     } else if (error.message.includes('Too many requests')) {
       statusCode = 429;
-      errorMessage = 'Too many requests. Please wait a moment before trying again.';
-      errorCode = 'RATE_LIMIT_EXCEEDED';
+      pesanError = PESAN_ERROR.RATE_LIMIT;
+      kodeError = 'RATE_LIMIT';
     }
     
-    const errorResponse = {
-      success: false,
-      message: errorMessage,
-      error: errorCode,
+    const responsError = {
+      sukses: false,
+      pesan: pesanError,
+      error: kodeError,
       meta: {
-        processing_time_ms: processingTime,
-        timestamp: new Date().toISOString(),
-        request_id: req.headers['x-request-id'] || null
+        waktu_proses_ms: waktuProses,
+        waktu: new Date().toISOString(),
+        id_request: req.headers['x-request-id'] || null
       }
     };
     
-    // Include original error message in development
+    // Tambahkan detail error di mode development
     if (process.env.NODE_ENV === 'development') {
-      errorResponse.debug = {
-        original_error: error.message,
+      responsError.debug = {
+        error_asli: error.message,
         stack: error.stack
       };
     }
     
-    res.status(statusCode).json(errorResponse);
+    res.status(statusCode).json(responsError);
   }
 });
 
-// Health check endpoint
+// Endpoint cek kesehatan
 router.get('/health', async (req, res) => {
   try {
-    const pythonHealth = await checkPythonServiceHealth();
+    const kesehatanPython = await checkPythonServiceHealth();
     
-    const healthStatus = {
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      services: {
-        nodejs: { status: 'healthy' },
-        python_api: pythonHealth
+    const statusKesehatan = {
+      status: 'sehat',
+      waktu: new Date().toISOString(),
+      layanan: {
+        nodejs: { status: 'sehat' },
+        python_api: kesehatanPython
       },
-      version: process.env.npm_package_version || '1.0.0'
+      versi: process.env.npm_package_version || '1.0.0'
     };
     
-    // health dependencies
-    if (pythonHealth.status !== 'healthy') {
-      healthStatus.status = 'degraded';
+    if (kesehatanPython.status !== 'healthy') {
+      statusKesehatan.status = 'terdegradasi';
     }
     
-    const statusCode = healthStatus.status === 'healthy' ? 200 : 503;
-    res.status(statusCode).json(healthStatus);
+    const statusCode = statusKesehatan.status === 'sehat' ? 200 : 503;
+    res.status(statusCode).json(statusKesehatan);
     
   } catch (error) {
-    console.error('[chatbotApi.js] Health check error:', error);
+    console.error('[chatbotApi.js] Error cek kesehatan:', error);
     
     res.status(503).json({
-      status: 'unhealthy',
-      timestamp: new Date().toISOString(),
+      status: 'tidak_sehat',
+      waktu: new Date().toISOString(),
       error: error.message,
-      services: {
-        nodejs: { status: 'healthy' },
-        python_api: { status: 'unknown', error: error.message }
+      layanan: {
+        nodejs: { status: 'sehat' },
+        python_api: { status: 'tidak_diketahui', error: error.message }
       }
     });
   }
 });
 
-// Get API
+// Info API
 router.get('/info', (req, res) => {
   res.json({
-    name: 'Mindfulness Chatbot API',
-    version: process.env.npm_package_version || '1.0.0',
-    description: 'API for Mindfulness AI chatbot service',
-    endpoints: [
+    nama: 'API Chatbot Mindfulness',
+    versi: process.env.npm_package_version || '1.0.0',
+    deskripsi: 'API untuk layanan chatbot Mindfulness AI',
+    endpoint: [
       {
-        method: 'POST',
+        metode: 'POST',
         path: '/api/chatbotApi/search',
-        description: 'Send text to AI for mindfulness response'
+        deskripsi: 'Kirim teks ke AI untuk mendapat respons mindfulness'
       },
       {
-        method: 'GET', 
+        metode: 'GET', 
         path: '/api/chatbotApi/health',
-        description: 'Check API health status'
+        deskripsi: 'Cek status kesehatan API'
       },
       {
-        method: 'GET',
+        metode: 'GET',
         path: '/api/chatbotApi/info', 
-        description: 'Get API information'
+        deskripsi: 'Dapatkan informasi API'
       }
     ],
-    timestamp: new Date().toISOString()
+    waktu: new Date().toISOString()
   });
 });
 
-// Error handling middleware
+// Middleware penanganan error
 router.use((error, req, res, next) => {
-  console.error('[chatbotApi.js] Unhandled error:', {
+  console.error('[chatbotApi.js] Error tidak tertangani:', {
     error: error.message,
     stack: error.stack,
     url: req.url,
@@ -234,12 +234,12 @@ router.use((error, req, res, next) => {
   });
   
   res.status(500).json({
-    success: false,
-    message: 'An unexpected error occurred.',
-    error: 'UNHANDLED_ERROR',
+    sukses: false,
+    pesan: 'Terjadi kesalahan yang tidak terduga.',
+    error: 'ERROR_TIDAK_TERDUGA',
     meta: {
-      timestamp: new Date().toISOString(),
-      request_id: req.headers['x-request-id'] || null
+      waktu: new Date().toISOString(),
+      id_request: req.headers['x-request-id'] || null
     }
   });
 });
