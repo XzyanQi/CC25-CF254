@@ -208,8 +208,10 @@ const ChatbotPage = () => {
 
   // Parser response
   const parseApiResponse = (apiResponse) => {
-    // Cek jika ada field "data" (response dari backend Node.js)
-    if (apiResponse && apiResponse.data && Array.isArray(apiResponse.data.results) && apiResponse.data.results.length > 0) {
+  // Cek jika ada field "data" (response dari backend Node.js)
+  if (apiResponse && apiResponse.data) {
+    // Jika data.results array
+    if (Array.isArray(apiResponse.data.results) && apiResponse.data.results.length > 0) {
       return {
         response_to_display: apiResponse.data.results[0].response_to_display || '',
         confidence_score: apiResponse.data.results[0].confidence_score || 0,
@@ -217,24 +219,51 @@ const ChatbotPage = () => {
         keywords: apiResponse.data.results[0].keywords || []
       };
     }
-    // Jika direct dari Python API
-    if (apiResponse && Array.isArray(apiResponse.results) && apiResponse.results.length > 0) {
+    // Jika data.results satu objek saja
+    if (apiResponse.data.results && typeof apiResponse.data.results === 'object') {
       return {
-        response_to_display: apiResponse.results[0].response_to_display || '',
-        confidence_score: apiResponse.results[0].confidence_score || 0,
-        intent: apiResponse.results[0].intent || '',
-        keywords: apiResponse.results[0].keywords || []
+        response_to_display: apiResponse.data.results.response_to_display || '',
+        confidence_score: apiResponse.data.results.confidence_score || 0,
+        intent: apiResponse.data.results.intent || '',
+        keywords: apiResponse.data.results.keywords || []
       };
     }
-    // Jika tidak cocok, fallback
-    return {
-      response_to_display: "Maaf, saya belum memahami pertanyaan Anda.",
-      confidence_score: 0,
-      intent: "clarification_needed",
-      keywords: []
+    // Jika data langsung objek jawaban (legacy/fallback)
+    if (apiResponse.data.response_to_display) {
+      return {
+        response_to_display: apiResponse.data.response_to_display || '',
+        confidence_score: apiResponse.data.confidence_score || 0,
+        intent: apiResponse.data.intent || '',
+        keywords: apiResponse.data.keywords || []
+      };
     }
-  };
-
+  }
+  // Jika direct dari Python API (tanpa pembungkus "data")
+  if (apiResponse && Array.isArray(apiResponse.results) && apiResponse.results.length > 0) {
+    return {
+      response_to_display: apiResponse.results[0].response_to_display || '',
+      confidence_score: apiResponse.results[0].confidence_score || 0,
+      intent: apiResponse.results[0].intent || '',
+      keywords: apiResponse.results[0].keywords || []
+    };
+  }
+  // Jika direct satu objek saja (legacy/fallback)
+  if (apiResponse && apiResponse.response_to_display) {
+    return {
+      response_to_display: apiResponse.response_to_display || '',
+      confidence_score: apiResponse.confidence_score || 0,
+      intent: apiResponse.intent || '',
+      keywords: apiResponse.keywords || []
+    };
+  }
+  // Jika tidak cocok, fallback
+  return {
+    response_to_display: "Maaf, saya belum memahami pertanyaan Anda.",
+    confidence_score: 0,
+    intent: "clarification_needed",
+    keywords: []
+  }
+};
   const handleSendMessage = async (messageText = null) => {
     const text = (messageText || message).trim();
     if (!text || !activeSessionId) return;
