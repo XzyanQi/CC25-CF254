@@ -206,8 +206,18 @@ const ChatbotPage = () => {
     })));
   }, []);
 
-  // Parser response backend
+  // Parser response
   const parseApiResponse = (apiResponse) => {
+    // Cek jika ada field "data" (response dari backend Node.js)
+    if (apiResponse && apiResponse.data && Array.isArray(apiResponse.data.results) && apiResponse.data.results.length > 0) {
+      return {
+        response_to_display: apiResponse.data.results[0].response_to_display || '',
+        confidence_score: apiResponse.data.results[0].confidence_score || 0,
+        intent: apiResponse.data.results[0].intent || '',
+        keywords: apiResponse.data.results[0].keywords || []
+      };
+    }
+    // Jika direct dari Python API
     if (apiResponse && Array.isArray(apiResponse.results) && apiResponse.results.length > 0) {
       return {
         response_to_display: apiResponse.results[0].response_to_display || '',
@@ -216,6 +226,7 @@ const ChatbotPage = () => {
         keywords: apiResponse.results[0].keywords || []
       };
     }
+    // Jika tidak cocok, fallback
     return {
       response_to_display: "Maaf, saya belum memahami pertanyaan Anda.",
       confidence_score: 0,
