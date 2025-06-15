@@ -84,27 +84,36 @@ router.post('/search', validasiRequest, async (req, res) => {
     
     // Panggil layanan Python
     const hasilDariPython = await sendToPythonService(text, top_k);
-    
     const waktuProses = Date.now() - waktuMulai;
-    console.log(`[chatbotApi.js] Permintaan berhasil diproses dalam ${waktuProses}ms`);
-    
+
     if (!hasilDariPython) {
       throw new Error('Tidak ada respons dari layanan AI');
     }
-    
-    // Format respons standar
+
+    // selalu ada data.results (array)
+    let dataField = hasilDariPython;
+    if (!hasilDariPython.results) {
+      // Deteksi jika hasilDariPython sudah array, atau satu objek
+      if (Array.isArray(hasilDariPython)) {
+        dataField = { results: hasilDariPython };
+      } else {
+        dataField = { results: [hasilDariPython] };
+      }
+    }
+
     const respons = {
       sukses: true,
-      data: hasilDariPython,
+      data: dataField,
       meta: {
         waktu_proses_ms: waktuProses,
         waktu: new Date().toISOString(),
         id_request: req.headers['x-request-id'] || null
       }
     };
-    
+
+    console.log('[chatbotApi.js] Respons ke frontend:', JSON.stringify(respons, null, 2));
     res.json(respons);
-    
+
   } catch (error) {
     const waktuProses = Date.now() - waktuMulai;
     
@@ -117,7 +126,7 @@ router.post('/search', validasiRequest, async (req, res) => {
       id_request: req.headers['x-request-id'] || null
     });
     
-    // Tentukan status dan pesan error
+    // status dan pesan error
     let statusCode = 500;
     let pesanError = PESAN_ERROR.SERVER_ERROR;
     let kodeError = 'ERROR_SERVER';
@@ -147,7 +156,7 @@ router.post('/search', validasiRequest, async (req, res) => {
       }
     };
     
-    // Tambahkan detail error di mode development
+    // detail error di mode development
     if (process.env.NODE_ENV === 'development') {
       responsError.debug = {
         error_asli: error.message,
@@ -163,7 +172,6 @@ router.post('/search', validasiRequest, async (req, res) => {
 router.get('/health', async (req, res) => {
   try {
     const kesehatanPython = await checkPythonServiceHealth();
-    
     const statusKesehatan = {
       status: 'sehat',
       waktu: new Date().toISOString(),
@@ -173,17 +181,13 @@ router.get('/health', async (req, res) => {
       },
       versi: process.env.npm_package_version || '1.0.0'
     };
-    
     if (kesehatanPython.status !== 'healthy') {
       statusKesehatan.status = 'terdegradasi';
     }
-    
     const statusCode = statusKesehatan.status === 'sehat' ? 200 : 503;
     res.status(statusCode).json(statusKesehatan);
-    
   } catch (error) {
     console.error('[chatbotApi.js] Error cek kesehatan:', error);
-    
     res.status(503).json({
       status: 'tidak_sehat',
       waktu: new Date().toISOString(),
