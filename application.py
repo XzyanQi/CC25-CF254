@@ -68,29 +68,47 @@ def get_embedding(text):
     return vec[0].numpy()
 
 def keyword_match(query, corpus):
-    q = preprocess_text_indonesian(query).lower()
-    q_set = set(q.split())
+    """Mencari dokumen berdasarkan kecocokan frasa dalam kata kunci"""
+    query_lower = query.lower()
+    query_words = query_lower.split()
     matches = []
+    
+    print(f"\n[DEBUG] Query: '{query_lower}'")
+    print(f"[DEBUG] Kata-kata dalam query: {query_words}")
+    
     for doc in corpus:
-        keywords = [k.lower() for k in doc.get("keywords",[])]
-        if q_set & set(keywords):
-            matches.append(doc)
-    return matches
+        for keyword in doc.get("keywords", []):
+            keyword_lower = keyword.lower()
+            keyword_words = keyword_lower.split()
+            
+            # Cek apakah keyword ada dalam query sebagai satu frasa lengkap
+            if keyword_lower in query_lower:
+                print(f"[DEBUG] Ditemukan frasa lengkap: '{keyword_lower}'")
+                matches.append((doc, len(keyword_words), 2))  # Prioritas 2 untuk frasa lengkap
+                continue
 
-def most_similar_index(user_answer, follow_up_answers):
-    user_answer = user_answer.lower().strip()
-    max_score = 0
-    best_idx = 0
-    for i, ans in enumerate(follow_up_answers):
-        score = SequenceMatcher(None, user_answer, ans.lower()).ratio()
-        if score > max_score:
-            max_score = score
-            best_idx = i
-    return best_idx, max_score
+            # Cek apakah semua kata dalam keyword muncul berurutan dalam query
+            for i in range(len(query_words) - len(keyword_words) + 1):
+                if query_words[i:i+len(keyword_words)] == keyword_words:
+                    print(f"[DEBUG] Ditemukan kata berurutan: '{keyword_lower}'")
+                    matches.append((doc, len(keyword_words), 1))  # Prioritas 1 untuk kata berurutan
+                    break
+
+            # Jika belum ketemu, cek apakah sebagian besar kata dalam keyword muncul dalam query
+            if not matches:
+                matched_words = sum(1 for w in keyword_words if w in query_words)
+                if matched_words >= len(keyword_words) * 0.7:  # Minimal 70% kata cocok
+                    print(f"[DEBUG] Ditemukan {matched_words}/{len(keyword_words)} kata: '{keyword_lower}'")
+                    matches.append((doc, matched_words, 0))  # Prioritas 0 untuk kecocokan sebagian
+    
+    # Urutkan berdasarkan: 1) tipe kecocokan, 2) panjang frasa
+    matches.sort(key=lambda x: (x[2], x[1]), reverse=True)
+    return [doc for doc, _, _ in matches]
 
 @application.route("/search", methods=["POST"])
 def search():
-    start_time = time.time()
+    """Endpoint utama untuk pencarian"""
+    waktu_mulai = time.time()
     data = request.get_json()
     query = data.get("text", "").strip()
     top_k = data.get("top_k", 5)
@@ -103,85 +121,74 @@ def search():
                 "intent": "",
                 "keywords": [],
                 "confidence_score": 0.0,
-                "follow_up_questions": [],
-                "follow_up_answers": [],
-                "recomended_responses_to_follow_up_answers": []
             }]
         }), 400
 
-    print(f"\n Query asli: '{query}'")
+    print(f"\nQuery asli: '{query}'")
 
     try:
+        # Coba cari kecocokan kata kunci dulu
+        print("\nMencoba pencocokan kata kunci...")
+        hasil_keyword = keyword_match(query, corpus)
+        
+        if hasil_keyword:
+            doc = hasil_keyword[0]
+            print(f"Ditemukan kecocokan kata kunci! Intent: {doc.get('intent')}")
+            print(f"Keywords yang cocok: {doc.get('keywords')}")
+            return jsonify({
+                "query": query,
+                "results": [{
+                    "response_to_display": doc.get("response_to_display", "Format tidak sesuai."),
+                    "intent": doc.get("intent", ""),
+                    "keywords": doc.get("keywords", []),
+                    "confidence_score": 0.9,  # Skor tinggi untuk kecocokan kata kunci
+                    "matched_by": "keyword"
+                }]
+            })
+
+        # Jika tidak ada kecocokan kata kunci, gunakan FAISS
+        print("\nTidak ada kecocokan kata kunci, mencoba FAISS...")
         clean_query = preprocess_text_indonesian(query)
-        print(f"🧹 Query setelah preprocessing: '{clean_query}'")
+        print(f"Query setelah preprocessing: '{clean_query}'")
 
         query_vec = get_embedding(query).reshape(1, -1).astype("float32")
         distances, indices = index.search(query_vec, top_k)
 
-        print(f" Distances: {distances}")
-        print(f" Indices: {indices}")
+        print(f"Jarak FAISS: {distances}")
+        print(f"Indeks FAISS: {indices}")
 
-        confidences = []
-        for d in distances[0]:
-            if d == 0:
-                conf = 1.0
-            else:
-                conf = np.exp(-d)
-            confidences.append(float(conf))
+        # Hitung skor kepercayaan
+        confidences = [float(np.exp(-d)) if d != 0 else 1.0 for d in distances[0]]
+        print(f"Skor kepercayaan: {confidences}")
 
-        print(f" Confidences: {confidences}")
-
+        # Buat daftar hasil FAISS
         results = []
         for idx, i in enumerate(indices[0]):
             if 0 <= i < len(corpus):
-                confidence = confidences[idx]
                 doc = corpus[i]
                 results.append({
                     "response_to_display": doc.get("response_to_display", "Format tidak sesuai."),
                     "intent": doc.get("intent", ""),
                     "keywords": doc.get("keywords", []),
-                    "confidence_score": confidence,
-                    "follow_up_questions": doc.get("follow_up_questions", []),
-                    "follow_up_answers": doc.get("follow_up_answers", []),
-                    "recomended_responses_to_follow_up_answers": doc.get("recomended_responses_to_follow_up_answers", [])
+                    "confidence_score": confidences[idx],
+                    "matched_by": "faiss"
                 })
 
+        # Filter hasil berdasarkan skor kepercayaan
         filtered_results = [r for r in results if r["confidence_score"] >= MIN_CONFIDENCE]
 
-        best_conf = results[0]['confidence_score'] if results else 0.0
-        if not filtered_results or best_conf < SAFE_CONFIDENCE:
-            print(f" Tidak ada hasil dengan confidence >= {MIN_CONFIDENCE} atau skor terbaik < {SAFE_CONFIDENCE}")
-            keyword_results = keyword_match(query, corpus)
-            if keyword_results:
-                print(f" Keyword match ditemukan: {len(keyword_results)}")
-                doc = keyword_results[0]
-                filtered_results = [{
-                    "response_to_display": doc.get("response_to_display", "Format tidak sesuai."),
-                    "intent": doc.get("intent", ""),
-                    "keywords": doc.get("keywords", []),
-                    "confidence_score": 0.5,
-                    "follow_up_questions": doc.get("follow_up_questions", []),
-                    "follow_up_answers": doc.get("follow_up_answers", []),
-                    "recomended_responses_to_follow_up_answers": doc.get("recomended_responses_to_follow_up_answers", [])
-                }]
-            else:
-                filtered_results = [{
-                    "response_to_display": "Maaf, aku belum punya jawaban relevan untuk pertanyaan itu. Bisakah kamu ceritakan atau tanyakan dengan cara lain?",
-                    "intent": "clarification_needed",
-                    "keywords": [],
-                    "confidence_score": float(best_conf),
-                    "follow_up_questions": [
-                        "Bisa ceritakan lebih detail tentang situasimu?",
-                        "Apa yang paling membuatmu khawatir saat ini?",
-                        "Bagaimana perasaanmu secara keseluruhan hari ini?"
-                    ],
-                    "follow_up_answers": [],
-                    "recomended_responses_to_follow_up_answers": []
-                }]
+        if not filtered_results:
+            filtered_results = [{
+                "response_to_display": "Maaf, saya belum memahami pertanyaan Anda. Bisakah Anda menjelaskan dengan cara lain?",
+                "intent": "clarification_needed",
+                "keywords": [],
+                "confidence_score": 0.0,
+                "matched_by": "none"
+            }]
 
-        elapsed_ms = (time.time() - start_time) * 1000
-        print(f" Total waktu proses: {elapsed_ms:.2f} ms")
-        print(f" Mengembalikan {len(filtered_results)} hasil")
+        waktu_proses = (time.time() - waktu_mulai) * 1000
+        print(f"Total waktu proses: {waktu_proses:.2f} ms")
+        print(f"Mengembalikan {len(filtered_results)} hasil")
 
         return jsonify({
             "query": query,
@@ -189,60 +196,20 @@ def search():
         })
 
     except Exception as e:
-        print(f" ERROR saat search FAISS: {e}")
+        print(f"ERROR saat pencarian: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({
             "query": query,
             "results": [{
-                "response_to_display": "Terjadi kesalahan teknis. Coba lagi nanti.",
+                "response_to_display": "Maaf, terjadi kesalahan teknis. Silakan coba lagi.",
                 "intent": "technical_error",
                 "keywords": [],
                 "confidence_score": 0.0,
-                "follow_up_questions": [],
-                "follow_up_answers": [],
-                "recomended_responses_to_follow_up_answers": []
+                "matched_by": "error"
             }]
         }), 500
-
-@application.route("/followup", methods=["POST"])
-def followup():
-    data = request.get_json()
-    intent = data.get("intent")
-    answer_index = data.get("answer_index")  
-    user_answer = data.get("user_answer")    
-    if not intent:
-        return jsonify({"error": "Parameter intent wajib diisi."}), 400
-
-    doc = next((d for d in corpus if d.get('intent') == intent), None)
-    if not doc:
-        return jsonify({"error": "Data tidak ditemukan untuk intent tersebut."}), 404
-
-    follow_up_answers = doc.get("follow_up_answers", [])
-    rrfa = doc.get("recomended_responses_to_follow_up_answers", [])
-
-    if answer_index is not None:
-        if answer_index < 0 or answer_index >= len(rrfa):
-            return jsonify({"error": "Index follow up answer tidak valid."}), 400
-        response = rrfa[answer_index]
-        return jsonify({
-            "recommended_response": response,
-            "matched_index": answer_index,
-            "matched_answer": follow_up_answers[answer_index] if answer_index < len(follow_up_answers) else ""
-        })
-
-    if user_answer:
-        idx, score = most_similar_index(user_answer, follow_up_answers)
-        response = rrfa[idx] if idx < len(rrfa) else "Maaf, saya tidak menemukan tanggapan yang relevan."
-        return jsonify({
-            "recommended_response": response,
-            "matched_index": idx,
-            "matched_answer": follow_up_answers[idx] if idx < len(follow_up_answers) else "",
-            "similarity_score": score
-        })
-
-    return jsonify({"error": "Harus ada salah satu: answer_index atau user_answer"}), 400
-
+    
 @application.errorhandler(Exception)
 def handle_exception(e):
     print(f" Global error handler: {e}")
