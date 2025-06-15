@@ -44,7 +44,7 @@ class ChatErrorBoundary extends React.Component {
   }
 }
 
-const TypingText = ({ text, speed = 50, onComplete }) => {
+const TypingText = ({ text, speed = 30, onComplete }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -64,9 +64,7 @@ const TypingText = ({ text, speed = 50, onComplete }) => {
       return () => clearTimeout(timer);
     } else if (currentIndex >= text.length && !isCompleted) {
       setIsCompleted(true);
-      if (onComplete) {
-        onComplete();
-      }
+      if (onComplete) onComplete();
     }
   }, [currentIndex, text, speed, onComplete, isCompleted]);
 
@@ -103,9 +101,6 @@ const ChatbotPage = () => {
       text: "Halo! Saya Mindfulness, asisten AI kamu untuk mendengarkan dan membantu dalam hal kesehatan mental. Ceritakan perasaanmu atau masalahmu, aku akan berusaha membantumu.",
       sender: "bot",
       timestamp: new Date(),
-      followUps: [],
-      follow_up_answers: [],
-      recommended_responses_to_follow_up_answers: [],
       isTyping: true
     };
     const newSession = {
@@ -147,7 +142,6 @@ const ChatbotPage = () => {
 
   useEffect(() => {
     if (isInitialized) return;
-    
     const saved = localStorage.getItem(CHAT_SESSIONS_KEY);
     if (saved) {
       try {
@@ -212,46 +206,24 @@ const ChatbotPage = () => {
     })));
   }, []);
 
-  // Parse api response
-  // ---
-// Ganti fungsi parseApiResponse menjadi seperti ini:
-const parseApiResponse = (apiResponse) => {
-  console.log('Raw API Response:', apiResponse);
-
-  // Handle response dari backend Mindfulness (punya .success dan .data)
-  if (apiResponse && typeof apiResponse === 'object' && 'success' in apiResponse && 'data' in apiResponse) {
-    return parseApiResponse(apiResponse.data);
-  }
-
-  // Handle response dari backend Python (langsung object jawaban)
-  if (apiResponse && typeof apiResponse === 'object') {
-    // Format normal yang diharapkan
-    if (typeof apiResponse.response_to_display === 'string') {
+  // Parser response backend
+  const parseApiResponse = (apiResponse) => {
+    if (apiResponse && Array.isArray(apiResponse.results) && apiResponse.results.length > 0) {
       return {
-        response_to_display: apiResponse.response_to_display.trim(),
-        follow_up_questions: apiResponse.follow_up_questions || [],
-        follow_up_answers: apiResponse.follow_up_answers || [],
-        recommended_responses_to_follow_up_answers: apiResponse.recomended_responses_to_follow_up_answers || apiResponse.recommended_responses_to_follow_up_answers || [],
-        confidence_score: apiResponse.confidence_score || 0,
-        intent: apiResponse.intent || 'unknown'
+        response_to_display: apiResponse.results[0].response_to_display || '',
+        confidence_score: apiResponse.results[0].confidence_score || 0,
+        intent: apiResponse.results[0].intent || '',
+        keywords: apiResponse.results[0].keywords || []
       };
     }
-    // Cek jika ada array 'results' (misal AI service berubah format)
-    if (Array.isArray(apiResponse.results) && apiResponse.results.length > 0) {
-      return parseApiResponse(apiResponse.results[0]);
+    return {
+      response_to_display: "Maaf, saya belum memahami pertanyaan Anda.",
+      confidence_score: 0,
+      intent: "clarification_needed",
+      keywords: []
     }
-    // Cek jika ada object 'result'
-    if (apiResponse.result) {
-      return parseApiResponse(apiResponse.result);
-    }
-  }
+  };
 
-  // Jika sampai sini tidak ditemukan format yang benar:
-  console.error('Unable to parse API response structure:', apiResponse);
-  throw new Error('Format respons API tidak valid');
-};
-  
-  // IMPROVED API HANDLING with better error handling
   const handleSendMessage = async (messageText = null) => {
     const text = (messageText || message).trim();
     if (!text || !activeSessionId) return;
@@ -271,7 +243,7 @@ const parseApiResponse = (apiResponse) => {
     setMessage('');
     setShowEmojiPicker(false);
 
-    // Check for banned words
+    // Cek kata terlarang
     if ([...BANNED_WORDS].some(word => text.toLowerCase().includes(word))) {
       const botMsgId = generateUniqueId('bot-banned');
       const botMsg = {
@@ -279,9 +251,6 @@ const parseApiResponse = (apiResponse) => {
         text: "Maaf, saya tidak dapat membahas topik tersebut. Mari kita fokus pada hal-hal yang dapat membantu kesehatan mental kamu. Bagaimana perasaanmu hari ini?",
         sender: "bot",
         timestamp: new Date(),
-        followUps: ["Ceritakan tentang harimu", "Apa yang membuatmu bahagia?", "Bagaimana cara kamu mengatasi stres?"],
-        follow_up_answers: [],
-        recommended_responses_to_follow_up_answers: [],
         isTyping: true
       };
       setChatSessions(prev => prev.map(s => s.id === activeSessionId
@@ -297,20 +266,10 @@ const parseApiResponse = (apiResponse) => {
     setAbortController(controller);
 
     try {
-      console.log('Sending message to API:', text);
-      
-      // Call API with proper parameters
       const data = await sendToMindfulness(text, 3);
-      
-      console.log('API Response received:', data);
-
-      // Parse the response using improved parser
       const parsedResult = parseApiResponse(data);
-      
-      console.log('Parsed result:', parsedResult);
 
-      // Validate response content
-      if (!parsedResult.response_to_display || parsedResult.response_to_display.trim() === '') {
+      if (!parsedResult.response_to_display.trim()) {
         throw new Error('Empty response from API');
       }
 
@@ -320,15 +279,8 @@ const parseApiResponse = (apiResponse) => {
         text: parsedResult.response_to_display.slice(0, MAX_RESPONSE_LENGTH),
         sender: "bot",
         timestamp: new Date(),
-        followUps: parsedResult.follow_up_questions || [],
-        follow_up_answers: parsedResult.follow_up_answers || [],
-        recommended_responses_to_follow_up_answers: parsedResult.recommended_responses_to_follow_up_answers || [],
-        confidence: parsedResult.confidence_score || 0,
-        intent: parsedResult.intent || '',
         isTyping: true
       };
-
-      console.log('Bot message created:', botMsg);
 
       setChatSessions(prev => prev.map(s => s.id === activeSessionId
         ? { ...s, messages: [...s.messages, botMsg], lastUpdated: new Date() }
@@ -337,30 +289,12 @@ const parseApiResponse = (apiResponse) => {
       setTypingMessageId(botMsgId);
 
     } catch (err) {
-      console.error('API Error:', err);
-      
-      // Create user-friendly error messages
-      let errorMessage = "Oops! Terjadi kesalahan saat menghubungi server.";
-      
-      if (err.message.includes('Network error')) {
-        errorMessage = "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
-      } else if (err.message.includes('timeout')) {
-        errorMessage = "Server membutuhkan waktu terlalu lama untuk merespons. Silakan coba lagi.";
-      } else if (err.message.includes('500')) {
-        errorMessage = "Server sedang mengalami masalah. Silakan coba lagi dalam beberapa saat.";
-      } else if (err.message.includes('400')) {
-        errorMessage = "Format pesan tidak valid. Silakan coba dengan kata-kata yang berbeda.";
-      }
-      
       const errorBotMsgId = generateUniqueId('error');
       const errorBotMsg = {
         id: errorBotMsgId,
-        text: `${errorMessage} Silakan coba lagi.`,
+        text: `Oops! Terjadi kesalahan saat menghubungi server. Silakan coba lagi.`,
         sender: "bot",
         timestamp: new Date(),
-        followUps: ["Coba lagi", "Ceritakan dengan kata-kata lain", "Bagaimana perasaanmu sekarang?"],
-        follow_up_answers: [],
-        recommended_responses_to_follow_up_answers: [],
         isTyping: true
       };
       setChatSessions(prev => prev.map(s => s.id === activeSessionId
@@ -462,28 +396,28 @@ const parseApiResponse = (apiResponse) => {
             >
               <Home size={20} className="text-gray-600" />
             </button>
-            <div className="w-16"></div> 
+            <div className="w-16"></div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            {activeSession?.messages.map((msg, index) => (
+            {activeSession?.messages.map((msg) => (
               <div key={msg.id} className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {msg.sender === 'bot' && (
                   <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                     M
                   </div>
                 )}
-                
+
                 <div className={`max-w-2xl ${msg.sender === 'user' ? 'order-first' : ''}`}>
                   <div className={`rounded-2xl px-4 py-3 ${
-                    msg.sender === 'user' 
-                      ? 'bg-blue-500 text-white ml-auto' 
+                    msg.sender === 'user'
+                      ? 'bg-blue-500 text-white ml-auto'
                       : 'bg-white border border-gray-200'
                   }`}>
                     {msg.sender === 'bot' && msg.isTyping && typingMessageId === msg.id ? (
-                      <TypingText 
-                        text={msg.text} 
-                        speed={30} 
+                      <TypingText
+                        text={msg.text}
+                        speed={30}
                         onComplete={() => handleTypingComplete(msg.id)}
                       />
                     ) : (
@@ -492,33 +426,6 @@ const parseApiResponse = (apiResponse) => {
                       </ReactMarkdown>
                     )}
                   </div>
-
-                  {msg.followUps?.length > 0 && (!msg.isTyping || typingMessageId !== msg.id) && (
-                    <div className="mt-3 space-y-2">
-                      {msg.followUps.map((question, i) => (
-                        <div key={i} className="bg-gray-50 border border-gray-200 rounded-xl p-3">
-                          <p className="text-sm font-medium text-gray-800 mb-2">{question}</p>
-                          
-                          {msg.follow_up_answers?.[i] && (
-                            <div className="flex items-start gap-2 mb-2">
-                              <span className="text-sm">💬</span>
-                              <p className="text-sm text-gray-600">{msg.follow_up_answers[i]}</p>
-                            </div>
-                          )}
-                          
-                          {msg.recommended_responses_to_follow_up_answers?.[i] && (
-                            <div className="flex items-start gap-2">
-                              <span className="text-sm">🔹</span>
-                              <p className="text-xs text-blue-600 italic">
-                                {msg.recommended_responses_to_follow_up_answers[i]}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
                   <div className="text-xs text-gray-400 mt-2 text-right">
                     {formatTime(msg.timestamp)}
                   </div>
@@ -539,8 +446,8 @@ const parseApiResponse = (apiResponse) => {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-500 italic">
                   <span>Mindfulness sedang mengetik...</span>
-                  <button 
-                    onClick={cancelTyping} 
+                  <button
+                    onClick={cancelTyping}
                     className="text-red-400 hover:text-red-600 transition-colors"
                   >
                     <XCircle size={16} />
@@ -562,7 +469,7 @@ const parseApiResponse = (apiResponse) => {
                 onKeyPress={handleKeyPress}
                 disabled={isBotTyping}
               />
-              
+
               <button
                 ref={emojiPickerButtonRef}
                 onClick={() => setShowEmojiPicker(prev => !prev)}
@@ -571,7 +478,7 @@ const parseApiResponse = (apiResponse) => {
               >
                 <Smile size={20} />
               </button>
-              
+
               <button
                 onClick={() => handleSendMessage()}
                 disabled={!message.trim() || isBotTyping}
@@ -582,8 +489,8 @@ const parseApiResponse = (apiResponse) => {
             </div>
 
             {showEmojiPicker && (
-              <div 
-                ref={emojiPickerPopupRef} 
+              <div
+                ref={emojiPickerPopupRef}
                 className="absolute bottom-20 right-4 z-50 shadow-lg rounded-lg"
               >
                 <EmojiPicker
