@@ -2,11 +2,11 @@ import axios from "axios";
 
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:3000").replace(/\/+$/, "");
 const CHATBOT_API_ENDPOINT = "/api/chatbotApi/search";
-const API_URL = `${BASE_URL}${CHATBOT_API_ENDPOINT}`; 
+const API_URL = `${BASE_URL}${CHATBOT_API_ENDPOINT}`;
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
-  timeout: 30000, // 30 detik buat proses
+  timeout: 30000, // 30 detik untuk proses
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -47,18 +47,22 @@ apiClient.interceptors.response.use(
   }
 );
 
+/**
+ * Fungsi utama kirim pesan ke backend Mindfulness
+ * @param {string} text - Pesan user
+ * @param {number} top_k - Jumlah top hasil (opsional, default 3)
+ * @returns {Promise<Object>} Respons dari backend
+ */
 export const sendToMindfulness = async (text, top_k = 3) => {
   try {
-    // Validasi input yang lebih ketat
+    // Validasi input
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
       throw new Error('Text parameter is required and must be a non-empty string');
     }
-
     if (text.trim().length > 1000) {
       throw new Error('Text is too long. Maximum 1000 characters allowed.');
     }
 
-    // Log untuk debugging
     console.log('Sending request to:', API_URL);
     console.log('Request payload:', { text: text.trim(), top_k });
 
@@ -67,7 +71,6 @@ export const sendToMindfulness = async (text, top_k = 3) => {
       top_k: Number(top_k) || 3
     });
 
-    // Validasi response structure
     if (!response.data) {
       throw new Error('Empty response from server');
     }
@@ -75,9 +78,8 @@ export const sendToMindfulness = async (text, top_k = 3) => {
     return response.data;
 
   } catch (error) {
-    // Enhanced error handling dengan lebih spesifik
     if (error.response) {
-      // Server responded with error status
+      // Server mengembalikan error status
       const status = error.response.status;
       const errorData = error.response.data;
       
@@ -85,7 +87,7 @@ export const sendToMindfulness = async (text, top_k = 3) => {
       
       switch (status) {
         case 400:
-          errorMessage = errorData?.message || 'Bad request - invalid input';
+          errorMessage = errorData?.message || errorData?.pesan || 'Bad request - invalid input';
           break;
         case 401:
           errorMessage = 'Unauthorized access';
@@ -100,7 +102,7 @@ export const sendToMindfulness = async (text, top_k = 3) => {
           errorMessage = 'Too many requests - please wait';
           break;
         case 500:
-          errorMessage = errorData?.message || 'Internal server error';
+          errorMessage = errorData?.message || errorData?.pesan || 'Internal server error';
           break;
         case 502:
           errorMessage = 'Bad gateway - server connection issue';
@@ -112,7 +114,7 @@ export const sendToMindfulness = async (text, top_k = 3) => {
           errorMessage = 'Gateway timeout - server took too long to respond';
           break;
         default:
-          errorMessage = errorData?.message || `Server error: ${status}`;
+          errorMessage = errorData?.message || errorData?.pesan || `Server error: ${status}`;
       }
 
       console.error('API Error Response:', {
@@ -123,29 +125,30 @@ export const sendToMindfulness = async (text, top_k = 3) => {
       
       throw new Error(`${errorMessage} (Status: ${status})`);
       
-    } else if (error.request) {
-      // Request was made but no response received
-      console.error('Network Error:', error.request);
-      throw new Error('Network error: Unable to connect to server. Please check your internet connection.');
-      
     } else if (error.code === 'ECONNABORTED') {
       // Request timeout
       console.error('Request Timeout:', error.message);
       throw new Error('Request timeout: Server is taking too long to respond. Please try again.');
-      
+    } else if (error.request) {
+      // Request berhasil dikirim tapi tidak ada respons
+      console.error('Network Error:', error.request);
+      throw new Error('Network error: Unable to connect to server. Please check your internet connection.');
     } else {
-      // Something else happened
+      // Error lain
       console.error('Unexpected Error:', error.message);
       throw new Error(`Unexpected error: ${error.message}`);
     }
   }
 };
 
-// Health check function untuk memverifikasi koneksi
+/**
+ * Mengecek kesehatan API (health check)
+ * @returns {Promise<Object>} Status kesehatan API
+ */
 export const checkAPIHealth = async () => {
   try {
     const response = await apiClient.get('/api/health', {
-      timeout: 5000 // detik
+      timeout: 5000 // 5 detik
     });
     return { 
       status: 'healthy', 
@@ -161,6 +164,13 @@ export const checkAPIHealth = async () => {
   }
 };
 
+/**
+ * Fungsi kirim pesan dengan retry otomatis (exponential backoff)
+ * @param {string} text 
+ * @param {number} top_k 
+ * @param {number} maxRetries 
+ * @returns {Promise<Object>}
+ */
 export const sendToMindfulnessWithRetry = async (text, top_k = 3, maxRetries = 3) => {
   let lastError;
   
@@ -171,6 +181,7 @@ export const sendToMindfulnessWithRetry = async (text, top_k = 3, maxRetries = 3
     } catch (error) {
       lastError = error;
       
+      // Jika error 4xx, jangan retry
       if (error.message.includes('Status: 4')) {
         throw error;
       }
