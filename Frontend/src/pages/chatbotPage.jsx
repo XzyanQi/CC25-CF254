@@ -206,11 +206,8 @@ const ChatbotPage = () => {
     })));
   }, []);
 
-  // Parser response
   const parseApiResponse = (apiResponse) => {
-  // Cek jika ada field "data" (response dari backend Node.js)
   if (apiResponse && apiResponse.data) {
-    // Jika data.results array
     if (Array.isArray(apiResponse.data.results) && apiResponse.data.results.length > 0) {
       return {
         response_to_display: apiResponse.data.results[0].response_to_display || '',
@@ -219,7 +216,6 @@ const ChatbotPage = () => {
         keywords: apiResponse.data.results[0].keywords || []
       };
     }
-    // Jika data.results satu objek saja
     if (apiResponse.data.results && typeof apiResponse.data.results === 'object') {
       return {
         response_to_display: apiResponse.data.results.response_to_display || '',
@@ -228,7 +224,6 @@ const ChatbotPage = () => {
         keywords: apiResponse.data.results.keywords || []
       };
     }
-    // Jika data langsung objek jawaban (legacy/fallback)
     if (apiResponse.data.response_to_display) {
       return {
         response_to_display: apiResponse.data.response_to_display || '',
@@ -238,7 +233,6 @@ const ChatbotPage = () => {
       };
     }
   }
-  // Jika direct dari Python API (tanpa pembungkus "data")
   if (apiResponse && Array.isArray(apiResponse.results) && apiResponse.results.length > 0) {
     return {
       response_to_display: apiResponse.results[0].response_to_display || '',
@@ -247,7 +241,6 @@ const ChatbotPage = () => {
       keywords: apiResponse.results[0].keywords || []
     };
   }
-  // Jika direct satu objek saja (legacy/fallback)
   if (apiResponse && apiResponse.response_to_display) {
     return {
       response_to_display: apiResponse.response_to_display || '',
@@ -256,7 +249,6 @@ const ChatbotPage = () => {
       keywords: apiResponse.keywords || []
     };
   }
-  // Jika tidak cocok, fallback
   return {
     response_to_display: "Maaf, saya belum memahami pertanyaan Anda.",
     confidence_score: 0,
@@ -283,7 +275,6 @@ const ChatbotPage = () => {
     setMessage('');
     setShowEmojiPicker(false);
 
-    // Cek kata terlarang
     if ([...BANNED_WORDS].some(word => text.toLowerCase().includes(word))) {
       const botMsgId = generateUniqueId('bot-banned');
       const botMsg = {
