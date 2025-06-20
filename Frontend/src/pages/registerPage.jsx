@@ -40,18 +40,17 @@ export default function RegisterPage() {
         setModalMessage("");
         try {
             const response = await registerApi(data); 
-            if (response.status === 201 || response.status === 200) { // Status 201 untuk 'Created'
+            if (response.status === 201 || response.status === 200) {
                 console.log("Berhasil daftar:", response.data);
                 setModalMessage("Registrasi berhasil! Anda akan diarahkan ke halaman login dalam beberapa detik.");
                 const successModal = document.getElementById("register-success-modal");
                 if (successModal) successModal.checked = true;
-                
-                // setTimeout untuk navigasi
+
                 setTimeout(() => {
                     const successModalToClose = document.getElementById("register-success-modal");
-                    if (successModalToClose) successModalToClose.checked = false; // Tutup modal sebelum navigasi
+                    if (successModalToClose) successModalToClose.checked = false;
                     navigate("/login");
-                }, 3000); // 3000 (3 detik) delaynya
+                }, 3000); 
             } else {
                 const errorMessage = response?.data?.message || "Pendaftaran gagal. Silakan periksa kembali data Anda.";
                 setModalMessage(errorMessage);
