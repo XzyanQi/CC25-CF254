@@ -16,7 +16,7 @@ const schema = yup.object().shape({
 export default function ForgetPage() {
   const navigate = useNavigate();
   const [modalMessage, setModalMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false); // State untuk loading
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -31,16 +31,15 @@ export default function ForgetPage() {
     setIsSubmitting(true);
     setModalMessage("");
     try {
-      const response = await getUserByEmail(email); // Panggil API 
+      const response = await getUserByEmail(email); 
       console.log("Forget Password Response:", response);
       
       if (response && response.status === 200 && response.data) { 
        
         
-        localStorage.setItem("email", email); // Simpan email untuk halaman reset
+        localStorage.setItem("email", email); 
         navigate("/reset");
       } else {
-        // Jika status bukan 200 atau tidak ada data yang diharapkan
         setModalMessage(response?.data?.message || "Email tidak terdaftar atau terjadi kesalahan.");
         const errorModal = document.getElementById("forget-error-modal");
         if (errorModal) errorModal.checked = true;
