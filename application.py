@@ -11,7 +11,6 @@ from difflib import SequenceMatcher
 
 application = Flask(__name__, static_folder="static")
 
-# Global variables
 tokenizer = None
 model = None
 index = None
@@ -81,27 +80,23 @@ def keyword_match(query, corpus):
             keyword_lower = keyword.lower()
             keyword_words = keyword_lower.split()
             
-            # Cek apakah keyword ada dalam query sebagai satu frasa lengkap
             if keyword_lower in query_lower:
                 print(f"[DEBUG] Ditemukan frasa lengkap: '{keyword_lower}'")
-                matches.append((doc, len(keyword_words), 2))  # Prioritas 2 untuk frasa lengkap
+                matches.append((doc, len(keyword_words), 2))
                 continue
 
-            # Cek apakah semua kata dalam keyword muncul berurutan dalam query
             for i in range(len(query_words) - len(keyword_words) + 1):
                 if query_words[i:i+len(keyword_words)] == keyword_words:
                     print(f"[DEBUG] Ditemukan kata berurutan: '{keyword_lower}'")
-                    matches.append((doc, len(keyword_words), 1))  # Prioritas 1 untuk kata berurutan
+                    matches.append((doc, len(keyword_words), 1)) 
                     break
 
-            # Jika belum ketemu, cek apakah sebagian besar kata dalam keyword muncul dalam query
             if not matches:
                 matched_words = sum(1 for w in keyword_words if w in query_words)
-                if matched_words >= len(keyword_words) * 0.7:  # Minimal 70% kata cocok
+                if matched_words >= len(keyword_words) * 0.7:  
                     print(f"[DEBUG] Ditemukan {matched_words}/{len(keyword_words)} kata: '{keyword_lower}'")
-                    matches.append((doc, matched_words, 0))  # Prioritas 0 untuk kecocokan sebagian
+                    matches.append((doc, matched_words, 0))  
     
-    # Urutkan berdasarkan: 1) tipe kecocokan, 2) panjang frasa
     matches.sort(key=lambda x: (x[2], x[1]), reverse=True)
     return [doc for doc, _, _ in matches]
 
@@ -127,7 +122,6 @@ def search():
     print(f"\nQuery asli: '{query}'")
 
     try:
-        # Coba cari kecocokan kata kunci dulu
         print("\nMencoba pencocokan kata kunci...")
         hasil_keyword = keyword_match(query, corpus)
         
@@ -141,12 +135,11 @@ def search():
                     "response_to_display": doc.get("response_to_display", "Format tidak sesuai."),
                     "intent": doc.get("intent", ""),
                     "keywords": doc.get("keywords", []),
-                    "confidence_score": 0.9,  # Skor tinggi untuk kecocokan kata kunci
+                    "confidence_score": 0.9,  
                     "matched_by": "keyword"
                 }]
             })
 
-        # Jika tidak ada kecocokan kata kunci, gunakan FAISS
         print("\nTidak ada kecocokan kata kunci, mencoba FAISS...")
         clean_query = preprocess_text_indonesian(query)
         print(f"Query setelah preprocessing: '{clean_query}'")
@@ -157,11 +150,9 @@ def search():
         print(f"Jarak FAISS: {distances}")
         print(f"Indeks FAISS: {indices}")
 
-        # Hitung skor kepercayaan
         confidences = [float(np.exp(-d)) if d != 0 else 1.0 for d in distances[0]]
         print(f"Skor kepercayaan: {confidences}")
 
-        # Buat daftar hasil FAISS
         results = []
         for idx, i in enumerate(indices[0]):
             if 0 <= i < len(corpus):
@@ -174,7 +165,6 @@ def search():
                     "matched_by": "faiss"
                 })
 
-        # Filter hasil berdasarkan skor kepercayaan
         filtered_results = [r for r in results if r["confidence_score"] >= MIN_CONFIDENCE]
 
         if not filtered_results:
