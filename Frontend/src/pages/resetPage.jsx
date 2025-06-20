@@ -29,7 +29,7 @@ export default function ResetPage() {
     const [modalMessage, setModalMessage] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false); // State untuk loading
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         const storedEmail = localStorage.getItem("email");
@@ -54,14 +54,14 @@ export default function ResetPage() {
         setIsSubmitting(true);
         setModalMessage("");
         const payload = {
-            email, // email dari state (localStorage)
-            newPassword: data.password, // password baru dari form
+            email,
+            newPassword: data.password,
         };
 
         try {
-            const response = await resetPasswordApi(payload); // Menggunakan resetPasswordApi
+            const response = await resetPasswordApi(payload);
             if (response.status === 200) {
-                localStorage.removeItem("email"); // Hapus email setelah berhasil reset
+                localStorage.removeItem("email"); 
                 setModalMessage("Password berhasil diubah! Anda akan diarahkan ke halaman login.");
                 const modal = document.getElementById("reset-modal");
                 if (modal) modal.checked = true;
