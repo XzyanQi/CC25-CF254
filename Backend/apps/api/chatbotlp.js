@@ -11,7 +11,6 @@ const pythonApiClient = axios.create({
   }
 });
 
-// Request interceptor
 pythonApiClient.interceptors.request.use(
   (config) => {
     console.log(`[chatbotlp.js] Sending request to Python API: ${config.method?.toUpperCase()} ${config.url}`);
@@ -24,7 +23,6 @@ pythonApiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor
 pythonApiClient.interceptors.response.use(
   (response) => {
     console.log(`[chatbotlp.js] Python API response: ${response.status} from ${response.config.url}`);
@@ -42,7 +40,6 @@ pythonApiClient.interceptors.response.use(
 
 const sendToPythonService = async (text, top_kVal = 3, retryCount = 0) => {
   try {
-    // Input validation
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
       throw new Error("Input text is required and must be a non-empty string");
     }
@@ -117,7 +114,6 @@ const sendToPythonService = async (text, top_kVal = 3, retryCount = 0) => {
           errorMessage = errorData?.message || errorData?.detail || `Python API error: ${status}`;
       }
 
-      // Retry untuk error 5xx
       if (status >= 500 && retryCount < MAX_RETRIES) {
         console.log(`[chatbotlp.js] Retrying request (${retryCount + 1}/${MAX_RETRIES})...`);
         await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 2000));
@@ -127,7 +123,6 @@ const sendToPythonService = async (text, top_kVal = 3, retryCount = 0) => {
       throw new Error(errorMessage);
 
     } else if (error.code === 'ECONNABORTED') {
-      // Timeout error
       const timeoutError = "Request timeout: Python API is taking too long to respond.";
       if (retryCount < MAX_RETRIES) {
         console.log(`[chatbotlp.js] Timeout error, retrying (${retryCount + 1}/${MAX_RETRIES})...`);
@@ -137,7 +132,6 @@ const sendToPythonService = async (text, top_kVal = 3, retryCount = 0) => {
       throw new Error(timeoutError);
 
     } else if (error.request) {
-      // Network error
       const networkError = "Network error: Cannot connect to Python API. Please check if the Python service is running.";
       if (retryCount < MAX_RETRIES) {
         console.log(`[chatbotlp.js] Network error, retrying (${retryCount + 1}/${MAX_RETRIES})...`);
