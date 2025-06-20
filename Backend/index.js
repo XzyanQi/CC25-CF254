@@ -5,9 +5,8 @@ const app = express();
 const cors = require('cors');
 const routes = require('./routes/route');
 
-//  CORS khusus untuk frontend Vercel + localhost dev
 app.use(cors({
-  origin: ['https://mindfulnessnlp.vercel.app', 'http://localhost:5173'], // frontend production + local dev
+  origin: ['https://mindfulnessnlp.vercel.app', 'http://localhost:5173'], 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
@@ -25,6 +24,6 @@ app.get('/', (req, res) => {
 //   console.log(`Server is running on port ${PORT}, API base path /api`);
 // });
 
-// Export untuk serverless
+// serverless
 module.exports = app;
 module.exports.handler = serverless(app);
