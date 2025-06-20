@@ -13,7 +13,7 @@ const PESAN_ERROR = {
   RATE_LIMIT: 'Terlalu banyak permintaan. Mohon tunggu beberapa saat.'
 };
 
-// Middleware validasi request
+
 const validasiRequest = (req, res, next) => {
   const { text, query, top_k } = req.body;
   const teksMasuk = text || query;
@@ -51,7 +51,7 @@ const validasiRequest = (req, res, next) => {
     });
   }
   
-  // Validasi top_k
+
   if (top_k !== undefined) {
     const nilaiTopK = Number(top_k);
     if (isNaN(nilaiTopK) || nilaiTopK < 1 || nilaiTopK > 10) {
@@ -71,7 +71,7 @@ const validasiRequest = (req, res, next) => {
   next();
 };
 
-// Endpoint utama pencarian
+
 router.post('/search', validasiRequest, async (req, res) => {
   const waktuMulai = Date.now();
   const { text, top_k } = req.dataTervalidasi;
@@ -82,7 +82,7 @@ router.post('/search', validasiRequest, async (req, res) => {
     console.log(`[chatbotApi.js] Top K: ${top_k}`);
     console.log(`[chatbotApi.js] ID Request: ${req.headers['x-request-id'] || 'N/A'}`);
     
-    // Panggil layanan Python
+
     const hasilDariPython = await sendToPythonService(text, top_k);
     const waktuProses = Date.now() - waktuMulai;
 
@@ -90,10 +90,8 @@ router.post('/search', validasiRequest, async (req, res) => {
       throw new Error('Tidak ada respons dari layanan AI');
     }
 
-    // selalu ada data.results (array)
     let dataField = hasilDariPython;
     if (!hasilDariPython.results) {
-      // Deteksi jika hasilDariPython sudah array, atau satu objek
       if (Array.isArray(hasilDariPython)) {
         dataField = { results: hasilDariPython };
       } else {
@@ -126,7 +124,6 @@ router.post('/search', validasiRequest, async (req, res) => {
       id_request: req.headers['x-request-id'] || null
     });
     
-    // status dan pesan error
     let statusCode = 500;
     let pesanError = PESAN_ERROR.SERVER_ERROR;
     let kodeError = 'ERROR_SERVER';
@@ -156,7 +153,6 @@ router.post('/search', validasiRequest, async (req, res) => {
       }
     };
     
-    // detail error di mode development
     if (process.env.NODE_ENV === 'development') {
       responsError.debug = {
         error_asli: error.message,
@@ -168,7 +164,6 @@ router.post('/search', validasiRequest, async (req, res) => {
   }
 });
 
-// Endpoint cek kesehatan
 router.get('/health', async (req, res) => {
   try {
     const kesehatanPython = await checkPythonServiceHealth();
@@ -200,7 +195,6 @@ router.get('/health', async (req, res) => {
   }
 });
 
-// Info API
 router.get('/info', (req, res) => {
   res.json({
     nama: 'API Chatbot Mindfulness',
@@ -227,7 +221,6 @@ router.get('/info', (req, res) => {
   });
 });
 
-// Middleware penanganan error
 router.use((error, req, res, next) => {
   console.error('[chatbotApi.js] Error tidak tertangani:', {
     error: error.message,
