@@ -1,14 +1,12 @@
-import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { KeyRound } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
-
-import { KeyRound } from "lucide-react";
 import { getUserByEmail } from "../api/user";
-import mindfulnessLogo from '../assets/mindfulness.png';
+import mindfulnessLogo from "../assets/mindfulness.png";
 
-React
 const schema = yup.object().shape({
   email: yup.string().email("Format email tidak valid").required("Email wajib diisi"),
 });
@@ -18,11 +16,7 @@ export default function ForgetPage() {
   const [modalMessage, setModalMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     mode: "onTouched",
   });
@@ -31,13 +25,10 @@ export default function ForgetPage() {
     setIsSubmitting(true);
     setModalMessage("");
     try {
-      const response = await getUserByEmail(email); 
-      console.log("Forget Password Response:", response);
-      
-      if (response && response.status === 200 && response.data) { 
-       
-        
-        localStorage.setItem("email", email); 
+      const response = await getUserByEmail(email);
+
+      if (response && response.status === 200 && response.data) {
+        localStorage.setItem("email", email);
         navigate("/reset");
       } else {
         setModalMessage(response?.data?.message || "Email tidak terdaftar atau terjadi kesalahan.");
@@ -45,7 +36,6 @@ export default function ForgetPage() {
         if (errorModal) errorModal.checked = true;
       }
     } catch (error) {
-      console.error("Forget Password error:", error);
       const errorMessage = error.response?.data?.message || "Email tidak ditemukan atau terjadi kesalahan server.";
       setModalMessage(errorMessage);
       const errorModal = document.getElementById("forget-error-modal");
@@ -56,61 +46,41 @@ export default function ForgetPage() {
   };
 
   return (
-    <section className="grid md:grid-cols-2 h-screen">
-      {/* Kolom Kiri untuk Ilustrasi dan Teks Deskripsi */}
-      <div className="bg-gradient-to-br from-purple-500 via-indigo-600 to-blue-600 h-full md:flex flex-col items-center justify-center p-8 lg:p-12 hidden text-white">
-        <KeyRound size={100} className="mb-8 text-purple-300" />
-        <h1 className="text-3xl lg:text-4xl font-bold mb-4 text-center leading-tight">
-          LUPA EMAIL ANDA?
-        </h1>
+    <section className="grid md:grid-cols-2 min-h-screen">
+      <div className="bg-gradient-to-br from-purple-500 via-indigo-600 to-blue-600 md:flex hidden flex-col items-center justify-center p-8 lg:p-12 text-white">
+        <KeyRound size={86} className="mb-6 text-purple-200" />
+        <h1 className="text-3xl lg:text-4xl font-bold mb-4 text-center leading-tight">LUPA EMAIL ANDA?</h1>
         <p className="text-center text-sm lg:text-base max-w-md text-purple-100">
           Jangan khawatir! Masukkan email Anda dan kami akan bantu proses pemulihan password.
         </p>
       </div>
 
-      {/* Kolom Kanan untuk Form Lupa Email */}
-      <div className="bg-white h-full flex flex-col items-center justify-center p-6 sm:p-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center w-full max-w-sm">
+      <div className="bg-white flex items-center justify-center p-5 sm:p-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md">
           <div className="mb-6 text-center">
-            <img 
-              src={mindfulnessLogo} 
-              alt="Mindfulness Logo" 
-              className="w-64 h-auto mx-auto mb-4"
-            />
-            <h2 className="text-3xl font-bold text-gray-800">Lupa Email</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Masukkan email akun Anda yang terdaftar.
-            </p>
+            <img src={mindfulnessLogo} alt="Mindfulness Logo" className="w-48 sm:w-56 md:w-64 h-auto mx-auto mb-4" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Lupa Email</h2>
+            <p className="text-sm text-gray-500 mt-1">Masukkan email akun Anda yang terdaftar.</p>
           </div>
 
-          <fieldset className="fieldset mb-6"> 
+          <fieldset className="fieldset mb-5">
             <legend className="fieldset-legend font-normal text-gray-600">Email</legend>
             <input
-              type="email" 
+              type="email"
+              autoComplete="email"
               placeholder="contoh@email.com"
               {...register("email")}
               className={`input input-bordered w-full ${errors.email ? "input-error" : ""}`}
             />
-            {errors.email && (
-              <span className="text-xs text-red-500 mt-1">{errors.email.message}</span>
-            )}
+            {errors.email && <span className="text-xs text-red-500">{errors.email.message}</span>}
           </fieldset>
 
-          <button 
-            type="submit" 
-            className="btn btn-primary w-full disabled:opacity-50"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <span className="loading loading-spinner loading-xs"></span>
-            ) : (
-              "Selanjutnya" 
-            )}
+          <button type="submit" className="btn btn-primary w-full disabled:opacity-50" disabled={isSubmitting}>
+            {isSubmitting ? <span className="loading loading-spinner loading-xs"></span> : "Selanjutnya"}
           </button>
         </form>
       </div>
 
-      {/* Modal untuk Pesan Error */}
       <input type="checkbox" id="forget-error-modal" className="modal-toggle" />
       <div className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
